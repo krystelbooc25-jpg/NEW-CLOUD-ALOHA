@@ -85,21 +85,37 @@
         <div class="logo-card-wrapper">
             <div class="logo-card">
                 <div class="logo-img-container">
-                <img src="Resources/logo.jpg" alt="Logo"></div>
+                    <img src="Resources/logo.jpg" alt="Logo">
+                </div>
                 <div class="logo-details">
-                <h2 class="logo-title">ALOHA</h2>
-                <p class="logo-subtitle">Security Agency</p>
-            </div>
+                    <h2 class="logo-title">ALOHA <span>ADMIN</span></h2>
+                    <p class="logo-subtitle">Security Control Panel</p>
+                </div>
             </div>
         </div>
-        <div class="nav-item active" onclick="switchTab('dashboard-tab', this)"><i class="fas fa-th-large"></i> Dashboard</div>
-        <div class="nav-item" onclick="switchTab('applicants-tab', this)"><i class="fas fa-user-shield"></i> Applicants</div>
-        <div class="nav-item" onclick="switchTab('branches-tab', this)"><i class="fas fa-map-marked-alt"></i> Branch View</div>
-        <!-- TRASH BIN LINK (ADDED) -->
-        <div class="nav-item" onclick="switchTab('trash-tab', this)"><i class="fas fa-trash-alt"></i> Trash Bin</div>
-        
-        <div style="margin-top: auto; padding-bottom: 20px;">
-            <div class="nav-item" onclick="handleLogout()" style="border-top: 1px solid rgba(255,255,255,0.1);"><i class="fas fa-sign-out-alt"></i> Logout</div>
+
+        <div class="nav-label">Main Menu</div>
+        <div class="nav-item active" data-title="Dashboard" data-tab="dashboard-tab" onclick="switchTab('dashboard-tab', this)"><i class="fas fa-th-large"></i> Dashboard</div>
+        <div class="nav-item nav-ghost"><i class="fas fa-clipboard-list"></i> Audit Logs</div>
+
+        <div class="nav-label">Operations</div>
+        <div class="nav-item" data-title="Applicants" data-tab="applicants-tab" onclick="switchTab('applicants-tab', this)"><i class="fas fa-user-shield"></i> Applicants</div>
+        <div class="nav-item" data-title="Active Roster" data-tab="branches-tab" onclick="switchTab('branches-tab', this)"><i class="fas fa-users"></i> Active Roster</div>
+        <div class="nav-item nav-ghost"><i class="fas fa-building"></i> Branches</div>
+        <div class="nav-item" data-title="Trash Bin" data-tab="trash-tab" onclick="switchTab('trash-tab', this)"><i class="fas fa-trash-alt"></i> Trash Bin</div>
+
+        <div class="nav-label">System</div>
+        <div class="nav-item nav-ghost"><i class="fas fa-user-cog"></i> Users</div>
+        <div class="nav-item nav-ghost"><i class="fas fa-gear"></i> Settings</div>
+
+        <div class="admin-session-card">
+            <small>Logged in as</small>
+            <strong>admin</strong>
+            <span><i class="fas fa-shield-heart"></i> Owner</span>
+        </div>
+
+        <div style="margin-top: auto; padding: 0 16px 20px;">
+            <button class="sidebar-logout-btn" onclick="handleLogout()"><i class="fas fa-right-from-bracket"></i> Logout</button>
         </div>
     </aside>
 
@@ -121,7 +137,7 @@
                         <div class="p-4 bg-dark text-white fw-bold">Recent Submissions</div>
                         <div id="notif-list-items" style="max-height: 400px; overflow-y: auto;"></div>
                         <div class="p-3 text-center bg-light border-top">
-                            <a href="#" onclick="switchTab('applicants-tab', document.querySelectorAll('.nav-item')[1])" class="fw-bold text-decoration-none text-danger small">Show All Queue</a>
+                            <a href="#" onclick="goToApplicantsFromNotif(event)" class="fw-bold text-decoration-none text-danger small">Show All Queue</a>
                         </div>
                     </div>
                 </div>
@@ -234,38 +250,64 @@
 
             <!-- --- TAB 2: PERSONNEL MANAGEMENT --- -->
             <section id="applicants-tab" class="hidden">
-                <div class="bento-box p-0">
-                    <!-- Filter and Search Header -->
-                    <div class="p-4 d-md-flex justify-content-between align-items-center border-bottom bg-white">
-                        <div class="d-flex align-items-center gap-3">
-                            <h4 class="fw-bold m-0">Management Queue</h4>
-                            <button class="btn btn-danger px-4 py-2 fw-bold shadow-sm" style="background: var(--primary-red); border-radius: 14px; border:none;" onclick="openManualAdd()"><i class="fas fa-plus-circle me-2"></i>Register Personnel</button>
-                        </div>
-                        <div class="d-flex gap-3 mt-3 mt-md-0">
-                            <select id="statusFilter" class="form-select rounded-pill shadow-sm" style="width: 170px; font-weight: 600;" onchange="updateUI()">
-                                <option value="pending" selected>Filter: Pending</option>
-                                <option value="approved">Filter: Approved</option>
-                                <option value="all">View All Active</option>
-                            </select>
-                            <div class="position-relative">
-                                <i class="fas fa-magnifying-glass position-absolute" style="left: 20px; top: 16px; color: var(--text-muted);"></i>
-                                <input type="text" id="searchInput" class="form-control ps-5 rounded-pill shadow-sm" placeholder="Search by name..." oninput="updateUI()" style="width: 320px;">
-                            </div>
+                <div class="applicants-shell">
+                    <div class="applicants-hero">
+                        <div class="applicants-hero-icon"><i class="fas fa-user-check"></i></div>
+                        <div>
+                            <h3>Applicant Tracking</h3>
+                            <p>Manage recruitment pipelines, reviews, and candidate processing.</p>
                         </div>
                     </div>
-                    <!-- Queue Table -->
-                    <div class="table-responsive">
-                        <table class="table table-hover align-middle mb-0">
-                            <thead class="bg-light border-bottom">
-                                <tr>
-                                    <th class="ps-5 py-4 text-muted fw-bold small text-uppercase">Full Identity</th>
-                                    <th class="text-muted fw-bold small text-uppercase">Desired Role</th>
-                                    <th class="text-muted fw-bold small text-uppercase">System Status</th>
-                                    <th class="text-center text-muted fw-bold small text-uppercase">Operations</th>
-                                </tr>
-                            </thead>
-                            <tbody id="applicant-table-body"></tbody>
-                        </table>
+
+                    <div class="applicants-metrics">
+                        <div class="metric-card">
+                            <div class="metric-value" id="metric-total">0</div>
+                            <div class="metric-label">Total Applicants</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-value" id="metric-male">0</div>
+                            <div class="metric-label">Male</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-value" id="metric-female">0</div>
+                            <div class="metric-label">Female</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-value" id="metric-month">0</div>
+                            <div class="metric-label">This Month</div>
+                        </div>
+                    </div>
+
+                    <div class="applicants-panel">
+                        <div class="panel-search-row">
+                            <div class="panel-search-wrap">
+                                <i class="fas fa-magnifying-glass"></i>
+                                <input type="text" id="searchInput" placeholder="Search name, email, or position..." oninput="updateUI()">
+                            </div>
+                            <select id="dateSort" onchange="updateUI()">
+                                <option value="newest" selected>Date: Newest</option>
+                                <option value="oldest">Date: Oldest</option>
+                            </select>
+                        </div>
+
+                        <div class="panel-filter-row">
+                            <button class="status-chip active" data-status-filter="all" onclick="setStatusFilter('all', this)"><i class="fas fa-table-cells-large"></i> All Applicants</button>
+                            <button class="status-chip" data-status-filter="pending" onclick="setStatusFilter('pending', this)"><i class="fas fa-hourglass-half"></i> Pending</button>
+                            <button class="status-chip" data-status-filter="for interview" onclick="setStatusFilter('for interview', this)"><i class="fas fa-calendar-check"></i> For Interview</button>
+                            <button class="status-chip" data-status-filter="approved" onclick="setStatusFilter('approved', this)"><i class="fas fa-circle-check"></i> Hired</button>
+                            <button class="status-chip" data-status-filter="rejected" onclick="setStatusFilter('rejected', this)"><i class="fas fa-circle-xmark"></i> Rejected</button>
+                            <button class="register-btn" onclick="openManualAdd()"><i class="fas fa-plus-circle"></i> Register Personnel</button>
+                        </div>
+
+                        <div class="panel-select-row">
+                            <label>
+                                <input type="checkbox" id="select-all-applicants" onchange="toggleSelectAllApplicants(this)">
+                                Select All Candidates on Page
+                            </label>
+                            <button id="bulk-trash-btn" class="bulk-trash-btn" onclick="bulkMoveToTrash()" disabled>Move Selected to Trash</button>
+                        </div>
+
+                        <div id="applicant-table-body" class="applicant-cards-grid"></div>
                     </div>
                 </div>
             </section>
@@ -320,6 +362,8 @@
         const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
         let masterData = [];
+        let activeStatusFilter = 'all';
+        let selectedApplicantIds = new Set();
         const branchOptions = ["Manila Main", "Quezon City", "Makati Hub", "Davao Branch", "Cebu Office"];
 
         /**
@@ -340,11 +384,19 @@
 
         function switchTab(id, el) {
             document.querySelectorAll('section').forEach(s => s.classList.add('hidden'));
-            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            document.querySelectorAll('.nav-item[data-tab]').forEach(n => n.classList.remove('active'));
             document.getElementById(id).classList.remove('hidden');
             el.classList.add('active');
-            document.getElementById('current-title').innerText = el.innerText.toUpperCase();
+            const title = el.getAttribute('data-title') || el.innerText;
+            document.getElementById('current-title').innerText = title.toUpperCase();
             if (window.innerWidth <= 992) document.getElementById('sidebar').classList.remove('open');
+        }
+
+        function goToApplicantsFromNotif(event) {
+            event.preventDefault();
+            const applicantsNav = document.querySelector('.nav-item[data-tab="applicants-tab"]');
+            if (!applicantsNav) return;
+            switchTab('applicants-tab', applicantsNav);
         }
 
         /**
@@ -372,7 +424,7 @@
         /**
          * 4. UI RE-RENDERING ENGINE
          */
-        function updateUI() {
+        function legacyUpdateUI() {
             const pendingApps = masterData.filter(a => a.status?.toLowerCase() === 'pending');
             const now = new Date();
             const todayApps = masterData.filter(a => (now - new Date(a.created_at)) < (24 * 60 * 60 * 1000));
@@ -414,7 +466,7 @@
                             <div class="rail-dot"></div>
                             <div>
                                 <div class="fw-bold small">${app.first_name} ${app.last_name}</div>
-                                <div class="text-muted small">${app.status || 'Pending'} · ${app.desired_position || 'N/A'}</div>
+                                <div class="text-muted small">${app.status || 'Pending'} - ${app.desired_position || 'N/A'}</div>
                             </div>
                         </div>
                     `).join('');
@@ -432,7 +484,7 @@
             if (searchVal) filtered = filtered.filter(a => (a.first_name + ' ' + a.last_name).toLowerCase().includes(searchVal));
 
             // Execute rendering sub-functions
-            renderTableRows(filtered);
+            legacyRenderTableRows(filtered);
             renderCharts();
             renderAccordions();
             renderTrashBin();
@@ -441,7 +493,7 @@
         /**
          * 5. LIST RENDERING FUNCTIONS
          */
-        function renderTableRows(list) {
+        function legacyRenderTableRows(list) {
             const tbody = document.getElementById('applicant-table-body');
             if (list.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="4" class="text-center text-muted py-5 fw-bold fs-5">No records matching the filter.</td></tr>`;
@@ -708,6 +760,228 @@
             });
         }
 
+        // --- Applicants View (Reference Layout Override) ---
+        function updateUI() {
+            const pendingApps = masterData.filter(a => a.status?.toLowerCase() === 'pending');
+            const now = new Date();
+            const todayApps = masterData.filter(a => (now - new Date(a.created_at)) < (24 * 60 * 60 * 1000));
+
+            // Dashboard counters
+            document.getElementById('stat-total').innerText = masterData.length;
+            document.getElementById('stat-pending').innerText = pendingApps.length;
+            document.getElementById('stat-approved').innerText = masterData.filter(a => a.status?.toLowerCase() === 'approved').length;
+            document.getElementById('stat-today-count').innerText = todayApps.length;
+
+            // Notification feed
+            const badge = document.getElementById('notif-badge');
+            const notifList = document.getElementById('notif-list-items');
+            const messageList = document.getElementById('message-list');
+            if (pendingApps.length > 0) {
+                badge.innerText = pendingApps.length;
+                badge.style.display = 'flex';
+                notifList.innerHTML = pendingApps.slice(0, 5).map(app => `
+                    <a class="p-3 border-bottom d-block text-decoration-none hover-light" style="cursor: pointer;" onclick="window.location.href='view-applicant.html?id=${app.id}'">
+                        <div class="fw-bold text-danger small">${app.first_name} ${app.last_name}</div>
+                        <div class="text-muted" style="font-size: 0.75rem;">Submitted for: ${app.desired_position}</div>
+                    </a>`).join('');
+            } else {
+                badge.style.display = 'none';
+                notifList.innerHTML = '<div class="p-5 text-center text-muted small fw-bold">Queue is currently clear.</div>';
+            }
+
+            if (messageList) {
+                const latest = masterData.slice(0, 4);
+                if (latest.length === 0) {
+                    messageList.innerHTML = `
+                        <div class="rail-item">
+                            <div class="rail-dot"></div>
+                            <div class="text-muted small fw-bold">No message yet.</div>
+                        </div>`;
+                } else {
+                    messageList.innerHTML = latest.map(app => `
+                        <div class="rail-item">
+                            <div class="rail-dot"></div>
+                            <div>
+                                <div class="fw-bold small">${app.first_name} ${app.last_name}</div>
+                                <div class="text-muted small">${app.status || 'Pending'} - ${app.desired_position || 'N/A'}</div>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+            }
+
+            updateApplicantMetrics();
+
+            const searchInput = document.getElementById('searchInput');
+            const sortInput = document.getElementById('dateSort');
+            const searchVal = (searchInput?.value || '').trim().toLowerCase();
+            const sortVal = sortInput?.value || 'newest';
+
+            let filtered = masterData.slice();
+            if (activeStatusFilter === 'all') {
+                filtered = filtered.filter(a => a.status?.toLowerCase() !== 'rejected');
+            } else {
+                filtered = filtered.filter(a => a.status?.toLowerCase() === activeStatusFilter);
+            }
+
+            if (searchVal) {
+                filtered = filtered.filter(a => {
+                    const fullName = `${a.first_name || ''} ${a.last_name || ''}`.toLowerCase();
+                    const pos = `${a.desired_position || ''}`.toLowerCase();
+                    const email = `${a.email || ''}`.toLowerCase();
+                    return fullName.includes(searchVal) || pos.includes(searchVal) || email.includes(searchVal);
+                });
+            }
+
+            filtered.sort((a, b) => {
+                const aDate = new Date(a.created_at || 0).getTime();
+                const bDate = new Date(b.created_at || 0).getTime();
+                return sortVal === 'oldest' ? aDate - bDate : bDate - aDate;
+            });
+
+            renderTableRows(filtered);
+            renderCharts();
+            renderAccordions();
+            renderTrashBin();
+        }
+
+        function renderTableRows(list) {
+            const container = document.getElementById('applicant-table-body');
+            const selectAllInput = document.getElementById('select-all-applicants');
+            if (!container) return;
+
+            if (selectAllInput) selectAllInput.checked = false;
+            selectedApplicantIds.clear();
+            updateApplicantBulkUI();
+
+            if (list.length === 0) {
+                container.innerHTML = `<div class="empty-applicants">No records matching this filter.</div>`;
+                return;
+            }
+
+            container.innerHTML = list.map(app => {
+                const dateStr = new Date(app.created_at).toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: 'numeric' });
+                const statusInfo = getStatusInfo(app.status);
+                return `
+                    <article class="applicant-card">
+                        <div class="applicant-card-head">
+                            <label class="applicant-select-wrap">
+                                <input type="checkbox" class="app-select" data-id="${app.id}" onchange="toggleApplicantSelection('${app.id}', this)">
+                            </label>
+                            <div class="candidate-icon"><i class="fas fa-id-badge"></i></div>
+                            <div class="candidate-main">
+                                <h5>${app.first_name || ''} ${app.last_name || ''}</h5>
+                                <p><i class="fas fa-briefcase"></i> ${app.desired_position || 'Security Guard'}</p>
+                            </div>
+                            <span class="status-tag ${statusInfo.className}">${statusInfo.label}</span>
+                        </div>
+                        <div class="applicant-contact-box">
+                            <div><i class="fas fa-envelope"></i> ${app.email || 'No email'}</div>
+                            <div><i class="fas fa-phone"></i> ${app.phone || 'No phone'}</div>
+                            <div><i class="fas fa-calendar-day"></i> Applied: ${dateStr}</div>
+                        </div>
+                        <div class="applicant-actions">
+                            <button class="card-btn card-btn-view" onclick="window.location.href='view-applicant.html?id=${app.id}'">View Profile</button>
+                            <button class="card-btn card-btn-trash" onclick="moveToTrash('${app.id}')">Move to Trash</button>
+                        </div>
+                    </article>`;
+            }).join('');
+        }
+
+        function getStatusInfo(statusValue) {
+            const status = String(statusValue || 'Pending').toLowerCase();
+            if (status === 'approved' || status === 'hired') return { label: 'HIRED', className: 'status-hired' };
+            if (status === 'for interview' || status === 'interview') return { label: 'FOR INTERVIEW', className: 'status-interview' };
+            if (status === 'rejected') return { label: 'REJECTED', className: 'status-rejected' };
+            return { label: 'PENDING', className: 'status-pending' };
+        }
+
+        function normalizeGender(raw) {
+            const val = String(raw || '').trim().toLowerCase();
+            if (val === 'm' || val === 'male') return 'male';
+            if (val === 'f' || val === 'female') return 'female';
+            return '';
+        }
+
+        function updateApplicantMetrics() {
+            const activeApplicants = masterData.filter(a => a.status?.toLowerCase() !== 'rejected');
+            const now = new Date();
+            const monthCount = activeApplicants.filter(a => {
+                const d = new Date(a.created_at || 0);
+                return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
+            }).length;
+            const maleCount = activeApplicants.filter(a => normalizeGender(a.gender || a.sex) === 'male').length;
+            const femaleCount = activeApplicants.filter(a => normalizeGender(a.gender || a.sex) === 'female').length;
+
+            const metricTotal = document.getElementById('metric-total');
+            const metricMale = document.getElementById('metric-male');
+            const metricFemale = document.getElementById('metric-female');
+            const metricMonth = document.getElementById('metric-month');
+            if (metricTotal) metricTotal.innerText = activeApplicants.length;
+            if (metricMale) metricMale.innerText = maleCount;
+            if (metricFemale) metricFemale.innerText = femaleCount;
+            if (metricMonth) metricMonth.innerText = monthCount;
+        }
+
+        function setStatusFilter(value, btn) {
+            activeStatusFilter = value;
+            document.querySelectorAll('.status-chip').forEach(chip => chip.classList.remove('active'));
+            btn.classList.add('active');
+            updateUI();
+        }
+
+        function toggleSelectAllApplicants(source) {
+            document.querySelectorAll('.app-select').forEach(cb => {
+                cb.checked = source.checked;
+                const id = cb.getAttribute('data-id');
+                if (source.checked) selectedApplicantIds.add(id);
+                else selectedApplicantIds.delete(id);
+            });
+            updateApplicantBulkUI();
+        }
+
+        function toggleApplicantSelection(id, checkbox) {
+            if (checkbox.checked) selectedApplicantIds.add(id);
+            else selectedApplicantIds.delete(id);
+
+            const allChecks = Array.from(document.querySelectorAll('.app-select'));
+            const allSelected = allChecks.length > 0 && allChecks.every(cb => cb.checked);
+            const selectAll = document.getElementById('select-all-applicants');
+            if (selectAll) selectAll.checked = allSelected;
+            updateApplicantBulkUI();
+        }
+
+        function updateApplicantBulkUI() {
+            const bulkBtn = document.getElementById('bulk-trash-btn');
+            if (!bulkBtn) return;
+            bulkBtn.disabled = selectedApplicantIds.size === 0;
+            bulkBtn.innerText = selectedApplicantIds.size > 0
+                ? `Move Selected to Trash (${selectedApplicantIds.size})`
+                : 'Move Selected to Trash';
+        }
+
+        async function moveToTrash(id) {
+            const yes = await askModal("Move to Trash?", "This applicant will be transferred to Trash Bin.", "Move to Trash");
+            if (!yes) return;
+            await _supabase.from('applicants').update({ status: 'Rejected', updated_at: new Date().toISOString() }).eq('id', id);
+            logActivity(`Action: Moved applicant ID ${id} to trash.`);
+            fetchData();
+        }
+
+        async function bulkMoveToTrash() {
+            const ids = Array.from(selectedApplicantIds);
+            if (ids.length === 0) return;
+            const yes = await askModal("Move Selected Applicants?", `Move ${ids.length} selected applicants to Trash Bin?`, "Confirm");
+            if (!yes) return;
+            await _supabase
+                .from('applicants')
+                .update({ status: 'Rejected', updated_at: new Date().toISOString() })
+                .in('id', ids);
+            logActivity(`Bulk Action: Moved ${ids.length} applicants to trash.`);
+            selectedApplicantIds.clear();
+            fetchData();
+        }
+
         // INIT SYSTEM
         fetchData();
     </script>
@@ -716,3 +990,4 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
+
