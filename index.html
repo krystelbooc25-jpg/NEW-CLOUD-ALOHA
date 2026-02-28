@@ -11,30 +11,17 @@
     <style>
         /* --- 2026 GLOBAL DESIGN SYSTEM --- */
         :root {
-            /* Default Dark Mode (Cyber Aesthetic) */
-            --primary: #FF3B3F; 
-            --accent: #00F2FF;
-            --bg-dark: #0a0a0c;
-            --header-bg: rgba(10, 10, 12, 0.8);
-            --glass: rgba(255, 255, 255, 0.05);
-            --glass-border: rgba(255, 255, 255, 0.1);
-            --text-main: #f0f0f0;
-            --text-dim: #a0a0a0;
-            --card-hover: rgba(255, 255, 255, 0.05);
-            --hero-overlay: radial-gradient(circle at center, transparent 20%, #0a0a0c 90%);
+            --primary: #c1121f;
+            --accent: #0f172a;
+            --bg-dark: #f7f8fb;
+            --header-bg: rgba(255, 255, 255, 0.95);
+            --glass: #ffffff;
+            --glass-border: rgba(15, 23, 42, 0.08);
+            --text-main: #0f172a;
+            --text-dim: #475569;
+            --card-hover: #f8fafc;
+            --hero-overlay: linear-gradient(to bottom, rgba(255, 255, 255, 0.15), rgba(247, 248, 251, 0.95));
             --transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-
-        /* --- WARM LIGHT MODE (Soft Aesthetic) --- */
-        [data-theme="light"] {
-            --bg-dark: #fcfaf7; /* Warm Cream White */
-            --header-bg: rgba(252, 250, 247, 0.85);
-            --glass: rgba(139, 69, 19, 0.05); /* Soft Amber Glass */
-            --glass-border: rgba(139, 69, 19, 0.1);
-            --text-main: #2c2c2e; /* Dark Charcoal */
-            --text-dim: #5a5a5c;
-            --card-hover: rgba(139, 69, 19, 0.03);
-            --hero-overlay: linear-gradient(to bottom, rgba(252, 250, 247, 0.4), rgba(252, 250, 247, 0.95));
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
@@ -51,7 +38,7 @@
 
         /* --- LOADING SCREEN --- */
         #loading-screen {
-            position: fixed; inset: 0; background: #000; z-index: 9999;
+            position: fixed; inset: 0; background: #ffffff; z-index: 9999;
             display: flex; justify-content: center; align-items: center;
             transition: opacity 0.8s ease;
         }
@@ -84,18 +71,10 @@
             display: flex; align-items: center; gap: 8px; cursor: pointer; border: none;
         }
         .btn-primary { background: var(--primary); color: white; box-shadow: 0 8px 15px rgba(255, 59, 63, 0.2); }
-        .btn-secondary { background: var(--glass); color: var(--text-main); border: 1px solid var(--glass-border); }
+        .btn-secondary { background: #ffffff; color: var(--text-main); border: 1px solid var(--glass-border); box-shadow: 0 6px 14px rgba(15, 23, 42, 0.06); }
         
         /* --- THEME TOGGLE (Dulo ng Nav) --- */
-        .theme-toggle {
-            background: var(--glass);
-            border: 1px solid var(--glass-border);
-            color: var(--text-main);
-            width: 40px; height: 40px; border-radius: 10px;
-            cursor: pointer; display: flex; align-items: center; justify-content: center;
-            font-size: 1rem; transition: var(--transition);
-        }
-        .theme-toggle:hover { border-color: var(--primary); transform: scale(1.05); }
+        .theme-toggle { display: none; }
 
         /* Ghost Admin Trigger */
         .admin-discreet-trigger {
@@ -113,16 +92,13 @@
         .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
 
         /* --- HERO SLIDER --- */
-        .hero { position: relative; height: 100vh; display: flex; align-items: center; overflow: hidden; background: #000; }
+        .hero { position: relative; height: 100vh; display: flex; align-items: center; overflow: hidden; background: #f7f8fb; }
         .hero-slides { position: absolute; inset: 0; z-index: 1; }
         .slide {
             position: absolute; inset: 0; background-size: cover; background-position: center;
             opacity: 0; transform: scale(1.05); transition: opacity 1.5s ease, transform 6s linear;
         }
-        .slide.active { opacity: 0.5; transform: scale(1); }
-        
-        /* Warm Overlay for Light Mode Hero */
-        [data-theme="light"] .slide.active { opacity: 0.35; filter: sepia(20%); }
+        .slide.active { opacity: 0.22; transform: scale(1); filter: saturate(0.85); }
 
         .hero-overlay { position: absolute; inset: 0; background: var(--hero-overlay); z-index: 2; transition: background 0.5s ease; }
         .hero-content { position: relative; z-index: 3; max-width: 850px; }
@@ -171,24 +147,25 @@
 
         /* --- ADMIN MODAL --- */
         .modal-overlay {
-            position: fixed; inset: 0; background: rgba(0,0,0,0.92); backdrop-filter: blur(15px);
+            position: fixed; inset: 0; background: rgba(15, 23, 42, 0.5); backdrop-filter: blur(8px);
             z-index: 2000; display: none; align-items: center; justify-content: center;
         }
         .modal-content {
-            background: #121214; padding: 50px; border-radius: 32px; width: 100%; max-width: 420px;
-            border: 1px solid var(--glass-border); text-align: center; color: white;
-            box-shadow: 0 25px 50px rgba(0,0,0,0.5);
+            background: #ffffff; padding: 50px; border-radius: 20px; width: 100%; max-width: 420px;
+            border: 1px solid var(--glass-border); text-align: center; color: var(--text-main);
+            box-shadow: 0 25px 50px rgba(15, 23, 42, 0.18);
             transform: scale(0.9); transition: 0.3s;
         }
         .modal-overlay.active { display: flex; }
         .modal-overlay.active .modal-content { transform: scale(1); }
         
         .modal-input {
-            width: 100%; padding: 18px; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border);
-            border-radius: 15px; color: white; font-size: 1.1rem; margin-bottom: 25px; outline: none;
+            width: 100%; padding: 18px; background: #ffffff; border: 1px solid var(--glass-border);
+            border-radius: 12px; color: var(--text-main); font-size: 1.1rem; margin-bottom: 25px; outline: none;
             text-align: center; letter-spacing: 6px; transition: 0.3s;
         }
-        .modal-input:focus { border-color: var(--primary); background: rgba(255,255,255,0.08); }
+        .modal-input:focus { border-color: var(--primary); background: #fff; }
+        .modal-input.id-input { letter-spacing: 1px; text-align: left; }
 
         /* --- FOOTER --- */
         footer { padding: 80px 0; border-top: 1px solid var(--glass-border); text-align: center; opacity: 0.8; }
@@ -227,8 +204,9 @@
         <div class="modal-content">
             <i class="fas fa-fingerprint" id="modal-icon" style="font-size: 3.5rem; color: var(--primary); margin-bottom: 25px;"></i>
             <h3 style="font-family: 'Space Grotesk'; font-size: 1.8rem; margin-bottom: 10px;">Security Override</h3>
-            <p id="modal-instruction" style="font-size: 0.95rem; color: #888; margin-bottom: 30px;">Authorized Access Only</p>
+            <p id="modal-instruction" style="font-size: 0.95rem; color: #64748b; margin-bottom: 30px;">Authorized Access Only</p>
             
+            <input type="text" id="adminId" class="modal-input id-input" placeholder="Admin ID">
             <input type="password" id="adminPass" class="modal-input" placeholder="••••••">
             
             <div id="modal-error" style="color: var(--primary); font-size: 0.85rem; margin-bottom: 20px; display: none; font-weight: 600;"></div>
@@ -259,9 +237,6 @@
             <nav>
                 <a href="applicant-portal.html" class="btn btn-secondary"><i class="fas fa-fingerprint"></i> Portal</a>
                 <a href="application.html" class="btn btn-primary">Join Elite Team</a>
-                <button class="theme-toggle" id="themeToggle">
-                    <i class="fas fa-moon" id="themeIcon"></i>
-                </button>
             </nav>
         </div>
     </header>
@@ -395,26 +370,6 @@
     </footer>
 
     <script>
-        // --- THEME ENGINE ---
-        const themeToggle = document.getElementById('themeToggle');
-        const themeIcon = document.getElementById('themeIcon');
-        
-        const currentTheme = localStorage.getItem('theme') || 'dark';
-        document.body.setAttribute('data-theme', currentTheme);
-        updateIcon(currentTheme);
-
-        themeToggle.addEventListener('click', () => {
-            let theme = document.body.getAttribute('data-theme');
-            let newTheme = (theme === 'dark') ? 'light' : 'dark';
-            document.body.setAttribute('data-theme', newTheme);
-            localStorage.setItem('theme', newTheme);
-            updateIcon(newTheme);
-        });
-
-        function updateIcon(theme) {
-            themeIcon.className = (theme === 'light') ? 'fas fa-sun' : 'fas fa-moon';
-        }
-
         // --- AUTHENTICATION & PERSISTENCE ---
         const LOCK_TIME_KEY = "node_lock_until";
         const ATTEMPTS_KEY = "node_attempts";
@@ -432,6 +387,7 @@
         });
 
         const modal = document.getElementById('adminModal');
+        const adminIdInput = document.getElementById('adminId');
         const passInput = document.getElementById('adminPass');
         const errorMsg = document.getElementById('modal-error');
         const authBtn = document.getElementById('authBtn');
@@ -439,26 +395,44 @@
 
         function openModal() {
             modal.classList.add('active');
-            if(!isLocked) passInput.focus();
+            if(!isLocked) adminIdInput.focus();
         }
 
         function closeModal() {
             modal.classList.remove('active');
             if(!isLocked) {
+                adminIdInput.value = '';
                 passInput.value = '';
                 errorMsg.style.display = 'none';
             }
         }
 
-        function verifyAdmin() {
+        async function verifyAdmin() {
             if (isLocked) return;
+            const adminId = adminIdInput.value.trim();
             const password = passInput.value;
+            if (!adminId || !password) {
+                errorMsg.style.display = 'block';
+                errorMsg.innerText = 'Admin ID and password are required.';
+                return;
+            }
 
-            if (password === "admin!") {
+            try {
+                const guardResponse = await fetch('/api/admin-login-guard', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ adminId, password })
+                });
+                const guardResult = await guardResponse.json().catch(() => ({}));
+
+                if (!guardResponse.ok || !guardResult.success) {
+                    throw new Error(guardResult.error || 'Access denied.');
+                }
+
                 localStorage.removeItem(ATTEMPTS_KEY);
                 localStorage.removeItem(LOCK_TIME_KEY);
                 window.location.href = "AdminLogin.html";
-            } else {
+            } catch (error) {
                 attempts++;
                 localStorage.setItem(ATTEMPTS_KEY, attempts);
                 errorMsg.style.display = 'block';
@@ -468,7 +442,8 @@
                     localStorage.setItem(LOCK_TIME_KEY, lockUntil);
                     startLockout(lockUntil);
                 } else {
-                    errorMsg.innerText = `ACCESS DENIED. Attempt ${attempts}/5.`;
+                    errorMsg.innerText = `${error.message || 'Access denied.'} Attempt ${attempts}/5.`;
+                    adminIdInput.value = '';
                     passInput.value = '';
                     modal.querySelector('.modal-content').style.animation = 'shake 0.4s';
                     setTimeout(() => modal.querySelector('.modal-content').style.animation = '', 400);
@@ -487,6 +462,7 @@
 
         function startLockout(lockUntil) {
             isLocked = true;
+            adminIdInput.disabled = true;
             passInput.disabled = true;
             authBtn.disabled = true;
             modalIcon.style.color = '#222';
@@ -514,6 +490,7 @@
             attempts = 0;
             localStorage.removeItem(ATTEMPTS_KEY);
             localStorage.removeItem(LOCK_TIME_KEY);
+            adminIdInput.disabled = false;
             passInput.disabled = false;
             authBtn.disabled = false;
             modalIcon.style.color = 'var(--primary)';

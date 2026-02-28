@@ -258,11 +258,21 @@ async function handleFinalSubmit() {
         applicationData.id_type = idType;
         applicationData.status = 'Pending';
 
-        const { error: insErr } = await _supabase.from('applicants').insert([applicationData]);
+        const { data: insertedApplicant, error: insErr } = await _supabase
+            .from('applicants')
+            .insert([applicationData])
+            .select('id')
+            .single();
         if (insErr) throw insErr;
+        const applicantReferenceId = insertedApplicant?.id || null;
 
         localStorage.clear();
-        showErrorModal("Application Submitted", "Thank you for your application! We will review it and get back to you soon.");
+        showErrorModal(
+            "Application Submitted",
+            applicantReferenceId
+                ? `Thank you. Your application reference ID is ${applicantReferenceId}.`
+                : "Thank you for your application! We will review it and get back to you soon."
+        );
         window.location.href = 'index.html';
 
     } catch (err) {

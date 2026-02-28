@@ -271,6 +271,8 @@
                     </div>
                     <div class="row">
                         <div class="col-md-6">
+                            <div class="info-label">Applicant ID</div>
+                            <div id="app-ref-id" class="info-value">...</div>
                             <div class="info-label">Email Address</div>
                             <div id="app-email" class="info-value">...</div>
                             <div class="info-label">Birthday</div>
@@ -451,6 +453,7 @@
 
             document.getElementById('display-name').innerText = `${app.first_name || ''} ${app.last_name || ''}`;
             document.getElementById('display-pos').innerText = "Applying for: " + (app.desired_position || 'Guard');
+            document.getElementById('app-ref-id').innerText = app.id || 'N/A';
             document.getElementById('app-email').innerText = app.email || 'N/A';
             document.getElementById('app-phone').innerText = app.phone || 'N/A';
             document.getElementById('app-dob').innerText = app.dob || 'N/A';

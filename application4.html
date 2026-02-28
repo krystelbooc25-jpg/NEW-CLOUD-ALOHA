@@ -266,9 +266,14 @@
                 applicationData.status = 'Pending';
                 applicationData.id_type = document.getElementById('id-type').value;
 
-                // Insert to DB
-                const { error } = await _supabase.from('applicants').insert([applicationData]);
+                // Insert to DB and keep generated applicant ID for tracking
+                const { data: insertedApplicant, error } = await _supabase
+                    .from('applicants')
+                    .insert([applicationData])
+                    .select('id')
+                    .single();
                 if(error) throw error;
+                const applicantReferenceId = insertedApplicant?.id || null;
 
               // --- EMAIL NOTIFICATION VIA VERCEL BACKEND ---
                 try {
@@ -279,7 +284,8 @@
                             name: `${applicationData.first_name} ${applicationData.last_name}`,
                             position: applicationData.desired_position,
                             email: applicationData.email,
-                            phone: applicationData.phone
+                            phone: applicationData.phone,
+                            applicationId: applicantReferenceId
                         })
                     });
                 } catch(e) {
@@ -293,7 +299,9 @@
                 showResultModal(
                     'success', 
                     'Application Submitted!', 
-                    'Your application has been successfully sent to ALOHA Security. Our team will review your details shortly.'
+                    applicantReferenceId
+                        ? `Your application has been submitted. Reference ID: ${applicantReferenceId}.`
+                        : 'Your application has been submitted. Our team will review your details shortly.'
                 );
 
             } catch (err) { 

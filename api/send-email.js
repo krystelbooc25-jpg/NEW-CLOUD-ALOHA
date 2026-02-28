@@ -18,7 +18,7 @@ module.exports = async function handler(req, res) {
     return res.status(405).json({ success: false, error: "Method not allowed" });
   }
 
-  const { name, email, position, phone } = req.body || {};
+  const { name, email, position, phone, applicationId } = req.body || {};
   if (!name || !email || !position) {
     return res.status(400).json({
       success: false,
@@ -46,6 +46,7 @@ module.exports = async function handler(req, res) {
         <div style="font-family: Arial, sans-serif; padding: 20px; color: #333;">
           <h2 style="color: #D2042D;">New Applicant Alert</h2>
           <p><strong>Name:</strong> ${name}</p>
+          <p><strong>Reference ID:</strong> ${applicationId || "N/A"}</p>
           <p><strong>Position:</strong> ${position}</p>
           <p><strong>Email:</strong> ${email}</p>
           <p><strong>Contact Number:</strong> ${phone || "N/A"}</p>
