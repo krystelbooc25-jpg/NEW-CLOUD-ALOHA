@@ -262,7 +262,6 @@
             <h3 style="font-family: 'Space Grotesk'; font-size: 1.8rem; margin-bottom: 10px;">Security Override</h3>
             <p id="modal-instruction" style="font-size: 0.95rem; color: #64748b; margin-bottom: 30px;">Authorized Access Only</p>
             
-            <input type="text" id="adminId" class="modal-input id-input" placeholder="Admin ID">
             <input type="password" id="adminPass" class="modal-input" placeholder="••••••">
             
             <div id="modal-error" style="color: var(--primary); font-size: 0.85rem; margin-bottom: 20px; display: none; font-weight: 600;"></div>
@@ -505,7 +504,6 @@
         });
 
         const modal = document.getElementById('adminModal');
-        const adminIdInput = document.getElementById('adminId');
         const passInput = document.getElementById('adminPass');
         const errorMsg = document.getElementById('modal-error');
         const authBtn = document.getElementById('authBtn');
@@ -513,13 +511,12 @@
 
         function openModal() {
             modal.classList.add('active');
-            if(!isLocked) adminIdInput.focus();
+            if(!isLocked) passInput.focus();
         }
 
         function closeModal() {
             modal.classList.remove('active');
             if(!isLocked) {
-                adminIdInput.value = '';
                 passInput.value = '';
                 errorMsg.style.display = 'none';
             }
@@ -527,11 +524,10 @@
 
         async function verifyAdmin() {
             if (isLocked) return;
-            const adminId = adminIdInput.value.trim();
             const password = passInput.value;
-            if (!adminId || !password) {
+            if (!password) {
                 errorMsg.style.display = 'block';
-                errorMsg.innerText = 'Admin ID and password are required.';
+                errorMsg.innerText = 'Password is required.';
                 return;
             }
 
@@ -539,7 +535,7 @@
                 const guardResponse = await fetch('/api/admin-login-guard', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ adminId, password })
+                    body: JSON.stringify({ password })
                 });
                 const guardResult = await guardResponse.json().catch(() => ({}));
 
@@ -561,7 +557,6 @@
                     startLockout(lockUntil);
                 } else {
                     errorMsg.innerText = `${error.message || 'Access denied.'} Attempt ${attempts}/5.`;
-                    adminIdInput.value = '';
                     passInput.value = '';
                     modal.querySelector('.modal-content').style.animation = 'shake 0.4s';
                     setTimeout(() => modal.querySelector('.modal-content').style.animation = '', 400);
@@ -580,7 +575,6 @@
 
         function startLockout(lockUntil) {
             isLocked = true;
-            adminIdInput.disabled = true;
             passInput.disabled = true;
             authBtn.disabled = true;
             modalIcon.style.color = '#222';
@@ -608,7 +602,6 @@
             attempts = 0;
             localStorage.removeItem(ATTEMPTS_KEY);
             localStorage.removeItem(LOCK_TIME_KEY);
-            adminIdInput.disabled = false;
             passInput.disabled = false;
             authBtn.disabled = false;
             modalIcon.style.color = 'var(--primary)';

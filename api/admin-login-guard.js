@@ -18,34 +18,30 @@ module.exports = async function handler(req, res) {
     return res.status(405).json({ success: false, error: "Method not allowed" });
   }
 
-  const { adminId, password } = req.body || {};
-  if (!adminId || !password) {
+  const { password } = req.body || {};
+  if (!password) {
     return res.status(400).json({
       success: false,
-      error: "Admin ID and password are required.",
+      error: "Password is required.",
     });
   }
 
-  const adminIdHash = process.env.ADMIN_LOGIN_ID_HASH;
   const passwordHash = process.env.ADMIN_LOGIN_PASSWORD_HASH;
 
-  if (!adminIdHash || !passwordHash) {
+  if (!passwordHash) {
     return res.status(500).json({
       success: false,
-      error: "Missing ADMIN_LOGIN_ID_HASH or ADMIN_LOGIN_PASSWORD_HASH.",
+      error: "Missing ADMIN_LOGIN_PASSWORD_HASH.",
     });
   }
 
   try {
-    const [idOk, passOk] = await Promise.all([
-      bcrypt.compare(String(adminId).trim(), adminIdHash),
-      bcrypt.compare(String(password), passwordHash),
-    ]);
+    const passOk = await bcrypt.compare(String(password), passwordHash);
 
-    if (!idOk || !passOk) {
+    if (!passOk) {
       return res.status(401).json({
         success: false,
-        error: "Invalid Admin ID or password.",
+        error: "Invalid password.",
       });
     }
 
