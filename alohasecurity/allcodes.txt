@@ -1,0 +1,1849 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login - Aloha Security Agency</title>
+    <link rel="stylesheet" href="Login.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Include the Supabase JS Library -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+
+    <div class="login-container">
+        <!-- Left Panel: Branding & Welcome Message -->
+        <div class="login-panel branding-panel">
+            <div class="branding-content">
+                <img src="https://i.imgur.com/your-logo-white.png" alt="Aloha Security Agency Logo" class="logo">
+                <h1>Welcome, Administrator</h1>
+                <p>Your command center for managing professional security services with Manila most trusted agency.</p>
+                <a href="index.html" class="back-to-site-link">
+                    <i class="fas fa-arrow-left"></i>
+                    Back to Main Site
+                </a>
+            </div>
+        </div>
+
+        <!-- Right Panel: Login Form (with modifications) -->
+        <div class="login-panel form-panel">
+            <div class="form-content">
+                <h2>Admin Login</h2>
+                <p>Please enter your credentials to access the dashboard.</p>
+
+                <form id="admin-login-form">
+                    <div class="input-group">
+                        <i class="fas fa-envelope"></i>
+                        <input type="email" id="email" name="email" placeholder="Email Address" required>
+                    </div>
+                    <div class="input-group">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" id="password" name="password" placeholder="Password" required>
+                    </div>
+                    <div class="options">
+                        <div class="remember-me">
+                            <input type="checkbox" id="remember">
+                            <label for="remember">Remember Me</label>
+                        </div>
+                        <a href="#" class="forgot-password">Forgot Password?</a>
+                    </div>
+                  <button type="submit" class="btn-login">Login Securely</button>
+                </form>
+                <p id="error-message" style="color: red; text-align: center; margin-top: 15px;"></p>
+
+                <footer class="form-footer">
+                    <p>&copy; 2025 Aloha Security Agency. All Rights Reserved.</p>
+                </footer>
+            </div>
+        </div>
+    </div>
+
+<!-- =================================================================== -->
+<!-- START OF JAVASCRIPT CODE -->
+<!-- =================================================================== -->
+<script>
+    // 1. Initialize the Supabase Client
+    const supabaseUrl = 'https://kkaelwhdcsgaodbhrxqt.supabase.co'; // <-- REPLACE with your Supabase URL
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtrYWVsd2hkY3NnYW9kYmhyeHF0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYxOTA4NzksImV4cCI6MjA3MTc2Njg3OX0.wSFv1AZgZDXjGHiIwOHyWzqTDk0v6NbR4-2r90iF9ok'; // <-- REPLACE with your Supabase anon key
+    const { createClient } = supabase;
+    const supabaseClient = createClient(supabaseUrl, supabaseKey);
+
+    // 2. Select DOM Elements
+    const loginForm = document.getElementById('admin-login-form');
+    const errorMessage = document.getElementById('error-message');
+
+    // 3. Add a Submit Event Listener to the Form
+    loginForm.addEventListener('submit', async (event) => {
+        // Prevent the form from refreshing the page
+        event.preventDefault();
+
+        // Clear any previous error messages
+        errorMessage.textContent = '';
+
+        // Get the email and password from the form inputs
+        const email = loginForm.email.value;
+        const password = loginForm.password.value;
+
+        try {
+            // 4. Try to sign in the user with Supabase
+            const { data, error } = await supabaseClient.auth.signInWithPassword({
+                email: email,
+                password: password,
+            });
+
+            // 5. Handle the Response
+            if (error) {
+                // If there's an error, display it to the user
+                console.error('Error signing in:', error.message);
+                errorMessage.textContent = error.message;
+            } else {
+                // If login is successful, redirect to the dashboard
+                console.log('Successfully logged in:', data.user);
+                window.location.href = 'dashboard.html'; // Redirect to your admin dashboard
+            }
+        } catch (error) {
+            // Handle any unexpected errors during the process
+            console.error('An unexpected error occurred:', error);
+            errorMessage.textContent = 'An unexpected error occurred. Please try again.';
+        }
+    });
+</script>
+<!-- =================================================================== -->
+<!-- END OF JAVASCRIPT CODE -->
+<!-- =================================================================== -->
+
+</body>
+</html>
+
+/* General Body Styles */
+body {
+    background-color: #f0f4f8;
+    font-family: sans-serif;
+    margin: 0;
+    color: #333;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.application-container {
+    width: 100%;
+    max-width: 1000px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    overflow: hidden;
+}
+
+/* App Header */
+.app-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 30px;
+    border-bottom: 1px solid #e0e0e0;
+}
+.back-link {
+    text-decoration: none;
+    color: #555;
+    font-size: 16px;
+}
+.back-link i { margin-right: 8px; }
+.app-header .logo { display: flex; align-items: center; }
+.app-header .logo img { height: 40px; margin-right: 15px; }
+.app-header .logo h2 { margin: 0; font-size: 22px; color: #002b5c; }
+.app-header .logo p { margin: 0; color: #666; }
+.step-counter { font-size: 16px; color: #555; }
+
+.progress-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 30px 50px;
+    background-color: #f8f9fa;
+}
+.step { text-align: center; color: #999; flex-basis: 0; flex-grow: 1; position: relative; }
+.step-number {
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    border: 2px solid #ccc;
+    background-color: #fff;
+    display: flex; justify-content: center; align-items: center;
+    margin: 0 auto 10px;
+    font-weight: bold;
+}
+.step-label { font-size: 14px; }
+.step.active .step-number { border-color: #002b5c; background-color: #002b5c; color: #fff; }
+.step.active { color: #002b5c; font-weight: bold; }
+.connector {
+    flex-grow: 2;
+    height: 2px;
+    background-color: #ccc;
+    margin: 0 -20px; 
+    transform: translateY(-15px); 
+}
+
+.form-container { padding: 40px 50px; }
+.form-header { display: flex; align-items: center; margin-bottom: 30px; }
+.form-icon {
+    width: 60px; height: 60px;
+    background-color: #e6eef7;
+    color: #002b5c;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 28px;
+    margin-right: 20px;
+}
+.form-title h3 { margin: 0; font-size: 24px; color: #002b5c; }
+.form-title p { margin: 0; color: #666; }
+
+/* Form Elements */
+.application-form { display: flex; flex-direction: column; gap: 20px; }
+.form-row { display: flex; gap: 20px; }
+.form-group { flex: 1; display: flex; flex-direction: column; }
+.form-group.full-width { flex-basis: 100%; }
+.form-group label { margin-bottom: 8px; font-weight: bold; color: #333; }
+.form-group input, .form-group select {
+    padding: 12px 15px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+}
+.form-group input:focus, .form-group select:focus {
+    outline: none;
+    border-color: #002b5c;
+    box-shadow: 0 0 0 2px rgba(0, 43, 92, 0.2);
+}
+.date-input-container { position: relative; }
+.date-input-container i {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #666;
+}
+
+/* Footer Buttons */
+.form-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 40px;
+    padding-top: 20px;
+    border-top: 1px solid #e0e0e0;
+}
+.btn {
+    padding: 12px 25px;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+.btn-primary { background-color: #002b5c; color: #fff; }
+.btn-secondary { background-color: #f0f0f0; color: #888; border: 1px solid #ccc; }
+.btn-secondary[disabled] { cursor: not-allowed; }
+
+
+.progress-bar .step.complete .step-number {
+    background-color: #e6eef7;
+    border-color: #002b5c;
+    color: #002b5c;
+}
+
+.progress-bar .step.complete .step-label {
+    color: #333; 
+}
+
+.progress-bar .connector.active {
+    background-color: #002b5c;
+}
+
+
+
+.form-group textarea {
+    padding: 12px 15px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+    font-family: sans-serif;
+    resize: vertical; 
+}
+
+.form-group textarea:focus {
+    outline: none;
+    border-color: #002b5c;
+    box-shadow: 0 0 0 2px rgba(0, 43, 92, 0.2);
+}
+
+.file-upload-container {
+    display: flex;
+    gap: 20px;
+    justify-content: space-between;
+}
+
+.file-upload-box {
+    flex: 1;
+    border: 2px dashed #ccc;
+    border-radius: 8px;
+    padding: 30px 20px;
+    text-align: center;
+    color: #666;
+    cursor: pointer;
+    position: relative;
+    transition: border-color 0.3s, background-color 0.3s;
+}
+
+.file-upload-box:hover {
+    border-color: #002b5c;
+    background-color: #f8f9fa;
+}
+
+.file-upload-box i {
+    font-size: 24px;
+    color: #002b5c;
+    margin-bottom: 10px;
+}
+
+.file-upload-box span {
+    display: block;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 5px;
+}
+
+.file-upload-box small {
+    display: block;
+    font-size: 12px;
+}
+
+.file-upload-box input[type="file"] {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+}
+
+
+.consent-group {
+    display: flex;
+    align-items: flex-start;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.consent-group input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    margin-top: 2px;
+    flex-shrink: 0;
+}
+
+.consent-group label {
+    font-weight: normal;
+    font-size: 15px;
+    line-height: 1.5;
+}
+
+.application-summary {
+    background-color: #f0f4f8;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 25px;
+    margin-top: 20px;
+}
+
+.application-summary h4 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    font-size: 20px;
+    color: #002b5c;
+}
+
+.summary-grid {
+    display: grid;
+    grid-template-columns: auto 1fr auto 1fr;
+    gap: 10px 20px;
+}
+
+.summary-grid p {
+    margin: 0;
+    font-size: 15px;
+}
+
+.btn-success {
+    background-color: #28a745;
+    color: #fff;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Application - Personal Information</title>
+    <link rel="stylesheet" href="application.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <!-- 1. EmailJS SDK Script -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+
+</head>
+<body>
+
+    <div class="application-container">
+        <header class="app-header">
+            <a href="index.html" class="back-link"><i class="fas fa-arrow-left"></i> Back</a>
+            <div class="logo">
+                <img src="https://i.imgur.com/your-logo.png" alt="Logo">
+                <div class="logo-text">
+                    <h2>Job Application</h2>
+                    <p>Aloha Security Agency</p>
+                </div>
+            </div>
+            <div class="step-counter">
+                Step 1 of 4
+            </div>
+        </header>
+
+        <nav class="progress-bar">
+            <div class="step active"><div class="step-number">1</div><div class="step-label">Personal Info</div></div>
+            <div class="connector"></div>
+            <div class="step"><div class="step-number">2</div><div class="step-label">Position Details</div></div>
+            <div class="connector"></div>
+            <div class="step"><div class="step-number">3</div><div class="step-label">Experience</div></div>
+            <div class="connector"></div>
+            <div class="step"><div class="step-number">4</div><div class="step-label">Review & Submit</div></div>
+        </nav>
+
+        <main class="form-container">
+            <div class="form-header">
+                <div class="form-icon">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div class="form-title">
+                    <h3>Personal Information</h3>
+                    <p>Please provide your basic personal details</p>
+                </div>
+            </div>
+
+            <!-- 2. Form with ID added -->
+            <form class="application-form" id="application-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="first-name">First Name *</label>
+                        <input type="text" id="first-name" name="first-name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="last-name">Last Name *</label>
+                        <input type="text" id="last-name" name="last-name" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="email">Email Address *</label>
+                        <input type="email" id="email" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="phone">Phone Number *</label>
+                        <input type="tel" id="phone" name="phone" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group full-width">
+                        <label for="street-address">Street Address *</label>
+                        <input type="text" id="street-address" name="street-address" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="city">City *</label>
+                        <input type="text" id="city" name="city" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="state">State *</label>
+                        <select id="state" name="state" required>
+                            <option value="">Select City</option>
+                            <option value="Manila">Manila</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="zip-code">ZIP Code *</label>
+                        <input type="text" id="zip-code" name="zip-code" required>
+                    </div>
+                </div>
+                 <div class="form-row">
+                    <div class="form-group">
+                        <label for="dob">Date of Birth *</label>
+                        <div class="date-input-container">
+                             <input type="text" id="dob" name="dob" placeholder="dd/mm/yyyy" required>
+                             <i class="fas fa-calendar-alt"></i>
+                        </div>
+                    </div>
+                </div>
+            </form>
+
+            <footer class="form-footer">
+                <button type="button" class="btn btn-secondary" disabled>
+                    <i class="fas fa-arrow-left"></i> Previous
+                </button>
+
+                <!-- 3. Link changed to a Submit Button -->
+                <button type="submit" form="application-form" class="btn btn-primary">Continue</button>
+            </footer>
+        </main>
+    </div>
+
+    <!-- ============================================= -->
+    <!-- 4. JAVASCRIPT LOGIC FOR EMAILJS WITH YOUR KEYS -->
+    <!-- ============================================= -->
+    <script type="text/javascript">
+      // Initialize EmailJS with your Public Key
+      (function(){
+          emailjs.init({
+              publicKey: "cUpWZScep0kGgXEUm",
+          });
+      })();
+
+      // Add the submit event listener to the form
+      document.getElementById('application-form').addEventListener('submit', function(event) {
+          event.preventDefault(); // Prevent the default page reload
+
+          // Set your Service ID and Template ID
+          const serviceID = 'service_zgrksga';
+          const templateID = 'template_zwwho8l';
+
+          // Send the form data
+          emailjs.sendForm(serviceID, templateID, this)
+              .then(() => {
+                  // If success, show an alert and redirect to the next page
+                  alert('Information sent! You will now be taken to the next step.');
+                  window.location.href = 'application2.html';
+              }, (err) => {
+                  // If error, show an alert with the error message
+                  alert('Failed to send application. Please try again. Error: ' + JSON.stringify(err));
+              });
+      });
+    </script>
+
+</body>
+</html>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Application - Position Details</title>
+    <!-- We reuse the same stylesheet -->
+    <link rel="stylesheet" href="application.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+
+    <div class="application-container">
+        <header class="app-header">
+            <!-- This should link back to the previous step -->
+            <a href="application.html" class="back-link"><i class="fas fa-arrow-left"></i> Back</a>
+            <div class="logo">
+                <img src="https://i.imgur.com/your-logo.png" alt="Logo">
+                <div class="logo-text">
+                    <h2>Job Application</h2>
+                    <p>Aloha Security Agency</p>
+                </div>
+            </div>
+            <div class="step-counter">
+                Step 2 of 4
+            </div>
+        </header>
+
+        <!-- Updated Progress Bar -->
+        <nav class="progress-bar">
+            <div class="step complete"> <!-- Mark step 1 as complete -->
+                <div class="step-number"><i class="fas fa-check"></i></div>
+                <div class="step-label">Personal Info</div>
+            </div>
+            <div class="connector active"></div>
+            <div class="step active"> <!-- Mark step 2 as active -->
+                <div class="step-number">2</div>
+                <div class="step-label">Position Details</div>
+            </div>
+            <div class="connector"></div>
+            <div class="step">
+                <div class="step-number">3</div>
+                <div class="step-label">Experience</div>
+            </div>
+             <div class="connector"></div>
+            <div class="step">
+                <div class="step-number">4</div>
+                <div class="step-label">Review & Submit</div>
+            </div>
+        </nav>
+
+        <main class="form-container">
+            <!-- Updated Form Header -->
+            <div class="form-header">
+                <div class="form-icon">
+                    <i class="fas fa-briefcase"></i>
+                </div>
+                <div class="form-title">
+                    <h3>Position Details</h3>
+                    <p>Tell us about the position you're applying for</p>
+                </div>
+            </div>
+
+            <!-- New Form Fields -->
+            <form class="application-form">
+                <div class="form-row">
+                    <div class="form-group full-width">
+                        <label for="desired-position">Desired Position *</label>
+                        <select id="desired-position" name="desired-position">
+                            <option value="">Select position</option>
+                            <option value="guard">Security Guard</option>
+                            <option value="supervisor">Security Supervisor</option>
+                            <option value="patrol">Mobile Patrol Officer</option>
+                            <option value="event">Event Security Specialist</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="availability">Availability *</label>
+                        <select id="availability" name="availability">
+                            <option value="">Select availability</option>
+                            <option value="full-time">Full-time</option>
+                            <option value="part-time">Part-time</option>
+                            <option value="flexible">Flexible</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="start-date">Available Start Date *</label>
+                         <div class="date-input-container">
+                             <input type="text" id="start-date" name="start-date" placeholder="dd/mm/yyyy">
+                             <i class="fas fa-calendar-alt"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group full-width">
+                        <label for="salary-range">Desired Salary Range</label>
+                        <select id="salary-range" name="salary-range">
+                            <option value="">Select salary range</option>
+                            <option value="range1">$30,000 - $40,000</option>
+                            <option value="range2">$40,000 - $50,000</option>
+                            <option value="range3">$50,000 - $60,000</option>
+                        </select>
+                    </div>
+                </div>
+                 <div class="form-row">
+                    <div class="form-group full-width">
+                        <label for="drivers-license">Driver's License</label>
+                        <select id="drivers-license" name="drivers-license">
+                            <option value="">Select license status</option>
+                            <option value="yes">Yes, I have a valid driver's license</option>
+                            <option value="no">No, I do not have a driver's license</option>
+                        </select>
+                    </div>
+                </div>
+                 <div class="form-row">
+                    <div class="form-group full-width">
+                        <label for="transportation">Reliable Transportation *</label>
+                        <select id="transportation" name="transportation">
+                            <option value="">Select transportation</option>
+                             <option value="yes">Yes</option>
+                            <option value="no">No</option>
+                        </select>
+                    </div>
+                </div>
+            </form>
+
+            <footer class="form-footer">
+                <a href="application.html" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Previous
+                </a>
+                <!-- This will link to the next step, which we will create -->
+                <a href="application3.html" class="btn btn-primary">Continue</a>
+            </footer>
+        </main>
+    </div>
+
+</body>
+</html>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Application - Experience & Education</title>
+    <link rel="stylesheet" href="application.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+
+    <div class="application-container">
+        <header class="app-header">
+            <!-- This links back to step 2 -->
+            <a href="application-step2.html" class="back-link"><i class="fas fa-arrow-left"></i> Back</a>
+            <div class="logo">
+                <img src="https://i.imgur.com/your-logo.png" alt="Logo">
+                <div class="logo-text">
+                    <h2>Job Application</h2>
+                    <p>Aloha Security Agency</p>
+                </div>
+            </div>
+            <div class="step-counter">
+                Step 3 of 4
+            </div>
+        </header>
+
+        <!-- Updated Progress Bar for Step 3 -->
+        <nav class="progress-bar">
+            <div class="step complete">
+                <div class="step-number"><i class="fas fa-check"></i></div>
+                <div class="step-label">Personal Info</div>
+            </div>
+            <div class="connector active"></div>
+            <div class="step complete">
+                <div class="step-number"><i class="fas fa-check"></i></div>
+                <div class="step-label">Position Details</div>
+            </div>
+            <div class="connector active"></div>
+            <div class="step active">
+                <div class="step-number">3</div>
+                <div class="step-label">Experience</div>
+            </div>
+             <div class="connector"></div>
+            <div class="step">
+                <div class="step-number">4</div>
+                <div class="step-label">Review & Submit</div>
+            </div>
+        </nav>
+
+        <main class="form-container">
+            <!-- Updated Form Header -->
+            <div class="form-header">
+                <div class="form-icon">
+                    <i class="fas fa-graduation-cap"></i>
+                </div>
+                <div class="form-title">
+                    <h3>Experience & Education</h3>
+                    <p>Share your background and qualifications</p>
+                </div>
+            </div>
+
+            <!-- New Form Fields for Step 3 -->
+            <form class="application-form">
+                <div class="form-group full-width">
+                    <label for="security-experience">Previous Security Experience</label>
+                    <textarea id="security-experience" name="security-experience" rows="4" placeholder="Describe your previous security or related experience..."></textarea>
+                </div>
+
+                <div class="form-group full-width">
+                    <label for="education-background">Education Background</label>
+                    <textarea id="education-background" name="education-background" rows="4" placeholder="Describe your education background..."></textarea>
+                </div>
+
+                <div class="form-group full-width">
+                    <label for="certifications">Certifications & Training</label>
+                    <textarea id="certifications" name="certifications" rows="4" placeholder="List any security certifications, training, or relevant skills..."></textarea>
+                </div>
+                
+                <div class="form-group full-width">
+                    <label for="references">Professional References</label>
+                    <textarea id="references" name="references" rows="4" placeholder="Please provide 2-3 professional references (name, title, company, phone)..."></textarea>
+                </div>
+
+                <div class="form-group full-width">
+                    <label>Required Documents</label>
+                    <div class="file-upload-container">
+                        <div class="file-upload-box">
+                            <i class="fas fa-upload"></i>
+                            <span>Resume/CV</span>
+                            <small>PDF, DOC (Max 5MB)</small>
+                            <input type="file" name="resume-cv">
+                        </div>
+                        <div class="file-upload-box">
+                            <i class="fas fa-upload"></i>
+                            <span>Certificates</span>
+                            <small>PDF, JPG (Max 5MB)</small>
+                            <input type="file" name="certificates">
+                        </div>
+                        <div class="file-upload-box">
+                            <i class="fas fa-upload"></i>
+                            <span>Valid ID</span>
+                            <small>PDF, JPG (Max 5MB)</small>
+                            <input type="file" name="valid-id">
+                        </div>
+                    </div>
+                </div>
+            </form>
+
+            <!-- Updated Footer Buttons -->
+            <footer class="form-footer">
+                <a href="application-step2.html" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Previous
+                </a>
+                <!-- This will link to the final step -->
+                <a href="application4.html" class="btn btn-primary">Continue</a>
+            </footer>
+        </main>
+    </div>
+
+</body>
+</html>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Application - Review & Submit</title>
+    <link rel="stylesheet" href="application.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+
+    <div class="application-container">
+        <header class="app-header">
+            <!-- This links back to step 3 -->
+            <a href="application-step3.html" class="back-link"><i class="fas fa-arrow-left"></i> Back</a>
+            <div class="logo">
+                <img src="https://i.imgur.com/your-logo.png" alt="Logo">
+                <div class="logo-text">
+                    <h2>Job Application</h2>
+                    <p>Aloha Security Agency</p>
+                </div>
+            </div>
+            <div class="step-counter">
+                Step 4 of 4
+            </div>
+        </header>
+
+        <!-- Final Progress Bar State -->
+        <nav class="progress-bar">
+            <div class="step complete">
+                <div class="step-number"><i class="fas fa-check"></i></div>
+                <div class="step-label">Personal Info</div>
+            </div>
+            <div class="connector active"></div>
+            <div class="step complete">
+                <div class="step-number"><i class="fas fa-check"></i></div>
+                <div class="step-label">Position Details</div>
+            </div>
+            <div class="connector active"></div>
+            <div class="step complete">
+                <div class="step-number"><i class="fas fa-check"></i></div>
+                <div class="step-label">Experience</div>
+            </div>
+             <div class="connector active"></div>
+            <div class="step active">
+                <div class="step-number">4</div>
+                <div class="step-label">Review & Submit</div>
+            </div>
+        </nav>
+
+        <main class="form-container">
+            <!-- Updated Form Header -->
+            <div class="form-header">
+                <div class="form-icon">
+                    <i class="fas fa-file-signature"></i>
+                </div>
+                <div class="form-title">
+                    <h3>Review & Submit</h3>
+                    <p>Please review your information and complete your application</p>
+                </div>
+            </div>
+
+            <form class="application-form">
+                <div class="consent-group">
+                    <input type="checkbox" id="consent-background" name="consent-background">
+                    <label for="consent-background">I consent to a background check being conducted as part of the employment process. I understand that this may include criminal history, employment verification, and reference checks.</label>
+                </div>
+                 <div class="consent-group">
+                    <input type="checkbox" id="consent-drug-test" name="consent-drug-test">
+                    <label for="consent-drug-test">I consent to pre-employment drug testing and understand that a negative result is required for employment.</label>
+                </div>
+                 <div class="consent-group">
+                    <input type="checkbox" id="consent-truthfulness" name="consent-truthfulness">
+                    <label for="consent-truthfulness">I certify that the information provided in this application is true and complete. I understand that false information may result in rejection of my application or termination of employment.</label>
+                </div>
+
+                <div class="application-summary">
+                    <h4>Application Summary</h4>
+                    <div class="summary-grid">
+                        <div>
+                            <p><strong>Name:</strong></p>
+                            <p><strong>Email:</strong></p>
+                            <p><strong>Phone:</strong></p>
+                        </div>
+                         <div>
+                            <!-- These values would be dynamically filled by JavaScript in a real app -->
+                            <p>Yujin Almira</p>
+                            <p>Yujin.doe@email.com</p>
+                            <p>093809841107</p>
+                        </div>
+                        <div>
+                            <p><strong>Position:</strong></p>
+                            <p><strong>Availability:</strong></p>
+                            <p><strong>Start Date:</strong></p>
+                        </div>
+                        <div>
+                            <p>Security Guard</p>
+                            <p>Full-time</p>
+                            <p>01/09/2025</p>
+                        </div>
+                    </div>
+                </div>
+            </form>
+
+            <!-- Final Footer Buttons -->
+            <footer class="form-footer">
+                <a href="application-step3.html" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Previous
+                </a>
+                <!-- Final Submit Button -->
+               <a href="index.html" class="btn btn-success">Submit Application</a>
+            </footer>
+        </main>
+    </div>
+
+</body>
+</html>
+
+/* General Body Styles */
+body {
+    background-color: #f8f9fa;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    color: #333;
+}
+
+.dashboard-container {
+    padding: 20px 40px;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+/* Header */
+.dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #e0e0e0;
+}
+.back-link { text-decoration: none; color: #555; font-size: 16px; }
+.logo { display: flex; align-items: center; gap: 15px; }
+.logo-icon { font-size: 32px; color: #fff; background-color: #002b5c; width: 50px; height: 50px; border-radius: 8px; display: grid; place-items: center; }
+.logo-text h1 { margin: 0; font-size: 24px; color: #002b5c; }
+.logo-text p { margin: 0; color: #666; }
+.btn-logout { background-color: #fff; color: #002b5c; border: 1px solid #ccc; padding: 8px 16px; border-radius: 5px; text-decoration: none; font-weight: bold; }
+
+/* Main Content */
+.dashboard-main { padding-top: 30px; }
+
+/* Summary Stats */
+.summary-stats { display: flex; justify-content: space-between; margin-bottom: 30px; }
+.stat-card { flex: 1; text-align: center; padding: 20px; border-right: 1px solid #e0e0e0; }
+.stat-card:last-child { border-right: none; }
+.stat-number { font-size: 36px; font-weight: bold; display: block; }
+.stat-label { color: #666; }
+
+/* Tabs */
+.tabs { display: flex; border-bottom: 2px solid #e0e0e0; margin-bottom: 30px; }
+.tab { padding: 10px 20px; text-decoration: none; color: #666; font-weight: bold; }
+.tab.active { color: #002b5c; border-bottom: 2px solid #002b5c; }
+
+/* Content Area & Filters */
+.content-area { background-color: #fff; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+.filters { padding: 20px; border-bottom: 1px solid #e0e0e0; }
+.filters h3 { margin: 0 0 20px 0; font-size: 18px; display: flex; align-items: center; gap: 8px; }
+.filter-controls { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 20px; }
+.form-group label { display: block; margin-bottom: 5px; font-weight: bold; font-size: 14px; }
+.input-with-icon { position: relative; }
+.input-with-icon i { position: absolute; left: 10px; top: 12px; color: #999; }
+.form-group input, .form-group select { width: 100%; padding: 10px; padding-left: 30px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
+.form-group select { padding-left: 10px; }
+.btn-export { width: 100%; background-color: #f0f0f0; border: 1px solid #ccc; padding: 10px; border-radius: 5px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
+
+/* Applications List */
+.applications-list { padding: 20px; }
+.applications-list h3 { margin: 0 0 20px 0; font-size: 18px; display: flex; align-items: center; gap: 8px; }
+.table-header { display: grid; grid-template-columns: 3fr 2fr 2fr 1.5fr 1.5fr 1.5fr 1.5fr; font-weight: bold; color: #666; padding-bottom: 10px; border-bottom: 2px solid #e0e0e0; }
+.application-row { display: grid; grid-template-columns: 3fr 2fr 2fr 1.5fr 1.5fr 1.5fr 1.5fr; align-items: center; padding: 15px 0; border-bottom: 1px solid #e0e0e0; }
+.application-row:last-child { border-bottom: none; }
+.applicant-info .name { font-weight: bold; display: block; }
+.applicant-info .contact { font-size: 14px; color: #666; display: block; }
+.applicant-info .contact i { margin-right: 5px; }
+.position-tag { background-color: #e0e0e0; padding: 4px 8px; border-radius: 4px; font-size: 14px; display: inline-block; }
+.application-row > div > i { margin-right: 5px; color: #666; }
+.status { padding: 4px 10px; border-radius: 12px; font-weight: bold; font-size: 12px; text-align: center; }
+.status.pending { background-color: #fef3cd; color: #f39c12; }
+.status.reviewed { background-color: #d6eaf8; color: #3498db; }
+.status.approved { background-color: #d4edda; color: #28a745; }
+.status.rejected { background-color: #f5b7b1; color: #e74c3c; }
+.actions { display: flex; gap: 10px; }
+.btn-icon { background: none; border: 1px solid #ccc; border-radius: 5px; width: 30px; height: 30px; cursor: pointer; }
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Aloha Security</title>
+    <link rel="stylesheet" href="dashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Include the Supabase JS Library -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+
+    <div class="dashboard-container">
+        <header class="dashboard-header">
+            <a href="index.html" class="back-link"><i class="fas fa-arrow-left"></i> Back</a>
+            <div class="logo">
+                <div class="logo-icon"><i class="fas fa-shield-alt"></i></div>
+                <div class="logo-text">
+                    <h1>Admin Dashboard</h1>
+                    <p>Application Management System</p>
+                </div>
+            </div>
+            <!-- MODIFIED: Changed <a> to <button> and added an id -->
+            <button id="logout-button" class="btn btn-logout">Logout</button>
+        </header>
+
+        <main class="dashboard-main">
+            <!-- ... your entire dashboard content (stats, tabs, filters, etc.) goes here ... -->
+            <!-- ... it remains completely unchanged ... -->
+             <section class="summary-stats">
+                <div class="stat-card">
+                    <span class="stat-number" style="color: #002b5c;">4</span>
+                    <span class="stat-label">Total Applications</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number" style="color: #f39c12;">1</span>
+                    <span class="stat-label">Pending Review</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number" style="color: #3498db;">1</span>
+                    <span class="stat-label">Under Review</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number" style="color: #28a745;">1</span>
+                    <span class="stat-label">Approved</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number" style="color: #e74c3c;">1</span>
+                    <span class="stat-label">Rejected</span>
+                </div>
+            </section>
+
+            <!-- Tabs -->
+            <nav class="tabs">
+                <a href="#" class="tab active">Applications</a>
+                <a href="#" class="tab">Reports</a>
+            </nav>
+
+            <!-- Main Content Area -->
+            <div class="content-area">
+                <!-- Filters -->
+                <div class="filters">
+                    <h3><i class="fas fa-filter"></i> Filter Applications</h3>
+                    <div class="filter-controls">
+                        <div class="form-group">
+                            <label for="search">Search</label>
+                            <div class="input-with-icon">
+                                <i class="fas fa-search"></i>
+                                <input type="text" id="search" placeholder="Search by name, email, or position...">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="status">Status</label>
+                            <select id="status"><option>All Statuses</option></select>
+                        </div>
+                        <div class="form-group">
+                            <label for="position">Position</label>
+                            <select id="position"><option>All Positions</option></select>
+                        </div>
+                        <div class="form-group">
+                            <label>Export</label>
+                            <button class="btn btn-export"><i class="fas fa-download"></i> Export CSV</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Applications List -->
+                <div class="applications-list">
+                    <h3><i class="fas fa-users"></i> Applications (4)</h3>
+                    <div class="table-header">
+                        <div>Applicant</div>
+                        <div>Position</div>
+                        <div>Location</div>
+                        <div>Experience</div>
+                        <div>Status</div>
+                        <div>Submitted</div>
+                        <div>Actions</div>
+                    </div>
+                    <div class="application-row">
+                        <div class="applicant-info">
+                            <span class="name">John Smith</span>
+                            <span class="contact"><i class="fas fa-envelope"></i> john.smith@email.com</span>
+                            <span class="contact"><i class="fas fa-phone"></i> (808) 555-0123</span>
+                        </div>
+                        <div><span class="position-tag">Security Guard</span></div>
+                        <div><i class="fas fa-map-marker-alt"></i> Honolulu, HI</div>
+                        <div><i class="fas fa-briefcase"></i> 5 years</div>
+                        <div><span class="status pending">Pending</span></div>
+                        <div><i class="fas fa-calendar-alt"></i> 2024-08-10</div>
+                        <div class="actions">
+                            <button class="btn-icon"><i class="fas fa-eye"></i></button>
+                            <button class="btn-icon"><i class="fas fa-download"></i></button>
+                            <button class="btn-icon"><i class="fas fa-envelope"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+<!-- =================================================================== -->
+<!-- START OF JAVASCRIPT CODE FOR THE DASHBOARD -->
+<!-- =================================================================== -->
+<script>
+    // 1. Initialize Supabase Client
+    const supabaseUrl = 'https://kkaelwhdcsgaodbhrxqt.supabase.co';
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtrYWVsd2hkY3NnYW9kYmhyeHF0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYxOTA4NzksImV4cCI6MjA3MTc2Njg3OX0.wSFv1AZgZDXjGHiIwOHyWzqTDk0v6NbR4-2r90iF9ok';
+    const { createClient } = supabase;
+    const supabaseClient = createClient(supabaseUrl, supabaseKey);
+
+    // 2. Page Security: Check if user is logged in
+    async function checkUserSession() {
+        const { data: { session } } = await supabaseClient.auth.getSession();
+        if (!session) {
+            // If no user is logged in, redirect to the login page
+            // Make sure your login page is named 'admin-login.html' or change it here
+            window.location.href = 'AdminLogin.html';
+        } else {
+            // User is logged in
+            console.log('Access granted for:', session.user.email);
+        }
+    }
+    // Run the security check as soon as the page loads
+    checkUserSession();
+
+    // 3. Logout Button Logic
+    const logoutButton = document.getElementById('logout-button');
+
+    logoutButton.addEventListener('click', async () => {
+        // Sign the user out
+        await supabaseClient.auth.signOut();
+        // Redirect to the login page
+        window.location.href = 'AdminLogin.html';
+    });
+</script>
+<!-- =================================================================== -->
+<!-- END OF JAVASCRIPT CODE -->
+<!-- =================================================================== -->
+
+</body>
+</html>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aloha Security Agency</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="logo">
+                <img src="https://i.imgur.com/your-logo.png" alt="Aloha Security Agency Logo">
+                <div class="logo-text">
+                    <h1>Aloha Security Agency</h1>
+                    <p>Professional Security Services</p>
+                </div>
+            </div>
+            <nav>
+                <a href="AdminLogin.html" class="btn btn-secondary">Admin Login</a>
+                <a href="application.html" class="btn btn-primary">Apply Now</a>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <section class="hero">
+            <div class="container">
+                <h2>Join Our Elite Security Team</h2>
+                <p>Protect what matters most. Build a career in professional security services with Manila's trusted agency.</p>
+                <div class="cta-buttons">
+                    <a href="#" class="btn btn-primary"><i class="fas fa-file-alt"></i> Start Your Application</a>
+                    <a href="#" class="btn btn-secondary"><i class="fas fa-phone-alt"></i> Contact Us</a>
+                </div>
+            </div>
+        </section>
+
+        <section class="why-choose-us">
+            <div class="container">
+                <h2>Why Choose Aloha Security?</h2>
+                <p>We offer comprehensive benefits, professional training, and career growth opportunities in Manila's premier security company.</p>
+                <div class="features">
+                    <div class="feature-item">
+                        <div class="icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <h3>Professional Training</h3>
+                        <p>Comprehensive security training programs with industry certifications and ongoing professional development.</p>
+                    </div>
+                    <div class="feature-item">
+                        <div class="icon">
+                            <i class="fas fa-map-marker-alt"></i>
+                        </div>
+                        <h3>Local Opportunities</h3>
+                        <p>Serve your community across multiple locations throughout Manila with flexible scheduling options.</p>
+                    </div>
+                    <div class="feature-item">
+                        <div class="icon">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <h3>Competitive Benefits</h3>
+                        <p>Excellent compensation package with health benefits, retirement plans, and career advancement opportunities.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+                <section class="application-process">
+            <div class="container">
+                <h2>Simple Application Process</h2>
+                <p>Get started in just a few easy steps</p>
+                <div class="steps">
+                    <div class="step-item">
+                        <div class="icon-container">
+                            <div class="icon-bg">
+                                <i class="fas fa-file-alt"></i>
+                            </div>
+                            <div class="step-number">1</div>
+                        </div>
+                        <h3>Fill Application</h3>
+                        <p>Complete our online form</p>
+                    </div>
+                    <div class="step-item">
+                        <div class="icon-container">
+                            <div class="icon-bg">
+                                <i class="fas fa-upload"></i>
+                            </div>
+                            <div class="step-number">2</div>
+                        </div>
+                        <h3>Upload Documents</h3>
+                        <p>Submit resume & certificates</p>
+                    </div>
+                    <div class="step-item">
+                        <div class="icon-container">
+                             <div class="icon-bg">
+                                <i class="fas fa-user-tie"></i>
+                            </div>
+                            <div class="step-number">3</div>
+                        </div>
+                        <h3>HR Review</h3>
+                        <p>Our team reviews your profile</p>
+                    </div>
+                    <div class="step-item">
+                        <div class="icon-container">
+                            <div class="icon-bg">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <div class="step-number">4</div>
+                        </div>
+                        <h3>Get Contacted</h3>
+                        <p>We'll reach out to qualified candidates</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="cta-bottom">
+            <div class="container">
+                <h2>Ready to Protect and Serve?</h2>
+                <p>Join our team of dedicated security professionals today</p>
+                <a href="#" class="btn btn-light">Apply Now</a>
+            </div>
+        </section>
+
+            <footer>
+        <div class="container">
+            <div class="footer-column">
+                <div class="logo">
+                     <img src="https://i.imgur.com/your-logo.png" alt="Aloha Security Agency Logo">
+                     <h3>Aloha Security Agency</h3>
+                </div>
+                <p>Tondo Manila's premier security services provider, committed to excellence and community safety.</p>
+            </div>
+            <div class="footer-column">
+                <h4>Contact Info</h4>
+                <ul>
+                    <li><i class="fas fa-phone-alt"></i> (808) 555-0123</li>
+                    <li><i class="fas fa-envelope"></i> careers@alohasecurity.com</li>
+                    <li><i class="fas fa-map-marker-alt"></i> Tondo, Manila</li>
+                </ul>
+            </div>
+            <div class="footer-column">
+                <h4>Available Positions</h4>
+                <ul>
+                    <li><a href="#">Security Guard</a></li>
+                    <li><a href="#">Security Supervisor</a></li>
+                    <li><a href="#">Mobile Patrol Officer</a></li>
+                    <li><a href="#">Event Security Specialist</a></li>
+                </ul>
+            </div>
+        </div>
+    </footer>
+    </main>
+</body>
+</html>
+
+/* General Body Styles */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    color: #333;
+    overflow: hidden; /* Prevents scrollbars from the full-height layout */
+}
+
+.login-container {
+    display: flex;
+    width: 100vw;
+    height: 100vh;
+}
+
+/* Panel Styling */
+.login-panel {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 40px;
+}
+
+/* Left Branding Panel */
+.branding-panel {
+    background-color: #002b5c; /* Main brand color */
+    color: #fff;
+    text-align: center;
+}
+
+.branding-content {
+    max-width: 400px;
+}
+
+.branding-panel .logo {
+    width: 80px;
+    margin-bottom: 20px;
+}
+
+.branding-panel h1 {
+    font-size: 36px;
+    margin-bottom: 15px;
+    font-weight: 600;
+}
+
+.branding-panel p {
+    font-size: 16px;
+    line-height: 1.6;
+    opacity: 0.8;
+    margin-bottom: 30px;
+}
+
+.back-to-site-link {
+    color: #fff;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    padding: 10px 20px;
+    border-radius: 50px;
+    transition: background-color 0.3s, border-color 0.3s;
+}
+
+.back-to-site-link:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-color: #fff;
+}
+
+/* Right Form Panel */
+.form-panel {
+    background-color: #f8f9fa;
+}
+
+.form-content {
+    width: 100%;
+    max-width: 380px;
+}
+
+.form-panel h2 {
+    font-size: 32px;
+    color: #002b5c;
+    margin-bottom: 10px;
+    font-weight: 700;
+}
+
+.form-panel p {
+    color: #666;
+    margin-bottom: 40px;
+}
+
+/* Input Fields with Icons */
+.input-group {
+    position: relative;
+    margin-bottom: 20px;
+}
+
+.input-group i {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #999;
+}
+
+.input-group input {
+    width: 100%;
+    padding: 15px 15px 15px 45px; /* Make space for the icon */
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 16px;
+    box-sizing: border-box; /* Important for padding and width calculation */
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.input-group input:focus {
+    outline: none;
+    border-color: #002b5c;
+    box-shadow: 0 0 0 3px rgba(0, 43, 92, 0.15);
+}
+
+/* Form Options */
+.options {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    font-size: 14px;
+}
+
+.remember-me {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.forgot-password {
+    color: #002b5c;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.forgot-password:hover {
+    text-decoration: underline;
+}
+
+/* Login Button */
+/* Login Button */
+.btn-login {
+    display: block; /* ADD THIS: Makes the link fill the width */
+    box-sizing: border-box; /* ADD THIS: Ensures padding is inside the width */
+    width: 100%;
+    padding: 15px;
+    border: none;
+    border-radius: 8px;
+    background-color: #002b5c;
+    color: #fff;
+    font-size: 18px;
+    font-weight: 600;
+    text-align: center; /* ADD THIS: Centers the text inside */
+    text-decoration: none; /* ADD THIS: Removes the underline */
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+}
+
+.btn-login:hover {
+    background-color: #001f44; /* A darker shade for hover */
+}
+
+.btn-login:active {
+    transform: scale(0.98);
+}
+
+/* Form Footer */
+.form-footer {
+    text-align: center;
+    margin-top: 40px;
+}
+
+.form-footer p {
+    color: #999;
+    font-size: 12px;
+}
+
+/* Responsive Design for smaller screens */
+@media (max-width: 768px) {
+    .login-container {
+        flex-direction: column;
+        height: auto;
+        overflow: auto;
+    }
+
+    .branding-panel {
+        display: none; /* Hide the branding panel on mobile for a simpler view */
+    }
+
+    .form-panel {
+        min-height: 100vh;
+    }
+}
+
+/* General Body Styles */
+body {
+    font-family: sans-serif;
+    margin: 0;
+    color: #333;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* Header */
+header {
+    background-color: #fff;
+    padding: 20px 0;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+header .container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+}
+
+.logo img {
+    height: 50px; 
+    margin-right: 15px;
+}
+
+.logo h1 {
+    margin: 0;
+    font-size: 24px;
+    color: #002b5c;
+}
+
+.logo p {
+    margin: 0;
+    color: #666;
+}
+
+nav .btn {
+    margin-left: 15px;
+    text-decoration: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-weight: bold;
+}
+
+.btn-primary {
+    background-color: #002b5c;
+    color: #fff;
+}
+
+.btn-secondary {
+    background-color: #fff;
+    color: #002b5c;
+    border: 1px solid #002b5c;
+}
+
+/* Hero Section */
+.hero {
+    background-color: #f0f4f8;
+    text-align: center;
+    padding: 80px 0;
+}
+
+.hero h2 {
+    font-size: 48px;
+    color: #002b5c;
+    margin-bottom: 20px;
+}
+
+.hero p {
+    font-size: 18px;
+    color: #555;
+    max-width: 600px;
+    margin: 0 auto 30px;
+}
+
+.cta-buttons .btn {
+    text-decoration: none;
+    padding: 15px 30px;
+    border-radius: 5px;
+    font-weight: bold;
+    margin: 0 10px;
+    display: inline-block;
+}
+
+.cta-buttons .btn i {
+    margin-right: 10px;
+}
+
+/* Why Choose Us Section */
+.why-choose-us {
+    background-color: #fff;
+    text-align: center;
+    padding: 80px 0;
+}
+
+.why-choose-us h2 {
+    font-size: 36px;
+    color: #002b5c;
+    margin-bottom: 20px;
+}
+
+.why-choose-us > .container > p {
+    font-size: 18px;
+    color: #555;
+    max-width: 800px;
+    margin: 0 auto 50px;
+}
+
+.features {
+    display: flex;
+    justify-content: space-around;
+    gap: 30px;
+}
+
+.feature-item {
+    flex: 1;
+    max-width: 300px;
+}
+
+.feature-item .icon {
+    background-color: #28a745;
+    color: #fff;
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+    font-size: 36px;
+}
+
+.feature-item h3 {
+    font-size: 22px;
+    color: #002b5c;
+    margin-bottom: 10px;
+}
+
+.feature-item p {
+    color: #666;
+}
+
+/* Application Process Section */
+.application-process {
+    background-color: #fff;
+    text-align: center;
+    padding: 80px 0;
+}
+
+.application-process h2 {
+    font-size: 36px;
+    color: #002b5c;
+    margin-bottom: 10px;
+}
+
+.application-process > .container > p {
+    font-size: 18px;
+    color: #555;
+    margin-bottom: 60px;
+}
+
+.steps {
+    display: flex;
+    justify-content: space-around;
+    align-items: flex-start;
+    gap: 30px;
+}
+
+.step-item {
+    flex: 1;
+    max-width: 220px;
+    position: relative;
+}
+
+.icon-container {
+    position: relative;
+    display: inline-block;
+    margin-bottom: 20px;
+}
+
+.icon-bg {
+    background-color: #002b5c;
+    color: #fff;
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 48px;
+}
+
+.step-number {
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    background-color: #28a745;
+    color: #fff;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    border: 2px solid #fff;
+}
+
+.step-item h3 {
+    font-size: 22px;
+    color: #002b5c;
+    margin-bottom: 10px;
+}
+
+.step-item p {
+    color: #666;
+}
+
+
+/* Bottom CTA Section */
+.cta-bottom {
+    background-color: #002b5c;
+    color: #fff;
+    text-align: center;
+    padding: 60px 0;
+}
+
+.cta-bottom h2 {
+    font-size: 36px;
+    margin-bottom: 15px;
+}
+
+.cta-bottom p {
+    font-size: 18px;
+    margin-bottom: 30px;
+    opacity: 0.9;
+}
+
+.btn-light {
+    background-color: #fff;
+    color: #002b5c;
+    padding: 15px 30px;
+    border-radius: 5px;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+footer {
+    background-color: #002b5c;
+    color: #fff;
+    padding: 60px 0;
+}
+
+footer .container {
+    display: flex;
+    justify-content: space-between;
+    gap: 40px;
+}
+
+.footer-column {
+    flex: 1;
+}
+
+.footer-column .logo {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.footer-column .logo img {
+    height: 40px;
+    margin-right: 10px;
+   
+    filter: invert(1);
+}
+
+.footer-column .logo h3 {
+    margin: 0;
+    font-size: 22px;
+}
+
+.footer-column > p {
+    color: #ccc;
+    line-height: 1.6;
+}
+
+.footer-column h4 {
+    font-size: 20px;
+    margin-bottom: 20px;
+    color: #fff;
+}
+
+.footer-column ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.footer-column ul li {
+    margin-bottom: 12px;
+    color: #ccc;
+}
+
+.footer-column ul li i {
+    margin-right: 10px;
+    width: 20px; 
+}
+
+.footer-column ul a {
+    color: #ccc;
+    text-decoration: none;
+    transition: color 0.3s;
+}
+
+.footer-column ul a:hover {
+    color: #fff;
+}
+
+
+

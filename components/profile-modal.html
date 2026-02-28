@@ -1,0 +1,221 @@
+<style>
+    /* Container sizing */
+.modal-box-lg {
+    max-width: 850px;
+    width: 95%;
+    background: white;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 25px 60px rgba(0,0,0,0.3);
+    text-align: left;
+}
+
+/* Header */
+.p-modal-header {
+    padding: 25px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #f1f2f6;
+}
+
+.p-user-meta { display: flex; align-items: center; gap: 15px; }
+
+.p-avatar {
+    width: 55px; height: 55px;
+    background: #D2042D; color: white;
+    border-radius: 50%; display: flex;
+    align-items: center; justify-content: center; font-size: 20px;
+}
+
+.p-title-group h2 { font-size: 22px; color: #2d3436; margin: 0; }
+.p-title-group p { font-size: 14px; color: #888; margin: 0; }
+
+/* Body */
+.p-modal-body { padding: 20px 30px; max-height: 65vh; overflow-y: auto; }
+
+.p-sec-title { color: #D2042D; font-size: 15px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 15px; }
+
+.p-info-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 15px;
+    background: #fafafa; padding: 20px; border-radius: 12px;
+}
+
+.p-item { font-size: 14px; color: #555; }
+.p-item strong { color: #333; }
+
+/* ID Image Styling */
+.p-image-frame {
+    display: flex; justify-content: center; align-items: center;
+    width: 100%; max-width: 250px;
+    border: 2px solid #eee; border-radius: 15px;
+    margin-top: 10px; overflow: hidden;
+    background: #fdfdfd;
+}
+.p-image-frame img { width: 100%; height: auto; display: block; }
+
+.p-exp-box {
+    background: #f1f2f6; padding: 15px; border-radius: 10px;
+    font-size: 14px; color: #666; line-height: 1.6; border-left: 4px solid #ddd;
+}
+
+/* Footer */
+.p-modal-footer {
+    padding: 20px 30px; background: #f8f9fa;
+    display: flex; justify-content: space-between; align-items: center;
+}
+.p-action-group { display: flex; gap: 10px; }
+
+/* Resume Button */
+.btn-resume-link {
+    background: white; border: 1px solid #ddd; padding: 8px 15px;
+    border-radius: 8px; cursor: pointer; font-weight: 700; font-size: 12px;
+}
+
+/* The Split Grid logic */
+.p-split-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Two equal columns */
+    gap: 30px;
+    margin-top: 20px;
+    border-top: 1px solid #f1f2f6;
+    padding-top: 20px;
+}
+
+.p-column {
+    display: flex;
+    flex-direction: column;
+}
+
+/* ID Image Frame Tweaks for Column Fit */
+.p-image-frame {
+    width: 100%;
+    max-width: 100%; /* Fill the column width */
+    height: 220px; /* Fixed height for consistency */
+    border: 2px solid #eee;
+    border-radius: 15px;
+    overflow: hidden;
+    background: #fdfdfd;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.p-image-frame img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain; /* Shows full ID without cropping */
+    display: block;
+}
+
+/* Experience Box Tweak */
+.p-exp-box {
+    background: #f1f2f6;
+    padding: 20px;
+    border-radius: 12px;
+    font-size: 14px;
+    color: #555;
+    line-height: 1.6;
+    border-left: 4px solid #D2042D;
+    flex-grow: 1; /* Makes it stretch to match the image height */
+    min-height: 220px;
+}
+
+/* Responsive adjustment for small screens (Phone) */
+@media (max-width: 768px) {
+    .p-split-grid {
+        grid-template-columns: 1fr; /* Stack columns on top of each other */
+        gap: 20px;
+    }
+    
+    .p-modal-body {
+        max-height: 80vh; /* Allow more room on mobile */
+    }
+}
+/* --- FULL SCREEN IMAGE VIEWER --- */
+.image-viewer-overlay {
+    z-index: 5000 !important; /* Higher than all other modals */
+    background: rgba(0, 0, 0, 0.9) !important;
+    backdrop-filter: blur(15px);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    cursor: zoom-out;
+}
+
+.image-viewer-overlay.active {
+    display: flex;
+}
+
+.image-viewer-content {
+    position: relative;
+    max-width: 90%;
+    max-height: 90vh;
+}
+
+.image-viewer-content img {
+    max-width: 100%;
+    max-height: 85vh;
+    border-radius: 10px;
+    box-shadow: 0 0 30px rgba(0,0,0,0.5);
+    border: 3px solid rgba(255,255,255,0.1);
+    object-fit: contain;
+    animation: zoomIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.close-viewer-btn {
+    position: absolute;
+    top: -50px;
+    right: 0;
+    background: none;
+    border: none;
+    color: white;
+    font-size: 40px;
+    cursor: pointer;
+}
+
+@keyframes zoomIn {
+    from { opacity: 0; transform: scale(0.8); }
+    to { opacity: 1; transform: scale(1); }
+}
+</style>
+<div class="modal-box-lg animate-in">
+    <div class="p-modal-header">
+        <div class="p-user-meta">
+            <div class="p-avatar"><i class="fas fa-user-shield"></i></div>
+            <div class="p-title-group">
+                <h2 id="v-full-name"></h2>
+                <p id="v-position"></p>
+            </div>
+        </div>
+        <button id="v-resume-btn" class="btn-resume-link">View Resume</button>
+    </div>
+    <div class="p-modal-body">
+        <div class="p-info-grid">
+            <div class="p-item"><strong>Email:</strong> <span id="v-email"></span></div>
+            <div class="p-item"><strong>Phone:</strong> <span id="v-phone"></span></div>
+            <div class="p-item"><strong>Birthday:</strong> <span id="v-dob"></span></div>
+            <div class="p-item"><strong>Salary:</strong> <span id="v-salary"></span></div>
+        </div>
+        <div class="p-split-grid">
+            <div class="p-column">
+                <h4 class="p-sec-title">Documents</h4>
+                <p><strong>ID Type:</strong> <span id="v-id-type"></span></p>
+                <div class="p-image-frame">
+                    <img id="v-id-img" src="" alt="ID Photo">
+                </div>
+            </div>
+            <div class="p-column">
+                <h4 class="p-sec-title">Experience</h4>
+                <div id="v-experience" class="p-exp-box"></div>
+            </div>
+        </div>
+    </div>
+    <div class="p-modal-footer">
+        <button onclick="window.closeModal('viewModal')" class="btn-secondary">Close</button>
+        <div class="p-action-group">
+            <button id="v-reject-btn" class="btn-refuse">Reject</button>
+            <button id="v-approve-btn" class="btn-hire">Approve & Deploy</button>
+        </div>
+    </div>
+</div>

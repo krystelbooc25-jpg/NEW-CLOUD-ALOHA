@@ -1,0 +1,215 @@
+/* --- UNIVERSAL RESET --- */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f8f9fa;
+    color: #333;
+    min-height: 100vh;
+    /* Inalis ang overflow: hidden para makapag-scroll sa maliliit na phone */
+    overflow-x: hidden; 
+}
+
+.login-container {
+    display: flex;
+    width: 100%;
+    min-height: 100vh;
+    flex-direction: row; /* Side-by-side sa Desktop */
+}
+
+/* --- PANEL STYLING --- */
+.login-panel {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 40px 20px;
+}
+
+/* Left Branding Panel */
+.branding-panel {
+    background-color: #002b5c;
+    color: #fff;
+    text-align: center;
+}
+
+.branding-content {
+    max-width: 400px;
+    width: 100%;
+}
+
+.branding-panel .logo {
+    width: 80px;
+    height: auto;
+    margin-bottom: 20px;
+}
+
+.branding-panel h1 {
+    font-size: clamp(1.8rem, 4vw, 2.5rem); /* Dynamic size */
+    margin-bottom: 15px;
+    font-weight: 600;
+}
+
+.branding-panel p {
+    font-size: 1rem;
+    line-height: 1.6;
+    opacity: 0.8;
+    margin-bottom: 30px;
+}
+
+.back-to-site-link {
+    color: #fff;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    padding: 10px 25px;
+    border-radius: 50px;
+    transition: 0.3s;
+    font-size: 0.9rem;
+}
+
+.back-to-site-link:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-color: #fff;
+}
+
+/* Right Form Panel */
+.form-panel {
+    background-color: #f8f9fa;
+}
+
+.form-content {
+    width: 100%;
+    max-width: 380px;
+}
+
+.form-panel h2 {
+    font-size: 2rem;
+    color: #002b5c;
+    margin-bottom: 10px;
+    font-weight: 700;
+}
+
+.form-panel p {
+    color: #666;
+    margin-bottom: 30px;
+}
+
+/* --- INPUT GROUPS --- */
+.input-group {
+    position: relative;
+    margin-bottom: 20px;
+}
+
+.input-group i {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #999;
+}
+
+.input-group input {
+    width: 100%;
+    padding: 15px 15px 15px 45px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 16px; /* 16px prevents iOS auto-zoom */
+    transition: 0.3s;
+}
+
+.input-group input:focus {
+    outline: none;
+    border-color: #002b5c;
+    box-shadow: 0 0 0 3px rgba(0, 43, 92, 0.15);
+}
+
+/* --- BUTTONS --- */
+.btn-login {
+    display: block;
+    width: 100%;
+    padding: 16px;
+    border: none;
+    border-radius: 8px;
+    background-color: #002b5c;
+    color: #fff;
+    font-size: 1.1rem;
+    font-weight: 600;
+    text-align: center;
+    text-decoration: none;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.btn-login:hover {
+    background-color: #001f44;
+}
+
+.btn-login:active {
+    transform: scale(0.98);
+}
+
+.form-footer {
+    text-align: center;
+    margin-top: 30px;
+    color: #999;
+    font-size: 0.8rem;
+}
+
+/* --- RESPONSIVE MEDIA QUERIES --- */
+
+/* TABLET VIEW */
+@media (max-width: 1024px) {
+    .login-panel { padding: 30px; }
+    .branding-panel h1 { font-size: 2rem; }
+}
+
+/* MOBILE VIEW (Phones) */
+@media (max-width: 768px) {
+    .login-container {
+        flex-direction: column; /* Stack vertically */
+    }
+
+    .branding-panel {
+        padding: 60px 20px;
+        min-height: auto; /* Hayaan siyang mag-adjust sa content */
+    }
+
+    .branding-content {
+        max-width: 100%;
+    }
+
+    .form-panel {
+        padding: 40px 25px;
+        background-color: #ffffff; /* Mas malinis tignan sa mobile */
+    }
+
+    .form-content {
+        max-width: 100%;
+    }
+}
+
+/* SMALL PHONES (iPhone SE, etc) */
+@media (max-width: 480px) {
+    .branding-panel p {
+        display: none; /* Itago ang description para mas mabilis makita ang form */
+    }
+    
+    .branding-panel {
+        padding: 40px 20px;
+    }
+
+    .branding-panel h1 {
+        font-size: 1.5rem;
+    }
+
+    .form-panel h2 {
+        font-size: 1.6rem;
+    }
+}

@@ -1,0 +1,44 @@
+<div class="form-header">
+    <div class="form-icon"><i class="fas fa-clipboard-check"></i></div>
+    <div class="form-title">
+        <h3>Review & Submit</h3>
+        <p>Please double-check your information before submitting</p>
+    </div>
+</div>
+
+<form class="application-form" id="step-form">
+    <div class="application-summary" style="background: rgba(210,4,45,0.05); padding:20px; border-radius:12px; border:1px solid #D2042D; margin-bottom:25px;">
+        <h4 style="color:#D2042D; margin-bottom:15px;">Review Details</h4>
+        <div class="summary-grid" style="display: grid; grid-template-columns: auto 1fr; gap: 10px 20px;">
+            <p><strong>Name:</strong></p><p id="summary-name">Loading...</p>
+            <p><strong>Email:</strong></p><p id="summary-email">Loading...</p>
+            <p><strong>Position:</strong></p><p id="summary-position">Loading...</p>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label>Upload Supporting Documents *</label>
+        <div class="file-upload-container" style="display:flex; gap:15px; margin-top:10px; flex-wrap: wrap;">
+            <div style="flex:1; min-width: 250px; border:2px dashed #d1d9e0; padding:20px; text-align:center; border-radius:10px;">
+                <span>Resume/CV *</span>
+                <input type="file" id="resume-cv" name="resume_file" required style="margin-top:10px; width: 100%;">
+            </div>
+            <div style="flex:1; min-width: 250px; border:2px dashed #d1d9e0; padding:20px; text-align:center; border-radius:10px;">
+                <select id="id-type" name="id_type" class="id-select" required style="width: 100%; margin-bottom: 10px; padding: 8px;">
+                    <option value="">Select ID Type *</option>
+                    <option value="Driver's License">Driver's License</option>
+                    <option value="Passport">Passport</option>
+                    <option value="National ID">National ID</option>
+                </select>
+                <input type="file" id="valid-id" name="id_file" required style="width: 100%;">
+            </div>
+        </div>
+    </div>
+
+    <div style="margin-top:20px;">
+        <label style="cursor:pointer; display: flex; align-items: center; gap: 10px;">
+            <input type="checkbox" id="consent-truth" required> 
+            <span>I certify that all information provided is true and correct.</span>
+        </label>
+    </div>
+</form>

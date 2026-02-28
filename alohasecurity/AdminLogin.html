@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login | ALOHA Security Agency</title>
+    
+    <!-- 1. EXTERNAL RESOURCES -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        /* --- 2. BRANDING & THEME VARIABLES --- */
+        :root {
+            --primary-red: #D2042D;
+            --navy-dark: #0f172a;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --sharp-radius: 3px; /* Sharp modern look */
+            --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* --- 3. BASE RESET --- */
+        * { 
+            box-sizing: border-box; 
+            margin: 0; 
+            padding: 0; 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+        }
+
+        body {
+            background-color: #ffffff;
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+            display: flex;
+        }
+
+        /* --- 4. FULL SCREEN SPLIT LAYOUT --- */
+        .login-main {
+            display: grid;
+            grid-template-columns: 1.2fr 0.8fr;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* --- 5. LEFT PANEL: BRANDING WITH BLURRED IMAGE --- */
+        .branding-section {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 100px;
+            color: white;
+            overflow: hidden;
+            /* Placeholder Security Image - Palitan mo nalang ng actual image file mo */
+            background-image: url('Resources/3.jpg');
+            background-size: cover;
+            background-position: center;
+        }
+
+        /* The Modern Blur Overlay */
+        .branding-section::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(45deg, rgba(15, 23, 42, 0.9) 0%, rgba(210, 4, 45, 0.3) 100%);
+            backdrop-filter: blur(10px); /* Ito yung requested na blur */
+            -webkit-backdrop-filter: blur(10px);
+            z-index: 1;
+        }
+
+        .branding-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .logo-box {
+            width: 90px;
+            height: 90px;
+            background: white;
+            padding: 12px;
+            border-radius: var(--sharp-radius);
+            margin-bottom: 50px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+
+        .logo-box img { width: 100%; height: 100%; object-fit: contain; }
+
+        .branding-content h1 {
+            font-size: 4.5rem;
+            font-weight: 800;
+            line-height: 1;
+            letter-spacing: -3px;
+            margin-bottom: 25px;
+            text-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+
+        .branding-content p {
+            font-size: 1.4rem;
+            color: rgba(255, 255, 255, 0.8);
+            max-width: 500px;
+            line-height: 1.6;
+            margin-bottom: 60px;
+        }
+
+        .back-link {
+            color: white;
+            text-decoration: none;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: var(--transition);
+            font-size: 1.1rem;
+            opacity: 0.7;
+        }
+        .back-link:hover { opacity: 1; transform: translateX(-10px); }
+
+        /* --- 6. RIGHT PANEL: LOGIN FORM --- */
+        .form-section {
+            background: #ffffff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 80px;
+            position: relative;
+        }
+
+        .form-container {
+            width: 100%;
+            max-width: 420px;
+            margin: 0 auto;
+        }
+
+        .form-header { margin-bottom: 50px; }
+        .form-header h2 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--navy-dark);
+            letter-spacing: -1.5px;
+            margin-bottom: 10px;
+        }
+        .form-header p { color: var(--text-muted); font-weight: 500; font-size: 1.1rem; }
+
+        /* Modern Underline Inputs */
+        .input-wrapper {
+            position: relative;
+            margin-bottom: 35px;
+        }
+
+        .input-wrapper i {
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #cbd5e1;
+            font-size: 1.1rem;
+            transition: var(--transition);
+        }
+
+        .input-wrapper input {
+            width: 100%;
+            padding: 15px 10px 15px 40px;
+            border: none;
+            border-bottom: 2px solid #f1f5f9;
+            background: transparent;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-main);
+            transition: var(--transition);
+            border-radius: 0;
+        }
+
+        .input-wrapper input:focus {
+            outline: none;
+            border-bottom-color: var(--primary-red);
+        }
+
+        /* Fix: Icon color change on focus */
+        .input-wrapper input:focus ~ i {
+            color: var(--primary-red);
+        }
+
+        .btn-login {
+            width: 100%;
+            padding: 22px;
+            background: var(--primary-red);
+            color: white;
+            border: none;
+            border-radius: var(--sharp-radius);
+            font-size: 1rem;
+            font-weight: 800;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            transition: var(--transition);
+            box-shadow: 0 10px 30px rgba(210, 4, 45, 0.2);
+            margin-top: 20px;
+        }
+
+        .btn-login:hover {
+            background: var(--navy-dark);
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(15, 23, 42, 0.2);
+        }
+
+        /* --- 7. NOTIFICATIONS & OVERLAYS --- */
+        #error-message, #cooldown-message {
+            font-size: 0.9rem;
+            font-weight: 700;
+            padding: 15px;
+            border-radius: var(--sharp-radius);
+            margin-top: 25px;
+            display: none;
+        }
+
+        #error-message { background: #fef2f2; color: #dc2626; border: 1px solid #fee2e2; }
+        #cooldown-message { background: #eff6ff; color: #2563eb; border: 1px solid #dbeafe; }
+
+        #offline-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(20px);
+            z-index: 9999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-align: center;
+        }
+
+        /* --- 8. RESPONSIVENESS --- */
+        @media (max-width: 1100px) {
+            .branding-section { padding: 50px; }
+            .branding-content h1 { font-size: 3rem; }
+        }
+
+        @media (max-width: 900px) {
+            .login-main { grid-template-columns: 1fr; }
+            .branding-section { display: none; }
+            .form-section { padding: 40px; }
+        }
+    </style>
+</head>
+<body>
+
+    <main class="login-main">
+        <!-- Visual Section (Blurred Security Background) -->
+        <section class="branding-section">
+            <div class="branding-content">
+                <div class="logo-box">
+                    <img src="Resources/logo.jpg" alt="Aloha Logo">
+                </div>
+                <h1>Welcome,<br>Administrator</h1>
+                <p>Your command center for managing professional security services across all active branches.</p>
+                <a href="index.html" class="back-link">
+                    <i class="fas fa-arrow-left"></i> RETURN TO MAIN SITE
+                </a>
+            </div>
+            <p style="position: absolute; bottom: 50px; left: 100px; font-weight: 800; font-size: 0.8rem; opacity: 0.3; letter-spacing: 5px; z-index: 2;">ALOHA SECURITY SYSTEM 2026</p>
+        </section>
+
+        <!-- Form Section -->
+        <section class="form-section">
+            <div class="form-container">
+                <div class="form-header">
+                    <h2>Admin Login</h2>
+                    <p>Enter your secure credentials to proceed.</p>
+                </div>
+
+                <form id="admin-login-form">
+                    <div class="input-wrapper">
+                        <input type="email" id="email" name="email" placeholder="Email Address" required>
+                        <i class="fas fa-envelope"></i>
+                    </div>
+                    <div class="input-wrapper">
+                        <input type="password" id="password" name="password" placeholder="Password" required>
+                        <i class="fas fa-lock"></i> <!-- Standard Free Version Icon Fixed -->
+                    </div>
+                    <button type="submit" id="login-button" class="btn-login">Verify Identity</button>
+                </form>
+
+                <div id="error-message"></div>
+                <div id="cooldown-message"></div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Offline Overlay -->
+    <div id="offline-overlay">
+        <div>
+            <i class="fas fa-wifi-slash" style="font-size: 5rem; color: var(--primary-red); margin-bottom: 30px;"></i>
+            <h1 style="font-size: 3rem; font-weight: 800; letter-spacing: -2px;">SYSTEM OFFLINE</h1>
+            <p>Please check your internet connection to access the dashboard.</p>
+        </div>
+    </div>
+
+    <script>
+        // --- 1. INITIALIZE SUPABASE ---
+        const supabaseUrl = 'https://kkaelwhdcsgaodbhrxqt.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtrYWVsd2hkY3NnYW9kYmhyeHF0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYxOTA4NzksImV4cCI6MjA3MTc2Njg3OX0.wSFv1AZgZDXjGHiIwOHyWzqTDk0v6NbR4-2r90iF9ok';
+        const { createClient } = supabase;
+        const supabaseClient = createClient(supabaseUrl, supabaseKey);
+
+        const loginForm = document.getElementById('admin-login-form');
+        const loginButton = document.getElementById('login-button');
+        const errorMessage = document.getElementById('error-message');
+        const cooldownMessage = document.getElementById('cooldown-message');
+        const offlineOverlay = document.getElementById('offline-overlay');
+
+        let loginAttempts = parseInt(localStorage.getItem('loginAttempts')) || 0;
+        let cooldownUntil = parseInt(localStorage.getItem('cooldownUntil')) || 0;
+        let cooldownTimer;
+
+        // --- 2. COOLDOWN LOGIC ---
+        function handleCooldown() {
+            const now = Date.now();
+            if (now < cooldownUntil) {
+                loginForm.email.disabled = true;
+                loginForm.password.disabled = true;
+                loginButton.disabled = true;
+                loginButton.style.opacity = "0.4";
+                cooldownMessage.style.display = "block";
+
+                cooldownTimer = setInterval(() => {
+                    const remaining = Math.ceil((cooldownUntil - Date.now()) / 1000);
+                    if (remaining > 0) {
+                        cooldownMessage.textContent = `Too many attempts. Try again in ${remaining}s.`;
+                    } else {
+                        clearInterval(cooldownTimer);
+                        cooldownMessage.style.display = "none";
+                        loginForm.email.disabled = false;
+                        loginForm.password.disabled = false;
+                        loginButton.disabled = false;
+                        loginButton.style.opacity = "1";
+                    }
+                }, 1000);
+            }
+        }
+
+        // --- 3. FORM SUBMISSION ---
+        loginForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            errorMessage.style.display = 'none';
+            loginButton.innerText = "AUTHENTICATING...";
+            loginButton.disabled = true;
+
+            const email = loginForm.email.value;
+            const password = loginForm.password.value;
+
+            try {
+                const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+                if (error) {
+                    loginAttempts++;
+                    localStorage.setItem('loginAttempts', loginAttempts);
+
+                    let cooldownDuration = 0;
+                    if (loginAttempts === 3) cooldownDuration = 30;
+                    else if (loginAttempts === 4) cooldownDuration = 60;
+                    else if (loginAttempts >= 5) cooldownDuration = 300;
+
+                    if (cooldownDuration > 0) {
+                        cooldownUntil = Date.now() + cooldownDuration * 1000;
+                        localStorage.setItem('cooldownUntil', cooldownUntil);
+                        handleCooldown();
+                    }
+                    errorMessage.textContent = error.message;
+                    errorMessage.style.display = 'block';
+                    loginButton.innerText = "VERIFY IDENTITY";
+                    loginButton.disabled = false;
+                } else {
+                    localStorage.removeItem('loginAttempts');
+                    localStorage.removeItem('cooldownUntil');
+                    window.location.href = 'dashboard.html';
+                }
+            } catch (error) {
+                errorMessage.textContent = 'Connection Error. Please try again.';
+                errorMessage.style.display = 'block';
+                loginButton.innerText = "VERIFY IDENTITY";
+                loginButton.disabled = false;
+            }
+        });
+
+        // --- 4. OFFLINE STATUS ---
+        function updateOnlineStatus() {
+            offlineOverlay.style.display = navigator.onLine ? 'none' : 'flex';
+        }
+        window.addEventListener('online', updateOnlineStatus);
+        window.addEventListener('offline', updateOnlineStatus);
+
+        handleCooldown();
+        updateOnlineStatus();
+    </script>
+</body>
+</html>

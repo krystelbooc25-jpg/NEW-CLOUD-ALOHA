@@ -1,0 +1,413 @@
+/* --- 1. ROOT VARIABLES --- */
+:root {
+    --primary-red: #D2042D;
+    --active-red: #A00322;
+    --dark-bg: #1a1a1a;
+    --light-gray: #f8f9fa;
+    --sidebar-width: 260px;
+    --sidebar-rail-width: 80px;
+    --transition-speed: 0.35s;
+    --bezier: cubic-bezier(0.4, 0, 0.2, 1);
+    --white: #ffffff;
+    --primary-red: #D2042D;
+    --active-red: #A00322;
+    --sidebar-full: 260px;
+    --sidebar-rail: 80px;
+    --transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    --white: #ffffff;
+    --shadow: 0 4px 15px rgba(0,0,0,0.05);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+body { background-color: #f4f7f6; display: flex; min-height: 100vh; overflow-x: hidden; }
+
+/* --- 2. BASE STYLES --- */
+* { 
+    box-sizing: border-box; 
+    margin: 0; 
+    padding: 0; 
+    font-family: 'Inter', 'Segoe UI', sans-serif; 
+}
+
+body { 
+    background-color: #f4f7f6; 
+    display: flex; 
+    min-height: 100vh; 
+    color: #333; 
+    overflow-x: hidden; 
+}
+
+/* --- 3. SIDEBAR --- */
+.sidebar {
+    width: var(--sidebar-full);
+    height: 100vh;
+    position: fixed;
+    top: 0; left: 0;
+    background-color: var(--primary-red);
+    transition: var(--transition);
+    z-index: 1100;
+    display: flex;
+    flex-direction: column;
+}
+.sidebar.rail { width: var(--sidebar-rail); }
+
+/* Sidebar UI Tweak */
+.sidebar.rail .nav-label, .sidebar.rail .logo-details, .sidebar.rail .logo-subtitle { display: none; }
+.sidebar.rail .logo-card { justify-content: center; padding: 10px; }
+.sidebar.rail .nav-item { justify-content: center; }
+
+/* --- 4. HEADER BAR (Fixing Alignment) --- */
+
+
+.header-left { display: flex; align-items: center; gap: 15px; }
+.header-right { display: flex; align-items: center; gap: 25px; }
+
+
+/* Sidebar Logo & Card */
+.logo-card-wrapper {
+    padding: 15px;
+    transition: padding var(--transition-speed);
+}
+
+.logo-card {
+    position: relative;
+    background: rgba(0, 0, 0, 0.2);
+    padding: 15px;
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    overflow: hidden;
+    z-index: 1;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* The Animated Rotating Border */
+.logo-card::before {
+    content: '';
+    position: absolute;
+    top: -50%; left: -50%; width: 200%; height: 200%;
+    background: conic-gradient(transparent, transparent, transparent, var(--white));
+    animation: rotateBorder 4s linear infinite;
+    z-index: -1;
+}
+
+.logo-card::after {
+    content: '';
+    position: absolute;
+    inset: 2px;
+    background: var(--primary-red);
+    border-radius: 13px;
+    z-index: -1;
+}
+
+@keyframes rotateBorder {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.logo-img-container {
+    width: 45px; height: 45px;
+    background: white;
+    border-radius: 10px;
+    display: flex; justify-content: center; align-items: center;
+    flex-shrink: 0;
+}
+
+.logo-img-container img { height: 30px; width: auto; border-radius: 50%; }
+
+.logo-title { color: var(--white); font-size: 18px; font-weight: 800; letter-spacing: 1px; }
+.logo-subtitle { color: rgba(255, 255, 255, 0.7); font-size: 10px; text-transform: uppercase; }
+
+/* Sidebar Navigation Items */
+.nav-item { 
+    padding: 15px 25px; 
+    color: rgba(255,255,255,0.8); 
+    text-decoration: none; 
+    display: flex; align-items: center; gap: 15px; 
+    cursor: pointer; transition: var(--transition-speed) var(--bezier);
+}
+
+.nav-item i { width: 20px; font-size: 1.2rem; }
+.nav-item:hover { background: rgba(0, 0, 0, 0.1); color: white; }
+.nav-item.active { background: var(--active-red); color: white; border-left: 5px solid white; }
+
+/* Rail Adjustments for Items */
+.sidebar.rail .logo-card-wrapper { padding: 10px; }
+.sidebar.rail .logo-card { justify-content: center; }
+.sidebar.rail .logo-details, .sidebar.rail .nav-label, .sidebar.rail .logo-card::before { display: none; }
+.sidebar.rail .nav-item { justify-content: center; padding: 15px 0; }
+
+/* --- 4. MAIN CONTENT AREA --- */
+.main-content { 
+    flex: 1; 
+    display: flex; 
+    flex-direction: column; 
+    width: 100%; 
+    height: auto;
+}
+
+/* HEADER BAR */
+.header-bar { 
+    background: white; 
+    padding: 0 30px; 
+    height: 70px;
+    display: flex; justify-content: space-between; align-items: center; 
+    box-shadow: 0 2px 15px rgba(0,0,0,0.05); 
+    position: relative; top: 0; z-index: 100;
+    left: -150px;
+    margin-left: var(--sidebar-width);
+    width: 105%;
+    transition: margin-left var(--transition-speed) var(--bezier), width var(--transition-speed) var(--bezier);
+    overflow-y: hidden;
+}
+/* --- THE ACTIVE TOGGLES (When Sidebar is Rail) --- */
+
+.header-left{
+    gap: 20px;
+}
+.menu-toggle {
+    position: absolute;
+    width: 30px;
+}
+.menu-toggle.active {
+     position: absolute;
+     left: 50px;
+}
+.header-bar.active .header-left.active {
+    margin-left: var(--sidebar-rail-width);
+    width: calc(100% - var(--sidebar-rail-width));
+}
+
+
+/* CONTENT BODY */
+.content-body { 
+    padding: 30px; 
+    transition: var(--transition);
+    margin-left: var(--sidebar-full);
+    max-width: calc(100% - var(--sidebar-full));
+}
+.content-body.active { 
+    margin-left: var(--sidebar-rail); 
+    max-width: calc(100% - var(--sidebar-rail));
+    transition: var(--transition);
+}
+
+/* --- 7. PAGINATION (Centered Fix) --- */
+.pagination-container {
+    display: flex;
+    flex-direction: column; /* Stack info and buttons */
+    align-items: center; 
+    gap: 15px;
+    padding: 20px;
+    background: #fff;
+    border-top: 1px solid #eee;
+}
+.pagination-buttons { display: flex; align-items: center; gap: 10px; }
+
+
+
+/* --- 5. UI COMPONENTS (Stats, Tables, Cards) --- */
+.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; margin-bottom: 30px; }
+
+.stat-card { 
+    background: white; padding: 25px; border-radius: 12px; 
+    border-left: 5px solid var(--primary-red); 
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    transition: transform 0.2s;
+}
+
+.stat-card:hover { transform: translateY(-5px); }
+.stat-card h4 { color: #888; font-size: 0.9rem; text-transform: uppercase; }
+.stat-card .value { font-size: 32px; font-weight: 700; margin: 10px 0; }
+.stat-card .change { display: flex; align-items: center; gap: 5px; font-size: 0.9rem; }
+
+
+
+/* --- 6. TABLES & CARDS --- */
+.card { 
+    background: var(--white); border-radius: 12px; 
+    box-shadow: 0 5px 20px rgba(0,0,0,0.05); overflow: hidden; 
+}
+
+table { width: 100%; border-collapse: collapse; }
+th { background: #f8f9fa; padding: 15px 20px; text-align: left; font-size: 0.85rem; color: #666; text-transform: uppercase; }
+td { padding: 15px 20px; border-bottom: 1px solid #eee; vertical-align: middle; font-size: 14px; }
+tr:hover { background-color: #fafafa; }
+
+/* Status Badges */
+.badge { padding: 6px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; display: inline-block; text-transform: uppercase; }
+.badge.pending { background: #fff4e5; color: #d48806; }
+.badge.approved { background: #e6f7ff; color: #1890ff; }
+.badge.rejected { background: #fff1f0; color: #f5222d; }
+
+/* --- 7. BUTTONS (Modern System) --- */
+.btn-primary, .btn-secondary, .btn-hire, .btn-refuse, .btn-add, .btn-pag {
+    padding: 10px 18px; border-radius: 10px; font-size: 13px; font-weight: 700;
+    cursor: pointer; transition: all 0.25s var(--bezier);
+    border: none; display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+}
+
+.btn-add { background: var(--primary-red); color: var(--white); }
+.btn-add:hover { background: var(--active-red); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(210, 4, 45, 0.2); }
+
+.btn-hire { background: #27ae60; color: white; box-shadow: 0 4px 12px rgba(39, 174, 96, 0.2); }
+.btn-hire:hover { background: #219150; transform: translateY(-2px); box-shadow: 0 6px 15px rgba(39, 174, 96, 0.3); }
+
+.btn-refuse { background: #fff1f0; color: #e74c3c; border: 1px solid #ffa39e; }
+.btn-refuse:hover { background: #e74c3c; color: white; transform: translateY(-2px); }
+
+.btn-secondary { background: #f1f2f6; color: #57606f; }
+
+/* Small Icon Buttons (View/Delete) */
+.btn-sm { width: 36px; height: 36px; border-radius: 8px; border: none; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; justify-content: center; }
+.btn-view { background: #eef2f7; color: #3498db; }
+.btn-view:hover { background: #3498db; color: white; }
+.btn-delete { background: #fff1f0; color: #f5222d; }
+.btn-delete:hover { background: #f5222d; color: white; }
+
+/* --- 8. BRANCH ACCORDIONS --- */
+.branch-accordion { margin-bottom: 15px; border-radius: 10px; overflow: hidden; background: white; border: 1px solid #eee; }
+/* --- BRANCH CARD & IMAGE --- */
+.branch-card {
+    background: white;
+    border-radius: 16px;
+    border: 1px solid #edf2f7;
+    box-shadow: var(--shadow);
+    margin-bottom: 20px;
+    overflow: hidden;
+    transition: transform 0.3s ease;
+}
+
+.branch-card:hover {
+    transform: translateY(-5px);
+}
+
+.branch-image-wrapper {
+    width: 100%;
+    height: 150px; /* Height of the branch photo */
+    background: #f1f2f6;
+    overflow: hidden;
+    position: relative;
+}
+
+.branch-image-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: brightness(0.9);
+    transition: 0.5s ease;
+}
+
+.branch-card:hover .branch-image-wrapper img {
+    transform: scale(1.05);
+    filter: brightness(1);
+}
+
+.branch-info-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    padding: 15px 20px;
+    background: linear-gradient(transparent, rgba(0,0,0,0.7));
+    color: white;
+}
+
+.branch-name-text {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+}
+
+.branch-stats-bar {
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #f1f2f6;
+    background: #fff;
+    cursor: pointer;
+}
+
+/* Deployed Guards List */
+.guard-list-container {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    background: #fafbfc;
+}
+
+.guard-list-container.active {
+    max-height: 500px; /* Adjust based on content */
+    padding: 10px 20px 20px;
+}
+.accordion-header { padding: 18px 25px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; font-weight: 600; }
+.accordion-header i { color: var(--primary-red); transition: transform 0.3s; }
+.accordion-content { max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; background: #fafafa; padding: 0 25px; }
+.accordion-content.active { max-height: 500px; padding: 15px 25px; border-top: 1px solid #eee; }
+.guard-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #eee; }
+
+/* --- 9. NOTIFICATIONS --- */
+/* Notification & Profile Alignment */
+.notification-wrapper { position: relative; cursor: pointer; }
+.admin-profile { display: flex; align-items: center; gap: 10px; border-left: 1px solid #eee; padding-left: 20px; }
+.admin-label { font-size: 12px; font-weight: 700; color: #888; text-transform: uppercase; }
+.admin-avatar { width: 35px; height: 35px; background: #f0f2f5; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #555; }
+.notification-bell { font-size: 1.4rem; color: #666; }
+.notification-badge { 
+    position: absolute; top: -5px; right: -5px; background: #ff4d4f; color: white; 
+    border-radius: 50%; width: 18px; height: 18px; font-size: 10px; 
+    display: none; align-items: center; justify-content: center; font-weight: 800; border: 2px solid white;
+}
+
+/* --- 5. NOTIFICATION BOX (Floating Box Design) --- */
+.notif-dropdown {
+    position: absolute; top: 50px; right: -10px; width: 320px;
+    background: white; border-radius: 15px; 
+    box-shadow: 0 15px 40px rgba(0,0,0,0.2); 
+    display: none; flex-direction: column; z-index: 2000;
+    border: 1px solid rgba(0,0,0,0.05);
+    overflow: hidden;
+}
+.notif-dropdown.active { display: flex; animation: slideIn 0.3s ease; }
+.notif-header { padding: 15px 20px; background: #fafbfc; font-weight: 800; border-bottom: 1px solid #eee; font-size: 14px; }
+.notif-item { display: flex; padding: 12px 20px; gap: 12px; border-bottom: 1px solid #f8f9fa; transition: 0.2s; }
+.notif-item:hover { background: #fff1f0; }
+
+@keyframes notifIn { from { opacity: 0; transform: translateY(-10px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
+
+/* --- 10. MODALS --- */
+.modal-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px);
+    display: none; justify-content: center; align-items: center; z-index: 3000;
+}
+.modal-overlay.active { display: flex; }
+.modal-box {
+    background: white; width: 90%; max-width: 400px; padding: 30px; border-radius: 20px;
+    text-align: center; transform: scale(0.9); opacity: 0; transition: 0.3s;
+}
+.modal-overlay.active .modal-box { transform: scale(1); opacity: 1; }
+
+/* --- 11. CAROUSEL ANIMATIONS (Sections) --- */
+#main-content-area { position: relative; width: 100%; transition: opacity 0.4s ease; }
+.slide-up-out { animation: slideUpOut 0.4s forwards ease-in-out; }
+.slide-up-in { animation: slideUpIn 0.4s forwards ease-in-out; }
+.slide-down-out { animation: slideDownOut 0.4s forwards ease-in-out; }
+.slide-down-in { animation: slideDownIn 0.4s forwards ease-in-out; }
+
+@keyframes slideUpOut { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-40px); } }
+@keyframes slideUpIn { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes slideDownOut { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(40px); } }
+@keyframes slideDownIn { from { opacity: 0; transform: translateY(-40px); } to { opacity: 1; transform: translateY(0); } }
+
+/* --- 12. RESPONSIVE --- */
+@media (max-width: 992px) {
+    .sidebar { left: -260px; }
+    .sidebar.open { left: 0; }
+    .header-bar, .header-bar.active, .content-body, .content-body.active { margin-left: 0 !important; width: 100% !important; }
+    .menu-toggle { display: block; cursor: pointer; font-size: 1.5rem; color: var(--primary-red); }
+    .charts-container { grid-template-columns: 1fr; }
+}
+
+/* --- trash html d

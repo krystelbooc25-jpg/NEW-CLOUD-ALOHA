@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aloha Security Agency | Elite 2026 Protection</title>
+    <!-- Modern Tech Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Space+Grotesk:wght@300;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* --- 2026 GLOBAL DESIGN SYSTEM --- */
+        :root {
+            /* Default Dark Mode (Cyber Aesthetic) */
+            --primary: #FF3B3F; 
+            --accent: #00F2FF;
+            --bg-dark: #0a0a0c;
+            --header-bg: rgba(10, 10, 12, 0.8);
+            --glass: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --text-main: #f0f0f0;
+            --text-dim: #a0a0a0;
+            --card-hover: rgba(255, 255, 255, 0.05);
+            --hero-overlay: radial-gradient(circle at center, transparent 20%, #0a0a0c 90%);
+            --transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        /* --- WARM LIGHT MODE (Soft Aesthetic) --- */
+        [data-theme="light"] {
+            --bg-dark: #fcfaf7; /* Warm Cream White */
+            --header-bg: rgba(252, 250, 247, 0.85);
+            --glass: rgba(139, 69, 19, 0.05); /* Soft Amber Glass */
+            --glass-border: rgba(139, 69, 19, 0.1);
+            --text-main: #2c2c2e; /* Dark Charcoal */
+            --text-dim: #5a5a5c;
+            --card-hover: rgba(139, 69, 19, 0.03);
+            --hero-overlay: linear-gradient(to bottom, rgba(252, 250, 247, 0.4), rgba(252, 250, 247, 0.95));
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            overflow-x: hidden;
+            line-height: 1.6;
+            transition: background-color 0.5s ease, color 0.5s ease;
+        }
+
+        .container { max-width: 1300px; margin: 0 auto; padding: 0 25px; }
+
+        /* --- LOADING SCREEN --- */
+        #loading-screen {
+            position: fixed; inset: 0; background: #000; z-index: 9999;
+            display: flex; justify-content: center; align-items: center;
+            transition: opacity 0.8s ease;
+        }
+        .spinner {
+            width: 60px; height: 60px; border: 3px solid transparent;
+            border-top-color: var(--primary); border-radius: 50%;
+            animation: spin 1s infinite linear;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* --- HEADER & NAVIGATION --- */
+        header {
+            position: fixed; top: 0; width: 100%; z-index: 1000;
+            background: var(--header-bg); backdrop-filter: blur(15px);
+            border-bottom: 1px solid var(--glass-border); padding: 15px 0;
+            transition: var(--transition);
+        }
+        header .container { display: flex; justify-content: space-between; align-items: center; }
+
+        .logo { display: flex; align-items: center; gap: 15px; }
+        .logo img { height: 45px; filter: drop-shadow(0 0 8px var(--primary)); border-radius: 8px; }
+        .logo-text h1 { font-family: 'Space Grotesk', sans-serif; font-size: 1.1rem; text-transform: uppercase; color: var(--text-main); letter-spacing: 1px; }
+        .logo-text p { font-size: 0.65rem; color: var(--primary); font-weight: 700; letter-spacing: 2px; }
+
+        nav { display: flex; align-items: center; gap: 15px; }
+
+        .btn {
+            padding: 10px 20px; border-radius: 10px; text-decoration: none;
+            font-weight: 600; font-size: 0.85rem; transition: var(--transition);
+            display: flex; align-items: center; gap: 8px; cursor: pointer; border: none;
+        }
+        .btn-primary { background: var(--primary); color: white; box-shadow: 0 8px 15px rgba(255, 59, 63, 0.2); }
+        .btn-secondary { background: var(--glass); color: var(--text-main); border: 1px solid var(--glass-border); }
+        
+        /* --- THEME TOGGLE (Dulo ng Nav) --- */
+        .theme-toggle {
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            color: var(--text-main);
+            width: 40px; height: 40px; border-radius: 10px;
+            cursor: pointer; display: flex; align-items: center; justify-content: center;
+            font-size: 1rem; transition: var(--transition);
+        }
+        .theme-toggle:hover { border-color: var(--primary); transform: scale(1.05); }
+
+        /* Ghost Admin Trigger */
+        .admin-discreet-trigger {
+            position: fixed; bottom: 25px; left: 25px; z-index: 998;
+            opacity: 0.1; transition: var(--transition);
+        }
+        .admin-discreet-trigger:hover { opacity: 0.8; transform: rotate(90deg); }
+        .btn-ghost-admin {
+            background: none; border: 1px solid var(--glass-border); color: var(--text-dim);
+            width: 30px; height: 30px; border-radius: 5px; cursor: pointer; display: flex;
+            align-items: center; justify-content: center; font-size: 0.7rem;
+        }
+
+        .btn:hover { transform: translateY(-2px); filter: brightness(1.1); }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+        /* --- HERO SLIDER --- */
+        .hero { position: relative; height: 100vh; display: flex; align-items: center; overflow: hidden; background: #000; }
+        .hero-slides { position: absolute; inset: 0; z-index: 1; }
+        .slide {
+            position: absolute; inset: 0; background-size: cover; background-position: center;
+            opacity: 0; transform: scale(1.05); transition: opacity 1.5s ease, transform 6s linear;
+        }
+        .slide.active { opacity: 0.5; transform: scale(1); }
+        
+        /* Warm Overlay for Light Mode Hero */
+        [data-theme="light"] .slide.active { opacity: 0.35; filter: sepia(20%); }
+
+        .hero-overlay { position: absolute; inset: 0; background: var(--hero-overlay); z-index: 2; transition: background 0.5s ease; }
+        .hero-content { position: relative; z-index: 3; max-width: 850px; }
+        .hero-content h2 { font-family: 'Space Grotesk', sans-serif; font-size: clamp(2rem, 7vw, 4rem); margin-bottom: 20px; font-weight: 800; line-height: 1.1; }
+        .hero-content p { font-size: 1.1rem; color: var(--text-dim); margin-bottom: 30px; max-width: 600px; }
+
+        .slider-btn {
+            position: absolute; bottom: 40px; z-index: 10;
+            background: var(--glass); border: 1px solid var(--glass-border);
+            color: var(--text-main); width: 55px; height: 55px; border-radius: 50%; cursor: pointer;
+            backdrop-filter: blur(10px);
+        }
+        .prev-btn { right: 110px; } .next-btn { right: 30px; }
+
+        /* --- SECTION STYLING --- */
+        .section-padding { padding: 120px 0; }
+        .section-title { margin-bottom: 70px; }
+        .title-accent { width: 50px; height: 4px; background: var(--primary); margin-bottom: 15px; border-radius: 10px; }
+        .section-title h2 { font-family: 'Space Grotesk', sans-serif; font-size: 2.8rem; margin-bottom: 15px; }
+        .section-title p { color: var(--text-dim); font-size: 1.1rem; }
+
+        /* --- BENTO GRID CARDS --- */
+        .info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 30px; }
+        .info-card {
+            background: var(--glass); padding: 45px; border-radius: 28px;
+            border: 1px solid var(--glass-border); transition: var(--transition);
+        }
+        .info-card:hover { border-color: var(--primary); background: var(--card-hover); transform: translateY(-10px); }
+        .info-card i { font-size: 2.8rem; color: var(--primary); margin-bottom: 30px; display: block; }
+        .info-card h3 { margin-bottom: 20px; font-family: 'Space Grotesk'; font-size: 1.6rem; }
+        .info-card ul { list-style: none; }
+        .info-card li { color: var(--text-dim); margin-bottom: 12px; display: flex; align-items: center; gap: 12px; font-size: 0.95rem; }
+        .info-card li i { font-size: 0.85rem; color: var(--accent); margin: 0; display: inline; }
+
+        /* --- WHY CHOOSE US --- */
+        .why-choose-us { background: var(--bg-dark); padding: 120px 0; position: relative; transition: background-color 0.5s ease; }
+        .features { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 50px; }
+        .feature-item { text-align: center; }
+        .feature-item .icon { 
+            width: 85px; height: 85px; background: var(--glass); border-radius: 24px;
+            display: flex; align-items: center; justify-content: center; margin: 0 auto 30px;
+            font-size: 2.2rem; color: var(--primary); border: 1px solid var(--glass-border);
+            transition: var(--transition);
+        }
+        .feature-item:hover .icon { background: var(--primary); color: white; transform: rotate(10deg); }
+
+        /* --- ADMIN MODAL --- */
+        .modal-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.92); backdrop-filter: blur(15px);
+            z-index: 2000; display: none; align-items: center; justify-content: center;
+        }
+        .modal-content {
+            background: #121214; padding: 50px; border-radius: 32px; width: 100%; max-width: 420px;
+            border: 1px solid var(--glass-border); text-align: center; color: white;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.5);
+            transform: scale(0.9); transition: 0.3s;
+        }
+        .modal-overlay.active { display: flex; }
+        .modal-overlay.active .modal-content { transform: scale(1); }
+        
+        .modal-input {
+            width: 100%; padding: 18px; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border);
+            border-radius: 15px; color: white; font-size: 1.1rem; margin-bottom: 25px; outline: none;
+            text-align: center; letter-spacing: 6px; transition: 0.3s;
+        }
+        .modal-input:focus { border-color: var(--primary); background: rgba(255,255,255,0.08); }
+
+        /* --- FOOTER --- */
+        footer { padding: 80px 0; border-top: 1px solid var(--glass-border); text-align: center; opacity: 0.8; }
+        footer p { font-size: 0.9rem; color: var(--text-dim); }
+
+        /* --- ANIMATIONS --- */
+        [data-aos] { opacity: 0; transform: translateY(30px); transition: 0.8s cubic-bezier(0.16, 1, 0.3, 1); }
+        .aos-animate { opacity: 1; transform: translateY(0); }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20% { transform: translateX(-8px); }
+            40% { transform: translateX(8px); }
+            60% { transform: translateX(-8px); }
+            80% { transform: translateX(8px); }
+        }
+
+        @media (max-width: 768px) {
+            header .container { flex-direction: column; gap: 15px; }
+            nav { width: 100%; justify-content: center; }
+            .hero-content h2 { font-size: 2.5rem; }
+            .slider-btn { bottom: 20px; width: 45px; height: 45px; }
+            .prev-btn { right: 80px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- PRELOADER -->
+    <div id="loading-screen">
+        <div class="spinner"></div>
+    </div>
+
+    <!-- ADMIN MODAL -->
+    <div class="modal-overlay" id="adminModal">
+        <div class="modal-content">
+            <i class="fas fa-fingerprint" id="modal-icon" style="font-size: 3.5rem; color: var(--primary); margin-bottom: 25px;"></i>
+            <h3 style="font-family: 'Space Grotesk'; font-size: 1.8rem; margin-bottom: 10px;">Security Override</h3>
+            <p id="modal-instruction" style="font-size: 0.95rem; color: #888; margin-bottom: 30px;">Authorized Access Only</p>
+            
+            <input type="password" id="adminPass" class="modal-input" placeholder="••••••">
+            
+            <div id="modal-error" style="color: var(--primary); font-size: 0.85rem; margin-bottom: 20px; display: none; font-weight: 600;"></div>
+            
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+                <button id="authBtn" onclick="verifyAdmin()" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 15px;">Authenticate Node</button>
+                <button onclick="closeModal()" style="background:none; border:none; color: #555; cursor:pointer; font-size: 0.85rem;">Abort Connection</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- GHOST ADMIN TRIGGER -->
+    <div class="admin-discreet-trigger">
+        <button onclick="openModal()" class="btn-ghost-admin">
+            <i class="fas fa-shield-halved"></i>
+        </button>
+    </div>
+
+    <header>
+        <div class="container">
+            <div class="logo">
+                <img src="Resources/logo.jpg" alt="Logo">
+                <div class="logo-text">
+                    <h1>Aloha Security</h1>
+                    <p>ELITE PROTECTION 2026</p>
+                </div>
+            </div>
+            <nav>
+                <a href="applicant-portal.html" class="btn btn-secondary"><i class="fas fa-fingerprint"></i> Portal</a>
+                <a href="application.html" class="btn btn-primary">Join Elite Team</a>
+                <button class="theme-toggle" id="themeToggle">
+                    <i class="fas fa-moon" id="themeIcon"></i>
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <!-- HERO SECTION -->
+        <section class="hero">
+            <div class="hero-slides">
+                <div class="slide active" style="background-image: url('Resources/1.jpg');"></div>
+                <div class="slide" style="background-image: url('Resources/2.jpg');"></div>
+                <div class="slide" style="background-image: url('Resources/3.jpg');"></div>
+            </div>
+            <div class="hero-overlay"></div>
+            <div class="container hero-content">
+                <h2 data-aos>Redefining <br><span style="color: var(--primary);">Next-Gen Safety.</span></h2>
+                <p data-aos>Integrating advanced human intelligence with modern security protocols to protect what matters most to you.</p>
+                <div style="display: flex; gap: 15px;" data-aos>
+                    <a href="application.html" class="btn btn-primary" style="padding: 15px 30px;"><i class="fas fa-shield-halved"></i> Start Application</a>
+                    <a href="#requirements" class="btn btn-secondary" style="padding: 15px 30px;">Our Standards</a>
+                </div>
+            </div>
+            <button class="slider-btn prev-btn" id="prevBtn"><i class="fas fa-arrow-left"></i></button>
+            <button class="slider-btn next-btn" id="nextBtn"><i class="fas fa-arrow-right"></i></button>
+        </section>
+
+        <!-- REQUIREMENTS SECTION -->
+        <section class="section-padding" id="requirements">
+            <div class="container">
+                <div class="section-title" data-aos>
+                    <div class="title-accent"></div>
+                    <h2>Elite Requirements</h2>
+                    <p>Our personnel undergo rigorous verification to maintain the highest standards of service.</p>
+                </div>
+                <div class="info-grid">
+                    <div class="info-card" data-aos>
+                        <i class="fas fa-id-card"></i>
+                        <h3>Credentialing</h3>
+                        <ul>
+                            <li><i class="fas fa-check-circle"></i> Active SOSIA Security License</li>
+                            <li><i class="fas fa-check-circle"></i> Clean NBI & Police Records</li>
+                            <li><i class="fas fa-check-circle"></i> PSA Verified Documentation</li>
+                        </ul>
+                    </div>
+                    <div class="info-card" data-aos>
+                        <i class="fas fa-brain"></i>
+                        <h3>Intellectual</h3>
+                        <ul>
+                            <li><i class="fas fa-check-circle"></i> Min. High School / College Level</li>
+                            <li><i class="fas fa-check-circle"></i> Certified Security Training</li>
+                            <li><i class="fas fa-check-circle"></i> Neuro-Psychiatric Clearance</li>
+                        </ul>
+                    </div>
+                    <div class="info-card" data-aos>
+                        <i class="fas fa-user-check"></i>
+                        <h3>Physiology</h3>
+                        <ul>
+                            <li><i class="fas fa-check-circle"></i> Comprehensive Drug Screen</li>
+                            <li><i class="fas fa-check-circle"></i> Medical Fitness Certificate</li>
+                            <li><i class="fas fa-check-circle"></i> Height: 5'5"(M) / 5'2"(F)</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- WHY CHOOSE ALOHA - THE ALOHA ADVANTAGE -->
+        <section class="why-choose-us" id="why">
+            <div class="container">
+                <div class="section-title" style="text-align: center;" data-aos>
+                    <div class="title-accent" style="margin: 0 auto 15px;"></div>
+                    <h2>Why Choose Aloha Security?</h2>
+                    <p>We are the industry leaders in 2026 security protocols.</p>
+                </div>
+                <div class="features">
+                    <div class="feature-item" data-aos>
+                        <div class="icon"><i class="fas fa-user-shield"></i></div>
+                        <h3>Professional Training</h3>
+                        <p>Comprehensive security training programs and ongoing professional development.</p>
+                    </div>
+                    <div class="feature-item" data-aos>
+                        <div class="icon"><i class="fas fa-map-location-dot"></i></div>
+                        <h3>Local Opportunities</h3>
+                        <p>Serve your community across multiple locations with flexible scheduling options.</p>
+                    </div>
+                    <div class="feature-item" data-aos>
+                        <div class="icon"><i class="fas fa-award"></i></div>
+                        <h3>Competitive Benefits</h3>
+                        <p>Excellent compensation package with health benefits and career advancement.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- BENEFITS SECTION -->
+        <section class="section-padding">
+            <div class="container">
+                <div class="section-title" data-aos>
+                    <div class="title-accent"></div>
+                    <h2>Personnel Welfare</h2>
+                    <p>We believe that well-protected officers provide the best protection for our clients.</p>
+                </div>
+                <div class="info-grid">
+                    <div class="info-card" data-aos>
+                        <i class="fas fa-wallet"></i>
+                        <h3>Financial</h3>
+                        <ul>
+                            <li><i class="fas fa-circle-dot"></i> Competitive Salary Packages</li>
+                            <li><i class="fas fa-circle-dot"></i> Night & Overtime Differentials</li>
+                            <li><i class="fas fa-circle-dot"></i> Guaranteed 13th Month Pay</li>
+                        </ul>
+                    </div>
+                    <div class="info-card" data-aos>
+                        <i class="fas fa-notes-medical"></i>
+                        <h3>Health & Safety</h3>
+                        <ul>
+                            <li><i class="fas fa-circle-dot"></i> SSS, PhilHealth, Pag-IBIG</li>
+                            <li><i class="fas fa-circle-dot"></i> Comprehensive HMO Plans</li>
+                            <li><i class="fas fa-circle-dot"></i> Paid Sick & Vacation Leaves</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+    
+    <footer>
+        <div class="container">
+            <p>&copy; 2026 Aloha Security Agency. All Rights Reserved.</p>
+            <p style="font-size: 0.65rem; margin-top: 15px; opacity: 0.3; letter-spacing: 2px;">SECURE NODE: ALPHA-26</p>
+        </div>
+    </footer>
+
+    <script>
+        // --- THEME ENGINE ---
+        const themeToggle = document.getElementById('themeToggle');
+        const themeIcon = document.getElementById('themeIcon');
+        
+        const currentTheme = localStorage.getItem('theme') || 'dark';
+        document.body.setAttribute('data-theme', currentTheme);
+        updateIcon(currentTheme);
+
+        themeToggle.addEventListener('click', () => {
+            let theme = document.body.getAttribute('data-theme');
+            let newTheme = (theme === 'dark') ? 'light' : 'dark';
+            document.body.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            updateIcon(newTheme);
+        });
+
+        function updateIcon(theme) {
+            themeIcon.className = (theme === 'light') ? 'fas fa-sun' : 'fas fa-moon';
+        }
+
+        // --- AUTHENTICATION & PERSISTENCE ---
+        const LOCK_TIME_KEY = "node_lock_until";
+        const ATTEMPTS_KEY = "node_attempts";
+        const LOCK_DURATION = 5 * 60 * 1000;
+
+        let attempts = parseInt(localStorage.getItem(ATTEMPTS_KEY)) || 0;
+        let isLocked = false;
+        let lockTimerInterval = null;
+
+        window.addEventListener('load', () => {
+            document.getElementById('loading-screen').style.opacity = '0';
+            setTimeout(() => document.getElementById('loading-screen').style.display = 'none', 600);
+            triggerAOS();
+            checkLockStatus();
+        });
+
+        const modal = document.getElementById('adminModal');
+        const passInput = document.getElementById('adminPass');
+        const errorMsg = document.getElementById('modal-error');
+        const authBtn = document.getElementById('authBtn');
+        const modalIcon = document.getElementById('modal-icon');
+
+        function openModal() {
+            modal.classList.add('active');
+            if(!isLocked) passInput.focus();
+        }
+
+        function closeModal() {
+            modal.classList.remove('active');
+            if(!isLocked) {
+                passInput.value = '';
+                errorMsg.style.display = 'none';
+            }
+        }
+
+        function verifyAdmin() {
+            if (isLocked) return;
+            const password = passInput.value;
+
+            if (password === "admin!") {
+                localStorage.removeItem(ATTEMPTS_KEY);
+                localStorage.removeItem(LOCK_TIME_KEY);
+                window.location.href = "AdminLogin.html";
+            } else {
+                attempts++;
+                localStorage.setItem(ATTEMPTS_KEY, attempts);
+                errorMsg.style.display = 'block';
+                
+                if (attempts >= 5) {
+                    const lockUntil = Date.now() + LOCK_DURATION;
+                    localStorage.setItem(LOCK_TIME_KEY, lockUntil);
+                    startLockout(lockUntil);
+                } else {
+                    errorMsg.innerText = `ACCESS DENIED. Attempt ${attempts}/5.`;
+                    passInput.value = '';
+                    modal.querySelector('.modal-content').style.animation = 'shake 0.4s';
+                    setTimeout(() => modal.querySelector('.modal-content').style.animation = '', 400);
+                }
+            }
+        }
+
+        function checkLockStatus() {
+            const lockUntil = localStorage.getItem(LOCK_TIME_KEY);
+            if (lockUntil && Date.now() < lockUntil) {
+                startLockout(parseInt(lockUntil));
+            } else if (lockUntil && Date.now() >= lockUntil) {
+                unlockSystem();
+            }
+        }
+
+        function startLockout(lockUntil) {
+            isLocked = true;
+            passInput.disabled = true;
+            authBtn.disabled = true;
+            modalIcon.style.color = '#222';
+            errorMsg.style.display = 'block';
+
+            if (lockTimerInterval) clearInterval(lockTimerInterval);
+
+            lockTimerInterval = setInterval(() => {
+                const now = Date.now();
+                const timeLeft = lockUntil - now;
+
+                if (timeLeft <= 0) {
+                    clearInterval(lockTimerInterval);
+                    unlockSystem();
+                } else {
+                    const m = Math.floor(timeLeft / 60000);
+                    const s = Math.floor((timeLeft % 60000) / 1000);
+                    errorMsg.innerText = `PROTOCOL LOCK: Try in ${m}:${s < 10 ? '0' + s : s}`;
+                }
+            }, 1000);
+        }
+
+        function unlockSystem() {
+            isLocked = false;
+            attempts = 0;
+            localStorage.removeItem(ATTEMPTS_KEY);
+            localStorage.removeItem(LOCK_TIME_KEY);
+            passInput.disabled = false;
+            authBtn.disabled = false;
+            modalIcon.style.color = 'var(--primary)';
+            errorMsg.style.display = 'none';
+            if (lockTimerInterval) clearInterval(lockTimerInterval);
+        }
+
+        // --- SLIDER ---
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        function showSlide(index) {
+            slides.forEach(s => s.classList.remove('active'));
+            slides[index].classList.add('active');
+        }
+        document.getElementById('nextBtn').addEventListener('click', () => {
+            currentSlide = (currentSlide + 1) % slides.length;
+            showSlide(currentSlide);
+        });
+        document.getElementById('prevBtn').addEventListener('click', () => {
+            currentSlide = (currentSlide - 1 + slides.length) % slides.length;
+            showSlide(currentSlide);
+        });
+        setInterval(() => {
+            currentSlide = (currentSlide + 1) % slides.length;
+            showSlide(currentSlide);
+        }, 6000);
+
+        // --- AOS ---
+        function triggerAOS() {
+            const elements = document.querySelectorAll('[data-aos]');
+            elements.forEach(el => {
+                const rect = el.getBoundingClientRect();
+                if (rect.top < window.innerHeight - 50) el.classList.add('aos-animate');
+            });
+        }
+        window.addEventListener('scroll', triggerAOS);
+        passInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') verifyAdmin(); });
+    </script>
+</body>
+</html>

@@ -1,0 +1,38 @@
+<header class="header-bar" id="header-container">
+    <!-- LEFT SIDE: Menu Toggle & Page Title -->
+    <div class="header-left">
+        <button class="menu-toggle" onclick="toggleSidebar()">
+            <i class="fas fa-bars"></i>
+        </button>
+        <h3 id="current-title">DASHBOARD</h3>
+    </div>
+
+    <!-- RIGHT SIDE: Notifications & Admin Profile -->
+    <div class="header-right">
+        <!-- NOTIFICATION WRAPPER -->
+        <div class="notification-wrapper">
+            <i class="fas fa-bell notification-bell" onclick="window.toggleNotifDropdown(event)"></i>
+            <span id="notif-badge" class="notification-badge">0</span>
+            
+            <div id="notif-dropdown" class="notif-dropdown">
+                <div class="notif-header">
+                    <span>Notifications</span>
+                    <i class="fas fa-cog"></i>
+                </div>
+                <div id="notif-items-list">
+                    <!-- JS will inject items here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- PROFILE AREA -->
+        <div class="admin-profile">
+            <div class="admin-info">
+                <span class="admin-name">SYSTEM ADMIN</span>
+            </div>
+            <div class="admin-avatar">
+                <i class="fas fa-user-cog"></i>
+            </div>
+        </div>
+    </div>
+</header>
