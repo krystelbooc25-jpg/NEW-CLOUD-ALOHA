@@ -79,6 +79,17 @@
             z-index: 2;
         }
 
+        .branding-footer {
+            position: absolute;
+            bottom: 50px;
+            left: 100px;
+            font-weight: 800;
+            font-size: 0.8rem;
+            opacity: 0.3;
+            letter-spacing: 5px;
+            z-index: 2;
+        }
+
         .logo-box {
             width: 90px;
             height: 90px;
@@ -240,12 +251,18 @@
         @media (max-width: 1100px) {
             .branding-section { padding: 50px; }
             .branding-content h1 { font-size: 3rem; }
+            .branding-footer {
+                left: 50px;
+                bottom: 30px;
+                letter-spacing: 3px;
+            }
         }
 
         @media (max-width: 900px) {
             .login-main { grid-template-columns: 1fr; }
             .branding-section { display: none; }
             .form-section { padding: 40px 24px; min-height: 100vh; }
+            .form-container { max-width: 520px; }
         }
 
         @media (max-width: 576px) {
@@ -256,6 +273,16 @@
             .input-wrapper { margin-bottom: 24px; }
             .input-wrapper input { font-size: 1rem; }
             .btn-login { padding: 18px; font-size: 0.9rem; letter-spacing: 1px; }
+        }
+
+        @media (max-width: 380px) {
+            .form-section { padding: 22px 14px; padding-top: 46px; }
+            .form-header h2 { font-size: 1.65rem; }
+            .form-header p { font-size: 0.9rem; }
+            #error-message, #cooldown-message {
+                font-size: 0.82rem;
+                padding: 12px;
+            }
         }
     </style>
 </head>
@@ -274,7 +301,7 @@
                     <i class="fas fa-arrow-left"></i> RETURN TO MAIN SITE
                 </a>
             </div>
-            <p style="position: absolute; bottom: 50px; left: 100px; font-weight: 800; font-size: 0.8rem; opacity: 0.3; letter-spacing: 5px; z-index: 2;">ALOHA SECURITY SYSTEM 2026</p>
+            <p class="branding-footer">ALOHA SECURITY SYSTEM 2026</p>
         </section>
 
         <!-- Form Section -->

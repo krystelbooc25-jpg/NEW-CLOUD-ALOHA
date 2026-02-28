@@ -112,6 +112,15 @@
         }
         .hero-content h2 { font-family: 'Space Grotesk', sans-serif; font-size: clamp(2rem, 7vw, 4rem); margin-bottom: 20px; font-weight: 800; line-height: 1.1; }
         .hero-content p { font-size: 1.1rem; color: var(--text-dim); margin-bottom: 30px; max-width: 600px; }
+        .hero-actions {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        .hero-btn {
+            padding: 15px 30px;
+            white-space: nowrap;
+        }
 
         .slider-btn {
             position: absolute; bottom: 40px; z-index: 10;
@@ -506,6 +515,15 @@
             80% { transform: translateX(8px); }
         }
 
+        @media (max-width: 992px) {
+            .hero-content { max-width: 100%; }
+            .hero-actions { gap: 10px; }
+            .hero-btn { padding: 13px 20px; }
+            .company-details-wrap { grid-template-columns: 1fr; }
+            .clients-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            .footer-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        }
+
         @media (max-width: 768px) {
             header .container { flex-direction: column; gap: 15px; }
             nav { width: 100%; justify-content: center; }
@@ -513,7 +531,8 @@
             .slider-btn { bottom: 20px; width: 45px; height: 45px; }
             .prev-btn { right: 80px; }
             .hero-panel { padding: 16px; }
-            .company-details-wrap { grid-template-columns: 1fr; }
+            .hero-actions { flex-direction: column; width: 100%; }
+            .hero-actions .btn { width: 100%; justify-content: center; }
             .clients-grid { grid-template-columns: 1fr; }
             .footer-grid { grid-template-columns: 1fr; }
             .footer-brand { grid-template-columns: 64px 1fr; }
@@ -543,6 +562,21 @@
             .chatbot-quick { grid-template-columns: 1fr; padding: 8px; gap: 6px; }
             .chatbot-input { grid-template-columns: 1fr; }
             .chatbot-input button { min-height: 38px; }
+            .modal-content {
+                max-width: calc(100vw - 20px);
+                padding: 28px 18px;
+                border-radius: 14px;
+            }
+        }
+
+        @media (max-width: 420px) {
+            .hero-content h2 { font-size: 1.85rem; }
+            .hero-content p { font-size: 0.9rem; }
+            .slider-btn { width: 40px; height: 40px; }
+            .prev-btn { right: 64px; }
+            .next-btn { right: 14px; }
+            .logo-text h1 { font-size: 1rem; }
+            .logo-text p { letter-spacing: 1px; }
         }
     </style>
 </head>
@@ -607,9 +641,9 @@
                 <div class="hero-panel">
                     <h2 data-aos>Redefining <br><span style="color: var(--primary);">Next-Gen Safety.</span></h2>
                     <p data-aos>Integrating advanced human intelligence with modern security protocols to protect what matters most to you.</p>
-                    <div style="display: flex; gap: 15px;" data-aos>
-                        <a href="application.html" class="btn btn-primary" style="padding: 15px 30px;"><i class="fas fa-shield-halved"></i> Start Application</a>
-                        <a href="#company-info" class="btn btn-secondary" style="padding: 15px 30px;">Company Details</a>
+                    <div class="hero-actions" data-aos>
+                        <a href="application.html" class="btn btn-primary hero-btn"><i class="fas fa-shield-halved"></i> Start Application</a>
+                        <a href="#company-info" class="btn btn-secondary hero-btn">Company Details</a>
                     </div>
                 </div>
             </div>
