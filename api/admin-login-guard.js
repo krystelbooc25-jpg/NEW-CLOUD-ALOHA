@@ -1,4 +1,5 @@
 const bcrypt = require("bcryptjs");
+const crypto = require("crypto");
 
 function setCors(res) {
   res.setHeader("Access-Control-Allow-Credentials", "true");
@@ -26,17 +27,29 @@ module.exports = async function handler(req, res) {
     });
   }
 
-  const passwordHash = process.env.ADMIN_LOGIN_PASSWORD_HASH;
+  const passwordHash =
+    process.env.ADMIN_LOGIN_PASSWORD_HASH || process.env.ADMIN_PASSWORD_HASH;
+  const plainPassword =
+    process.env.ADMIN_LOGIN_PASSWORD || process.env.ADMIN_PASSWORD;
 
-  if (!passwordHash) {
+  if (!passwordHash && !plainPassword) {
     return res.status(500).json({
       success: false,
-      error: "Missing ADMIN_LOGIN_PASSWORD_HASH.",
+      error:
+        "Missing admin password env. Set ADMIN_LOGIN_PASSWORD_HASH (recommended) or ADMIN_LOGIN_PASSWORD.",
     });
   }
 
   try {
-    const passOk = await bcrypt.compare(String(password), passwordHash);
+    let passOk = false;
+    if (passwordHash) {
+      passOk = await bcrypt.compare(String(password), passwordHash);
+    } else {
+      // Local/dev fallback when only plain env password is available.
+      const input = Buffer.from(String(password), "utf8");
+      const expected = Buffer.from(String(plainPassword), "utf8");
+      passOk = input.length === expected.length && crypto.timingSafeEqual(input, expected);
+    }
 
     if (!passOk) {
       return res.status(401).json({
