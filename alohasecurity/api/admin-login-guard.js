@@ -49,7 +49,10 @@ module.exports = async function handler(req, res) {
 
   try {
     if (allowedEmail && email) {
-      if (String(email).trim().toLowerCase() !== String(allowedEmail).trim().toLowerCase()) {
+      if (
+        String(email).trim().toLowerCase() !==
+        String(allowedEmail).trim().toLowerCase()
+      ) {
         return res.status(401).json({
           success: false,
           error: "Email is not authorized for admin access.",
@@ -68,10 +71,11 @@ module.exports = async function handler(req, res) {
       }
       passOk = await bcrypt.compare(String(password), passwordHash);
     } else {
-      // Local/dev fallback when only plain env password is available.
       const input = Buffer.from(String(password), "utf8");
       const expected = Buffer.from(String(plainPassword), "utf8");
-      passOk = input.length === expected.length && crypto.timingSafeEqual(input, expected);
+      passOk =
+        input.length === expected.length &&
+        crypto.timingSafeEqual(input, expected);
     }
 
     if (!passOk) {

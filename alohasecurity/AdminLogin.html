@@ -349,36 +349,39 @@
             loginButton.innerText = "AUTHENTICATING...";
             loginButton.disabled = true;
 
-            const email = loginForm.email.value;
+            const email = loginForm.email.value.trim();
             const password = loginForm.password.value;
 
             try {
-                const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
-                if (error) {
-                    loginAttempts++;
-                    localStorage.setItem('loginAttempts', loginAttempts);
-
-                    let cooldownDuration = 0;
-                    if (loginAttempts === 3) cooldownDuration = 30;
-                    else if (loginAttempts === 4) cooldownDuration = 60;
-                    else if (loginAttempts >= 5) cooldownDuration = 300;
-
-                    if (cooldownDuration > 0) {
-                        cooldownUntil = Date.now() + cooldownDuration * 1000;
-                        localStorage.setItem('cooldownUntil', cooldownUntil);
-                        handleCooldown();
-                    }
-                    errorMessage.textContent = error.message;
-                    errorMessage.style.display = 'block';
-                    loginButton.innerText = "VERIFY IDENTITY";
-                    loginButton.disabled = false;
-                } else {
-                    localStorage.removeItem('loginAttempts');
-                    localStorage.removeItem('cooldownUntil');
-                    window.location.href = 'dashboard.html';
+                const guardResponse = await fetch('/api/admin-login-guard', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                const guardResult = await guardResponse.json().catch(() => ({}));
+                if (!guardResponse.ok || !guardResult.success) {
+                    throw new Error(guardResult.error || 'Invalid password.');
                 }
+
+                localStorage.removeItem('loginAttempts');
+                localStorage.removeItem('cooldownUntil');
+                window.location.href = 'dashboard.html';
             } catch (error) {
-                errorMessage.textContent = 'Connection Error. Please try again.';
+                loginAttempts++;
+                localStorage.setItem('loginAttempts', loginAttempts);
+
+                let cooldownDuration = 0;
+                if (loginAttempts === 3) cooldownDuration = 30;
+                else if (loginAttempts === 4) cooldownDuration = 60;
+                else if (loginAttempts >= 5) cooldownDuration = 300;
+
+                if (cooldownDuration > 0) {
+                    cooldownUntil = Date.now() + cooldownDuration * 1000;
+                    localStorage.setItem('cooldownUntil', cooldownUntil);
+                    handleCooldown();
+                }
+
+                errorMessage.textContent = error.message || 'Connection Error. Please try again.';
                 errorMessage.style.display = 'block';
                 loginButton.innerText = "VERIFY IDENTITY";
                 loginButton.disabled = false;

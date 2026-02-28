@@ -349,22 +349,19 @@
             loginButton.innerText = "AUTHENTICATING...";
             loginButton.disabled = true;
 
-            const email = loginForm.email.value;
+            const email = loginForm.email.value.trim();
             const password = loginForm.password.value;
 
             try {
                 const guardResponse = await fetch('/api/admin-login-guard', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ password })
+                    body: JSON.stringify({ email, password })
                 });
                 const guardResult = await guardResponse.json().catch(() => ({}));
                 if (!guardResponse.ok || !guardResult.success) {
                     throw new Error(guardResult.error || 'Invalid password.');
                 }
-
-                const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
-                if (error) throw error;
 
                 localStorage.removeItem('loginAttempts');
                 localStorage.removeItem('cooldownUntil');
