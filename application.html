@@ -252,26 +252,21 @@
                     </select>
                 </div>
                 <div>
+                    <label>Region (Luzon / NCR) *</label>
+                    <select id="region" required style="width:100%; padding:16px 20px; border:2px solid #f1f5f9; background:#f8fafc; border-radius:var(--radius); font-weight:600;">
+                        <option value="">Select Region</option>
+                    </select>
+                </div>
+                <div>
                     <label>Province *</label>
                     <select id="province" required style="width:100%; padding:16px 20px; border:2px solid #f1f5f9; background:#f8fafc; border-radius:var(--radius); font-weight:600;">
                         <option value="">Select Province</option>
-                        <option value="Zamboanga del Sur">Zamboanga del Sur</option>
-                        <option value="Zamboanga del Norte">Zamboanga del Norte</option>
-                        <option value="Zamboanga Sibugay">Zamboanga Sibugay</option>
-                        <option value="Basilan">Basilan</option>
-                        <option value="Sulu">Sulu</option>
-                        <option value="Tawi-Tawi">Tawi-Tawi</option>
                     </select>
                 </div>
                 <div>
                     <label>City / Municipality *</label>
                     <select id="city" required style="width:100%; padding:16px 20px; border:2px solid #f1f5f9; background:#f8fafc; border-radius:var(--radius); font-weight:600;">
-                        <option value="">Select city</option>
-                        <option value="Zamboanga City">Zamboanga City</option>
-                        <option value="Pagadian City">Pagadian City</option>
-                        <option value="Dipolog City">Dipolog City</option>
-                        <option value="Isabela City">Isabela City</option>
-                        <option value="Other">Other</option>
+                        <option value="">Select City / Municipality</option>
                     </select>
                 </div>
                 <div>
@@ -329,6 +324,81 @@
         const dobPicker = flatpickr("#dob", { dateFormat: "Y-m-d", altInput: true, altFormat: "F j, Y", maxDate: "today" });
         let applicationData = JSON.parse(localStorage.getItem('applicationData')) || {};
         let pendingStep1Data = null;
+        const regionSelect = document.getElementById('region');
+        const provinceSelect = document.getElementById('province');
+        const citySelect = document.getElementById('city');
+
+        // Luzon + NCR only
+        const REGION_PROVINCES = {
+            "NCR (National Capital Region)": ["Metro Manila"],
+            "CAR (Cordillera Administrative Region)": ["Abra", "Apayao", "Benguet", "Ifugao", "Kalinga", "Mountain Province"],
+            "Region I (Ilocos Region)": ["Ilocos Norte", "Ilocos Sur", "La Union", "Pangasinan"],
+            "Region II (Cagayan Valley)": ["Batanes", "Cagayan", "Isabela", "Nueva Vizcaya", "Quirino"],
+            "Region III (Central Luzon)": ["Aurora", "Bataan", "Bulacan", "Nueva Ecija", "Pampanga", "Tarlac", "Zambales"],
+            "Region IV-A (CALABARZON)": ["Batangas", "Cavite", "Laguna", "Quezon", "Rizal"],
+            "Region IV-B (MIMAROPA)": ["Marinduque", "Occidental Mindoro", "Oriental Mindoro", "Palawan", "Romblon"],
+            "Region V (Bicol Region)": ["Albay", "Camarines Norte", "Camarines Sur", "Catanduanes", "Masbate", "Sorsogon"]
+        };
+
+        const PROVINCE_CITIES = {
+            "Metro Manila": ["Manila", "Quezon City", "Makati", "Taguig", "Pasig", "Mandaluyong", "Marikina", "Pasay", "Paranaque", "Las Pinas", "Muntinlupa", "Caloocan", "Malabon", "Navotas", "Valenzuela", "San Juan", "Pateros"],
+            "Abra": ["Bangued"], "Apayao": ["Kabugao"], "Benguet": ["Baguio City", "La Trinidad"], "Ifugao": ["Lagawe"], "Kalinga": ["Tabuk"], "Mountain Province": ["Bontoc"],
+            "Ilocos Norte": ["Laoag City", "Batac"], "Ilocos Sur": ["Vigan City", "Candon"], "La Union": ["San Fernando City"], "Pangasinan": ["Dagupan", "Urdaneta", "Alaminos"],
+            "Batanes": ["Basco"], "Cagayan": ["Tuguegarao City"], "Isabela": ["Ilagan", "Cauayan"], "Nueva Vizcaya": ["Bayombong", "Solano"], "Quirino": ["Cabarroguis"],
+            "Aurora": ["Baler"], "Bataan": ["Balanga"], "Bulacan": ["Malolos", "Meycauayan", "San Jose del Monte"], "Nueva Ecija": ["Cabanatuan", "Gapan", "San Jose"], "Pampanga": ["San Fernando City", "Angeles"], "Tarlac": ["Tarlac City"], "Zambales": ["Olongapo", "Iba"],
+            "Batangas": ["Batangas City", "Lipa", "Tanauan"], "Cavite": ["Tagaytay", "Dasmarinas", "Bacoor", "Imus"], "Laguna": ["Calamba", "San Pablo", "Santa Rosa", "Binan"], "Quezon": ["Lucena", "Tayabas"], "Rizal": ["Antipolo"],
+            "Marinduque": ["Boac"], "Occidental Mindoro": ["Mamburao"], "Oriental Mindoro": ["Calapan"], "Palawan": ["Puerto Princesa"], "Romblon": ["Romblon"],
+            "Albay": ["Legazpi", "Ligao", "Tabaco"], "Camarines Norte": ["Daet"], "Camarines Sur": ["Naga City", "Iriga"], "Catanduanes": ["Virac"], "Masbate": ["Masbate City"], "Sorsogon": ["Sorsogon City"]
+        };
+
+        function setSelectOptions(selectEl, options, placeholder, selectedValue) {
+            selectEl.innerHTML = '';
+            const firstOption = document.createElement('option');
+            firstOption.value = '';
+            firstOption.textContent = placeholder;
+            selectEl.appendChild(firstOption);
+
+            (options || []).forEach((item) => {
+                const opt = document.createElement('option');
+                opt.value = item;
+                opt.textContent = item;
+                selectEl.appendChild(opt);
+            });
+
+            if (selectedValue) {
+                const exists = (options || []).includes(selectedValue);
+                if (!exists) {
+                    const extra = document.createElement('option');
+                    extra.value = selectedValue;
+                    extra.textContent = selectedValue;
+                    selectEl.appendChild(extra);
+                }
+                selectEl.value = selectedValue;
+            } else {
+                selectEl.value = '';
+            }
+        }
+
+        function updateProvinceOptions(selectedProvince, selectedCity) {
+            const regionValue = regionSelect.value;
+            const provinces = REGION_PROVINCES[regionValue] || [];
+            setSelectOptions(provinceSelect, provinces, 'Select Province', selectedProvince || '');
+            updateCityOptions(selectedCity || '');
+        }
+
+        function updateCityOptions(selectedCity) {
+            const provinceValue = provinceSelect.value;
+            const cities = PROVINCE_CITIES[provinceValue] || [];
+            setSelectOptions(citySelect, cities, 'Select City / Municipality', selectedCity || '');
+        }
+
+        function initializeAddressDropdowns(savedData) {
+            const regions = Object.keys(REGION_PROVINCES);
+            setSelectOptions(regionSelect, regions, 'Select Region', savedData.region || '');
+            updateProvinceOptions(savedData.province || '', savedData.city || '');
+        }
+
+        initializeAddressDropdowns(applicationData || {});
 
         if(applicationData) {
             document.getElementById('first-name').value = applicationData.first_name || '';
@@ -336,12 +406,18 @@
             document.getElementById('email').value = applicationData.email || '';
             document.getElementById('phone').value = applicationData.phone || '';
             document.getElementById('street-address').value = applicationData.street_address || '';
-            document.getElementById('province').value = applicationData.province || '';
-            document.getElementById('city').value = applicationData.city || '';
             document.getElementById('gender').value = applicationData.gender || '';
             document.getElementById('zip-code').value = applicationData.zip_code || '';
             if(applicationData.dob) dobPicker.setDate(applicationData.dob);
         }
+
+        regionSelect.addEventListener('change', () => {
+            updateProvinceOptions('', '');
+        });
+
+        provinceSelect.addEventListener('change', () => {
+            updateCityOptions('');
+        });
 
         // Custom Modal Functions
         function showAlertModal(title, message) {
@@ -422,7 +498,7 @@
             }
             // --- END VALIDATION LOGIC ---
 
-            const fields = ['first_name','last_name','email','phone','street_address','province','city','gender','zip_code','dob'];
+            const fields = ['first_name','last_name','email','phone','street_address','region','province','city','gender','zip_code','dob'];
             pendingStep1Data = {};
             fields.forEach(f => {
                 const element = document.getElementById(f.replace('_','-'));

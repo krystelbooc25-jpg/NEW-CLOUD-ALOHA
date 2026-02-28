@@ -330,10 +330,18 @@
         let cooldownUntil = parseInt(localStorage.getItem('cooldownUntil')) || 0;
         let cooldownTimer;
 
+        function parseLockUntilMs(payload) {
+            const direct = Number(payload?.lockedUntilMs || 0);
+            if (Number.isFinite(direct) && direct > 0) return direct;
+            const fromIso = Date.parse(payload?.lockedUntil || '');
+            return Number.isFinite(fromIso) ? fromIso : 0;
+        }
+
         // --- 2. COOLDOWN LOGIC ---
         function handleCooldown() {
             const now = Date.now();
             if (now < cooldownUntil) {
+                if (cooldownTimer) clearInterval(cooldownTimer);
                 loginForm.email.disabled = true;
                 loginForm.password.disabled = true;
                 loginButton.disabled = true;
@@ -374,25 +382,37 @@
                 });
                 const guardResult = await guardResponse.json().catch(() => ({}));
                 if (!guardResponse.ok || !guardResult.success) {
-                    throw new Error(guardResult.error || 'Invalid password.');
+                    const authError = new Error(guardResult.error || 'Invalid password.');
+                    authError.serverLockUntil = parseLockUntilMs(guardResult);
+                    throw authError;
                 }
 
                 localStorage.removeItem('loginAttempts');
                 localStorage.removeItem('cooldownUntil');
                 window.location.href = 'dashboard.html';
             } catch (error) {
-                loginAttempts++;
-                localStorage.setItem('loginAttempts', loginAttempts);
+                const serverLockUntil = Number(error.serverLockUntil || 0);
 
-                let cooldownDuration = 0;
-                if (loginAttempts === 3) cooldownDuration = 30;
-                else if (loginAttempts === 4) cooldownDuration = 60;
-                else if (loginAttempts >= 5) cooldownDuration = 300;
-
-                if (cooldownDuration > 0) {
-                    cooldownUntil = Date.now() + cooldownDuration * 1000;
+                if (serverLockUntil > Date.now()) {
+                    cooldownUntil = serverLockUntil;
+                    loginAttempts = Math.max(loginAttempts, 5);
+                    localStorage.setItem('loginAttempts', loginAttempts);
                     localStorage.setItem('cooldownUntil', cooldownUntil);
                     handleCooldown();
+                } else {
+                    loginAttempts++;
+                    localStorage.setItem('loginAttempts', loginAttempts);
+
+                    let cooldownDuration = 0;
+                    if (loginAttempts === 3) cooldownDuration = 30;
+                    else if (loginAttempts === 4) cooldownDuration = 60;
+                    else if (loginAttempts >= 5) cooldownDuration = 300;
+
+                    if (cooldownDuration > 0) {
+                        cooldownUntil = Date.now() + cooldownDuration * 1000;
+                        localStorage.setItem('cooldownUntil', cooldownUntil);
+                        handleCooldown();
+                    }
                 }
 
                 errorMessage.textContent = error.message || 'Connection Error. Please try again.';

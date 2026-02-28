@@ -512,6 +512,9 @@
         let currentAdminEmail = '';
         const LONG_WAIT_DAYS = 7;
         const branchOptions = ["Manila Main", "Quezon City", "Makati Hub", "Davao Branch", "Cebu Office"];
+        const ADMIN_LOCK_AUDIT_KEY = 'aloha-admin-lock-audit-state';
+        const ADMIN_LOCK_POLL_MS = 60 * 1000;
+        let adminLockStatusTimer = null;
 
         /**
          * 2. SIDEBAR NAVIGATION LOGIC
@@ -548,6 +551,69 @@
             const applicantsNav = document.querySelector('.nav-item[data-tab="applicants-tab"]');
             if (!applicantsNav) return;
             switchTab('applicants-tab', applicantsNav);
+        }
+
+        function getAdminLockAuditState() {
+            try {
+                const parsed = JSON.parse(localStorage.getItem(ADMIN_LOCK_AUDIT_KEY) || '{}');
+                return {
+                    wasLocked: Boolean(parsed.wasLocked),
+                    lastSeenLockUntil: parsed.lastSeenLockUntil ? String(parsed.lastSeenLockUntil) : '',
+                    lastUnlockToken: parsed.lastUnlockToken ? String(parsed.lastUnlockToken) : ''
+                };
+            } catch (_) {
+                return {
+                    wasLocked: false,
+                    lastSeenLockUntil: '',
+                    lastUnlockToken: ''
+                };
+            }
+        }
+
+        function setAdminLockAuditState(state) {
+            localStorage.setItem(
+                ADMIN_LOCK_AUDIT_KEY,
+                JSON.stringify({
+                    wasLocked: Boolean(state.wasLocked),
+                    lastSeenLockUntil: state.lastSeenLockUntil || '',
+                    lastUnlockToken: state.lastUnlockToken || ''
+                })
+            );
+        }
+
+        async function monitorAdminLoginLockStatus() {
+            try {
+                const response = await fetch('/api/admin-login-guard', { method: 'GET' });
+                const result = await response.json().catch(() => ({}));
+                if (!response.ok || !result?.success) return;
+
+                const isLocked = Boolean(result.locked);
+                const lockUntil = result.lockedUntil ? String(result.lockedUntil) : '';
+                const state = getAdminLockAuditState();
+                let unlockToken = '';
+
+                if (!isLocked) {
+                    // Prefer deterministic lock token so we log unlock exactly once per lock window.
+                    unlockToken = lockUntil || state.lastSeenLockUntil || (result.justUnlocked ? 'just-unlocked' : '');
+                }
+
+                if (
+                    !isLocked &&
+                    (result.justUnlocked || state.wasLocked) &&
+                    unlockToken &&
+                    state.lastUnlockToken !== unlockToken
+                ) {
+                    logActivity('Security: Admin login lockout expired and was automatically lifted.');
+                    state.lastUnlockToken = unlockToken;
+                }
+
+                state.wasLocked = isLocked;
+                state.lastSeenLockUntil = lockUntil || state.lastSeenLockUntil;
+                if (isLocked && lockUntil) {
+                    state.lastSeenLockUntil = lockUntil;
+                }
+                setAdminLockAuditState(state);
+            } catch (_) {}
         }
 
         /**
@@ -1378,6 +1444,9 @@
         }
 
         // INIT SYSTEM
+        monitorAdminLoginLockStatus();
+        if (adminLockStatusTimer) clearInterval(adminLockStatusTimer);
+        adminLockStatusTimer = setInterval(monitorAdminLoginLockStatus, ADMIN_LOCK_POLL_MS);
         fetchData();
         loadAdminSettingsProfile();
     </script>

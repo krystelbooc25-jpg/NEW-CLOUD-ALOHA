@@ -220,8 +220,9 @@
             position: fixed;
             right: 24px;
             bottom: 92px;
-            width: 340px;
-            max-width: calc(100vw - 32px);
+            width: min(380px, calc(100vw - 24px));
+            max-width: calc(100vw - 24px);
+            max-height: 78vh;
             background: #fff;
             border: 1px solid var(--glass-border);
             border-radius: 16px;
@@ -230,7 +231,7 @@
             z-index: 1200;
             overflow: hidden;
         }
-        .chatbot-panel.active { display: block; }
+        .chatbot-panel.active { display: flex; flex-direction: column; }
         .chatbot-head {
             background: #fff5f5;
             border-bottom: 1px solid #fecaca;
@@ -239,11 +240,35 @@
             align-items: center;
             justify-content: space-between;
         }
+        .chatbot-quick {
+            padding: 10px;
+            border-bottom: 1px solid #f1f5f9;
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 8px;
+            background: #fff;
+        }
+        .chatbot-quick-btn {
+            border: 1px solid #fecaca;
+            background: #fff5f5;
+            color: #9f1239;
+            border-radius: 999px;
+            padding: 7px 10px;
+            font-size: 0.74rem;
+            font-weight: 700;
+            text-align: center;
+            cursor: pointer;
+            line-height: 1.25;
+        }
+        .chatbot-quick-btn:hover {
+            background: #fee2e2;
+        }
         .chatbot-body {
             padding: 12px;
             max-height: 320px;
             overflow-y: auto;
             background: #fff;
+            flex: 1;
         }
         .chat-line {
             margin-bottom: 10px;
@@ -493,7 +518,8 @@
             .footer-grid { grid-template-columns: 1fr; }
             .footer-brand { grid-template-columns: 64px 1fr; }
             .footer-brand img { width: 64px; height: 64px; }
-            .chatbot-panel { width: calc(100vw - 24px); right: 12px; bottom: 82px; }
+            .chatbot-panel { left: 12px; right: 12px; width: auto; max-width: none; bottom: 82px; }
+            .chatbot-quick { grid-template-columns: repeat(2, minmax(0, 1fr)); }
             .chatbot-toggle { right: 12px; bottom: 12px; }
         }
 
@@ -513,6 +539,10 @@
             .features { gap: 28px; }
             .client-card { padding: 24px 16px; }
             .chatbot-body { max-height: 240px; }
+            .chatbot-head { padding: 10px 12px; }
+            .chatbot-quick { grid-template-columns: 1fr; padding: 8px; gap: 6px; }
+            .chatbot-input { grid-template-columns: 1fr; }
+            .chatbot-input button { min-height: 38px; }
         }
     </style>
 </head>
@@ -851,6 +881,12 @@
                 <i class="fas fa-xmark"></i>
             </button>
         </div>
+        <div class="chatbot-quick" id="chatbot-quick">
+            <button type="button" class="chatbot-quick-btn" data-question="What are the requirements?">Requirements</button>
+            <button type="button" class="chatbot-quick-btn" data-question="Where is your office address?">Office Address</button>
+            <button type="button" class="chatbot-quick-btn" data-question="How do I check my application status?">Track Status</button>
+            <button type="button" class="chatbot-quick-btn" data-question="What ID document should I submit?">ID Document</button>
+        </div>
         <div class="chatbot-body" id="chatbot-body">
             <div class="chat-line bot"><div class="bubble">Hello. Ask me about requirements, office location, email, or application steps.</div></div>
         </div>
@@ -897,6 +933,13 @@
             }
         }
 
+        function parseLockUntilMs(payload) {
+            const direct = Number(payload?.lockedUntilMs || 0);
+            if (Number.isFinite(direct) && direct > 0) return direct;
+            const fromIso = Date.parse(payload?.lockedUntil || '');
+            return Number.isFinite(fromIso) ? fromIso : 0;
+        }
+
         async function verifyAdmin() {
             if (isLocked) return;
             const password = passInput.value;
@@ -915,26 +958,38 @@
                 const guardResult = await guardResponse.json().catch(() => ({}));
 
                 if (!guardResponse.ok || !guardResult.success) {
-                    throw new Error(guardResult.error || 'Access denied.');
+                    const authError = new Error(guardResult.error || 'Access denied.');
+                    authError.serverLockUntil = parseLockUntilMs(guardResult);
+                    throw authError;
                 }
 
                 localStorage.removeItem(ATTEMPTS_KEY);
                 localStorage.removeItem(LOCK_TIME_KEY);
                 window.location.href = "AdminLogin.html";
             } catch (error) {
-                attempts++;
-                localStorage.setItem(ATTEMPTS_KEY, attempts);
                 errorMsg.style.display = 'block';
-                
-                if (attempts >= 5) {
-                    const lockUntil = Date.now() + LOCK_DURATION;
-                    localStorage.setItem(LOCK_TIME_KEY, lockUntil);
-                    startLockout(lockUntil);
+
+                const serverLockUntil = Number(error.serverLockUntil || 0);
+                if (serverLockUntil > Date.now()) {
+                    attempts = Math.max(attempts, 5);
+                    localStorage.setItem(ATTEMPTS_KEY, attempts);
+                    localStorage.setItem(LOCK_TIME_KEY, serverLockUntil);
+                    startLockout(serverLockUntil);
+                    errorMsg.innerText = error.message || 'Access denied.';
                 } else {
-                    errorMsg.innerText = `${error.message || 'Access denied.'} Attempt ${attempts}/5.`;
-                    passInput.value = '';
-                    modal.querySelector('.modal-content').style.animation = 'shake 0.4s';
-                    setTimeout(() => modal.querySelector('.modal-content').style.animation = '', 400);
+                    attempts++;
+                    localStorage.setItem(ATTEMPTS_KEY, attempts);
+                    
+                    if (attempts >= 5) {
+                        const lockUntil = Date.now() + LOCK_DURATION;
+                        localStorage.setItem(LOCK_TIME_KEY, lockUntil);
+                        startLockout(lockUntil);
+                    } else {
+                        errorMsg.innerText = `${error.message || 'Access denied.'} Attempt ${attempts}/5.`;
+                        passInput.value = '';
+                        modal.querySelector('.modal-content').style.animation = 'shake 0.4s';
+                        setTimeout(() => modal.querySelector('.modal-content').style.animation = '', 400);
+                    }
                 }
             }
         }
@@ -1022,6 +1077,7 @@
         const chatbotBody = document.getElementById('chatbot-body');
         const chatbotInput = document.getElementById('chatbot-input');
         const chatbotSend = document.getElementById('chatbot-send');
+        const chatbotQuickButtons = document.querySelectorAll('.chatbot-quick-btn');
 
         const faqRules = [
             { keys: ['address', 'location', 'office'], reply: 'Our office is at 108, Old Highway, Guiwan, Zamboanga City 7000, Philippines.' },
@@ -1061,6 +1117,13 @@
         chatbotClose.addEventListener('click', () => chatbotPanel.classList.remove('active'));
         chatbotSend.addEventListener('click', handleChatSend);
         chatbotInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') handleChatSend(); });
+        chatbotQuickButtons.forEach((btn) => {
+            btn.addEventListener('click', () => {
+                const prompt = btn.getAttribute('data-question') || '';
+                chatbotInput.value = prompt;
+                handleChatSend();
+            });
+        });
     </script>
 </body>
 </html>
