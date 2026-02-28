@@ -15,7 +15,7 @@
         /* --- 2. BRANDING & THEME VARIABLES --- */
         :root {
             --primary-red: #D2042D;
-            --navy-dark: #0f172a;
+            --navy-dark: #8f0221;
             --text-main: #1e293b;
             --text-muted: #64748b;
             --sharp-radius: 3px; /* Sharp modern look */
@@ -66,7 +66,7 @@
             content: "";
             position: absolute;
             inset: 0;
-            background: linear-gradient(45deg, rgba(15, 23, 42, 0.9) 0%, rgba(210, 4, 45, 0.3) 100%);
+            background: linear-gradient(45deg, rgba(127, 29, 29, 0.78) 0%, rgba(210, 4, 45, 0.5) 100%);
             backdrop-filter: blur(10px); /* Ito yung requested na blur */
             -webkit-backdrop-filter: blur(10px);
             z-index: 1;
@@ -121,7 +121,7 @@
 
         /* --- 6. RIGHT PANEL: LOGIN FORM --- */
         .form-section {
-            background: #ffffff;
+            background: #fffdfd;
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -177,6 +177,7 @@
         .input-wrapper input:focus {
             outline: none;
             border-bottom-color: var(--primary-red);
+            box-shadow: 0 8px 16px rgba(210, 4, 45, 0.08);
         }
 
         /* Fix: Icon color change on focus */
@@ -202,9 +203,9 @@
         }
 
         .btn-login:hover {
-            background: var(--navy-dark);
+            background: #a00322;
             transform: translateY(-5px);
-            box-shadow: 0 20px 40px rgba(15, 23, 42, 0.2);
+            box-shadow: 0 20px 40px rgba(210, 4, 45, 0.25);
         }
 
         /* --- 7. NOTIFICATIONS & OVERLAYS --- */
