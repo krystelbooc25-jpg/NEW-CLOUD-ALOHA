@@ -96,17 +96,17 @@
 
         <div class="nav-label">Main Menu</div>
         <div class="nav-item active" data-title="Dashboard" data-tab="dashboard-tab" onclick="switchTab('dashboard-tab', this)"><i class="fas fa-th-large"></i> Dashboard</div>
-        <div class="nav-item nav-ghost"><i class="fas fa-clipboard-list"></i> Audit Logs</div>
+        <div class="nav-item" data-title="Audit Logs" data-tab="audit-tab" onclick="switchTab('audit-tab', this)"><i class="fas fa-clipboard-list"></i> Audit Logs</div>
 
         <div class="nav-label">Operations</div>
         <div class="nav-item" data-title="Applicants" data-tab="applicants-tab" onclick="switchTab('applicants-tab', this)"><i class="fas fa-user-shield"></i> Applicants</div>
         <div class="nav-item" data-title="Active Roster" data-tab="branches-tab" onclick="switchTab('branches-tab', this)"><i class="fas fa-users"></i> Active Roster</div>
-        <div class="nav-item nav-ghost"><i class="fas fa-building"></i> Branches</div>
+        <div class="nav-item" data-title="Branches" data-tab="branch-summary-tab" onclick="switchTab('branch-summary-tab', this)"><i class="fas fa-building"></i> Branches</div>
         <div class="nav-item" data-title="Trash Bin" data-tab="trash-tab" onclick="switchTab('trash-tab', this)"><i class="fas fa-trash-alt"></i> Trash Bin</div>
 
         <div class="nav-label">System</div>
-        <div class="nav-item nav-ghost"><i class="fas fa-user-cog"></i> Users</div>
-        <div class="nav-item nav-ghost"><i class="fas fa-gear"></i> Settings</div>
+        <div class="nav-item" data-title="Users" data-tab="users-tab" onclick="switchTab('users-tab', this)"><i class="fas fa-user-cog"></i> Users</div>
+        <div class="nav-item" data-title="Settings" data-tab="settings-tab" onclick="switchTab('settings-tab', this)"><i class="fas fa-gear"></i> Settings</div>
 
         <div class="admin-session-card">
             <small>Logged in as</small>
@@ -322,7 +322,49 @@
                 <div id="branch-accordion-container" class="row"></div>
             </section>
 
-            <!-- --- TAB 4: RECOVERY SYSTEM --- -->
+            <!-- --- TAB 4: BRANCH DIRECTORY --- -->
+            <section id="branch-summary-tab" class="hidden">
+                <div class="section-shell">
+                    <div class="section-hero">
+                        <div class="section-hero-icon"><i class="fas fa-building-shield"></i></div>
+                        <div>
+                            <h3>Branch Directory</h3>
+                            <p>Branch-level totals for assigned, pending, and total applicants.</p>
+                        </div>
+                    </div>
+                    <div id="branch-summary-grid" class="summary-grid"></div>
+                </div>
+            </section>
+
+            <!-- --- TAB 5: AUDIT LOGS --- -->
+            <section id="audit-tab" class="hidden">
+                <div class="section-shell">
+                    <div class="section-hero">
+                        <div class="section-hero-icon"><i class="fas fa-file-shield"></i></div>
+                        <div>
+                            <h3>Audit Logs</h3>
+                            <p>Latest applicant events, changes, and processing actions.</p>
+                        </div>
+                    </div>
+                    <div class="section-card p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0 audit-table">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Applicant</th>
+                                        <th>Action</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="audit-table-body"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- --- TAB 6: RECOVERY SYSTEM --- -->
             <section id="trash-tab" class="hidden">
                 <div class="d-flex justify-content-between align-items-center mb-5">
                     <div>
@@ -348,6 +390,78 @@
                     </div>
                 </div>
             </section>
+
+            <!-- --- TAB 7: USERS --- -->
+            <section id="users-tab" class="hidden">
+                <div class="section-shell">
+                    <div class="section-hero">
+                        <div class="section-hero-icon"><i class="fas fa-user-gear"></i></div>
+                        <div>
+                            <h3>System Users</h3>
+                            <p>Current admin account and role configuration.</p>
+                        </div>
+                    </div>
+                    <div id="users-grid" class="users-grid">
+                        <article class="user-card">
+                            <div class="user-avatar"><i class="fas fa-user-shield"></i></div>
+                            <div class="user-meta">
+                                <h5>Admin Owner</h5>
+                                <p id="users-admin-email">Loading email...</p>
+                            </div>
+                            <span class="user-role">ROOT ADMIN</span>
+                        </article>
+                    </div>
+                </div>
+            </section>
+
+            <!-- --- TAB 8: SETTINGS --- -->
+            <section id="settings-tab" class="hidden">
+                <div class="section-shell">
+                    <div class="section-hero">
+                        <div class="section-hero-icon"><i class="fas fa-gears"></i></div>
+                        <div>
+                            <h3>Account Settings</h3>
+                            <p>Change admin login email and password securely.</p>
+                        </div>
+                    </div>
+                    <div class="section-card settings-card">
+                        <div class="settings-current">
+                            <span>Current Admin Email</span>
+                            <strong id="settings-current-email">Loading...</strong>
+                        </div>
+
+                        <form id="account-settings-form" onsubmit="submitAdminSettings(event)">
+                            <div class="settings-grid">
+                                <div>
+                                    <label class="settings-label" for="settings-current-password">Current Password *</label>
+                                    <input id="settings-current-password" type="password" class="form-control" placeholder="Enter current password" required>
+                                </div>
+                                <div>
+                                    <label class="settings-label" for="settings-new-email">New Email</label>
+                                    <input id="settings-new-email" type="email" class="form-control" placeholder="admin@example.com">
+                                </div>
+                                <div>
+                                    <label class="settings-label" for="settings-new-password">New Password</label>
+                                    <input id="settings-new-password" type="password" class="form-control" placeholder="Minimum 8 characters">
+                                </div>
+                                <div>
+                                    <label class="settings-label" for="settings-confirm-password">Confirm New Password</label>
+                                    <input id="settings-confirm-password" type="password" class="form-control" placeholder="Retype new password">
+                                </div>
+                            </div>
+
+                            <p class="settings-help mb-3">
+                                Enter at least one change: new email, new password, or both.
+                            </p>
+
+                            <button id="settings-save-btn" type="submit" class="btn btn-danger px-4 py-3 fw-bold rounded-4">
+                                Save Account Changes
+                            </button>
+                        </form>
+                        <div id="settings-feedback" class="settings-feedback" style="display: none;"></div>
+                    </div>
+                </div>
+            </section>
         </div>
     </main>
 
@@ -364,6 +478,7 @@
         let masterData = [];
         let activeStatusFilter = 'all';
         let selectedApplicantIds = new Set();
+        let currentAdminEmail = '';
         const branchOptions = ["Manila Main", "Quezon City", "Makati Hub", "Davao Branch", "Cebu Office"];
 
         /**
@@ -389,6 +504,9 @@
             el.classList.add('active');
             const title = el.getAttribute('data-title') || el.innerText;
             document.getElementById('current-title').innerText = title.toUpperCase();
+            if (id === 'settings-tab' || id === 'users-tab') loadAdminSettingsProfile();
+            if (id === 'audit-tab') renderAuditLogs();
+            if (id === 'branch-summary-tab') renderBranchSummary();
             if (window.innerWidth <= 992) document.getElementById('sidebar').classList.remove('open');
         }
 
@@ -842,6 +960,9 @@
             renderTableRows(filtered);
             renderCharts();
             renderAccordions();
+            renderBranchSummary();
+            renderAuditLogs();
+            renderUsers();
             renderTrashBin();
         }
 
@@ -982,8 +1103,153 @@
             fetchData();
         }
 
+        function formatDateTime(value) {
+            if (!value) return 'N/A';
+            const d = new Date(value);
+            if (Number.isNaN(d.getTime())) return 'N/A';
+            return d.toLocaleString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        function getAuditAction(app) {
+            const status = String(app.status || '').toLowerCase();
+            if (status === 'approved') return app.assigned_branch ? `Assigned to ${app.assigned_branch}` : 'Approved';
+            if (status === 'rejected') return 'Moved to Trash / Rejected';
+            if (status === 'for interview') return 'Queued for Interview';
+            return 'Pending Review';
+        }
+
+        function renderAuditLogs() {
+            const tbody = document.getElementById('audit-table-body');
+            if (!tbody) return;
+
+            if (!masterData.length) {
+                tbody.innerHTML = `<tr><td colspan="4" class="text-center text-muted py-4 fw-bold">No activity logs yet.</td></tr>`;
+                return;
+            }
+
+            const rows = masterData
+                .slice()
+                .sort((a, b) => new Date(b.updated_at || b.created_at || 0) - new Date(a.updated_at || a.created_at || 0))
+                .slice(0, 30);
+
+            tbody.innerHTML = rows.map(app => `
+                <tr>
+                    <td>${formatDateTime(app.updated_at || app.created_at)}</td>
+                    <td class="fw-bold">${app.first_name || ''} ${app.last_name || ''}</td>
+                    <td>${getAuditAction(app)}</td>
+                    <td><span class="status-tag ${getStatusInfo(app.status).className}">${getStatusInfo(app.status).label}</span></td>
+                </tr>
+            `).join('');
+        }
+
+        function renderBranchSummary() {
+            const container = document.getElementById('branch-summary-grid');
+            if (!container) return;
+
+            container.innerHTML = branchOptions.map(branch => {
+                const list = masterData.filter(a => a.assigned_branch === branch);
+                const hired = list.filter(a => String(a.status || '').toLowerCase() === 'approved').length;
+                const pending = list.filter(a => String(a.status || '').toLowerCase() === 'pending').length;
+                return `
+                    <article class="summary-card">
+                        <h5>${branch}</h5>
+                        <div class="summary-metrics">
+                            <div><span>Total</span><strong>${list.length}</strong></div>
+                            <div><span>Assigned</span><strong>${hired}</strong></div>
+                            <div><span>Pending</span><strong>${pending}</strong></div>
+                        </div>
+                    </article>`;
+            }).join('');
+        }
+
+        function renderUsers() {
+            const emailEl = document.getElementById('users-admin-email');
+            if (emailEl) emailEl.innerText = currentAdminEmail || 'Not configured';
+            const settingsEmailEl = document.getElementById('settings-current-email');
+            if (settingsEmailEl) settingsEmailEl.innerText = currentAdminEmail || 'Not configured';
+        }
+
+        function showSettingsFeedback(type, message) {
+            const box = document.getElementById('settings-feedback');
+            if (!box) return;
+            box.style.display = 'block';
+            box.className = `settings-feedback ${type}`;
+            box.innerText = message;
+        }
+
+        async function loadAdminSettingsProfile() {
+            try {
+                const response = await fetch('/api/admin-account-settings');
+                const result = await response.json().catch(() => ({}));
+                if (response.ok && result?.success) {
+                    currentAdminEmail = result.email || currentAdminEmail;
+                }
+            } catch (_) {}
+            renderUsers();
+        }
+
+        async function submitAdminSettings(event) {
+            event.preventDefault();
+            const currentPassword = document.getElementById('settings-current-password')?.value || '';
+            const newEmail = (document.getElementById('settings-new-email')?.value || '').trim();
+            const newPassword = document.getElementById('settings-new-password')?.value || '';
+            const confirmPassword = document.getElementById('settings-confirm-password')?.value || '';
+            const saveBtn = document.getElementById('settings-save-btn');
+
+            if (!currentPassword) {
+                showSettingsFeedback('error', 'Current password is required.');
+                return;
+            }
+            if (!newEmail && !newPassword) {
+                showSettingsFeedback('error', 'Set a new email or new password first.');
+                return;
+            }
+            if (newPassword && newPassword !== confirmPassword) {
+                showSettingsFeedback('error', 'New password and confirmation do not match.');
+                return;
+            }
+
+            saveBtn.disabled = true;
+            saveBtn.innerText = 'Saving...';
+            try {
+                const response = await fetch('/api/admin-account-settings', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        currentPassword,
+                        newEmail: newEmail || undefined,
+                        newPassword: newPassword || undefined
+                    })
+                });
+                const result = await response.json().catch(() => ({}));
+                if (!response.ok || !result?.success) {
+                    throw new Error(result?.error || 'Failed to update account settings.');
+                }
+
+                currentAdminEmail = result.email || currentAdminEmail;
+                renderUsers();
+                document.getElementById('settings-current-password').value = '';
+                document.getElementById('settings-new-password').value = '';
+                document.getElementById('settings-confirm-password').value = '';
+                document.getElementById('settings-new-email').value = '';
+                showSettingsFeedback('success', 'Admin account settings updated successfully.');
+            } catch (err) {
+                showSettingsFeedback('error', err.message || 'Unable to save account settings.');
+            } finally {
+                saveBtn.disabled = false;
+                saveBtn.innerText = 'Save Account Changes';
+            }
+        }
+
         // INIT SYSTEM
         fetchData();
+        loadAdminSettingsProfile();
     </script>
 
     <!-- Bootstrap Bundle with Popper -->

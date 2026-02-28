@@ -13,6 +13,35 @@ function setCors(res) {
   res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
 }
 
+async function fetchDbAdminCredentials() {
+  const supabaseUrl = process.env.SUPABASE_URL;
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const table = process.env.ADMIN_CREDENTIALS_TABLE || "admin_credentials";
+  if (!supabaseUrl || !serviceRoleKey) return null;
+
+  const endpoint = `${supabaseUrl}/rest/v1/${encodeURIComponent(
+    table
+  )}?select=id,admin_email,password_hash&order=id.desc&limit=1`;
+  const response = await fetch(endpoint, {
+    method: "GET",
+    headers: {
+      apikey: serviceRoleKey,
+      Authorization: `Bearer ${serviceRoleKey}`,
+      "Content-Type": "application/json",
+    },
+  });
+  if (!response.ok) return null;
+
+  const rows = await response.json().catch(() => []);
+  const row = Array.isArray(rows) && rows.length > 0 ? rows[0] : null;
+  if (!row || !row.password_hash) return null;
+
+  return {
+    email: row.admin_email || null,
+    passwordHash: row.password_hash,
+  };
+}
+
 module.exports = async function handler(req, res) {
   setCors(res);
 
@@ -32,12 +61,16 @@ module.exports = async function handler(req, res) {
     });
   }
 
+  const dbCreds = await fetchDbAdminCredentials();
   const passwordHash =
-    process.env.ADMIN_LOGIN_PASSWORD_HASH || process.env.ADMIN_PASSWORD_HASH;
-  const plainPassword =
-    process.env.ADMIN_LOGIN_PASSWORD || process.env.ADMIN_PASSWORD;
+    dbCreds?.passwordHash ||
+    process.env.ADMIN_LOGIN_PASSWORD_HASH ||
+    process.env.ADMIN_PASSWORD_HASH;
+  const plainPassword = dbCreds
+    ? null
+    : process.env.ADMIN_LOGIN_PASSWORD || process.env.ADMIN_PASSWORD;
   const allowedEmail =
-    process.env.ADMIN_LOGIN_EMAIL || process.env.ADMIN_EMAIL;
+    dbCreds?.email || process.env.ADMIN_LOGIN_EMAIL || process.env.ADMIN_EMAIL;
 
   if (!passwordHash && !plainPassword) {
     return res.status(500).json({
@@ -49,10 +82,7 @@ module.exports = async function handler(req, res) {
 
   try {
     if (allowedEmail && email) {
-      if (
-        String(email).trim().toLowerCase() !==
-        String(allowedEmail).trim().toLowerCase()
-      ) {
+      if (String(email).trim().toLowerCase() !== String(allowedEmail).trim().toLowerCase()) {
         return res.status(401).json({
           success: false,
           error: "Email is not authorized for admin access.",
@@ -71,11 +101,10 @@ module.exports = async function handler(req, res) {
       }
       passOk = await bcrypt.compare(String(password), passwordHash);
     } else {
+      // Local/dev fallback when only plain env password is available.
       const input = Buffer.from(String(password), "utf8");
       const expected = Buffer.from(String(plainPassword), "utf8");
-      passOk =
-        input.length === expected.length &&
-        crypto.timingSafeEqual(input, expected);
+      passOk = input.length === expected.length && crypto.timingSafeEqual(input, expected);
     }
 
     if (!passOk) {
