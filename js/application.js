@@ -190,15 +190,59 @@ async function handleFinalSubmit() {
             return;
         }
 
-        // Duplicate Check
-        const { data: dup } = await _supabase
-            .from('applicants')
-            .select('id')
-            .or(`email.ilike.${applicationData.email},and(first_name.ilike.${applicationData.first_name},last_name.ilike.${applicationData.last_name},dob.eq.${applicationData.dob})`)
-            .limit(1);
+        // Duplicate Check (Email OR Name + Birthday + City + Address)
+        const normalizeText = (value) => String(value || '').trim();
+        const email = normalizeText(applicationData.email).toLowerCase();
+        const firstName = normalizeText(applicationData.first_name);
+        const lastName = normalizeText(applicationData.last_name);
+        const dob = normalizeText(applicationData.dob);
+        const city = normalizeText(applicationData.city);
+        const streetAddress = normalizeText(applicationData.street_address);
 
-        if (dup && dup.length > 0) {
-            alert("An application already exists for this person.");
+        const duplicateMap = new Map();
+
+        if (email) {
+            const { data: byEmail, error: byEmailError } = await _supabase
+                .from('applicants')
+                .select('id, status')
+                .ilike('email', email)
+                .limit(10);
+
+            if (byEmailError) throw byEmailError;
+            (byEmail || []).forEach((row) => duplicateMap.set(row.id, row));
+        }
+
+        if (firstName && lastName && dob && city && streetAddress) {
+            const { data: byIdentity, error: byIdentityError } = await _supabase
+                .from('applicants')
+                .select('id, status')
+                .ilike('first_name', firstName)
+                .ilike('last_name', lastName)
+                .eq('dob', dob)
+                .ilike('city', city)
+                .ilike('street_address', streetAddress)
+                .limit(10);
+
+            if (byIdentityError) throw byIdentityError;
+            (byIdentity || []).forEach((row) => duplicateMap.set(row.id, row));
+        }
+
+        const duplicates = Array.from(duplicateMap.values());
+        const hasPendingDuplicate = duplicates.some((row) => {
+            const status = String(row.status || '').trim().toLowerCase();
+            return status === 'pending' || status === 'for review' || status === 'under review' || status === 'in review';
+        });
+        const hasApprovedDuplicate = duplicates.some((row) => String(row.status || '').trim().toLowerCase() === 'approved');
+
+        if (hasPendingDuplicate) {
+            showErrorModal("Duplicate Application", "You cannot submit another form until your current application is approved.");
+            btn.disabled = false;
+            btn.innerText = "Submit Application";
+            return;
+        }
+
+        if (hasApprovedDuplicate) {
+            showErrorModal("Duplicate Application", "This profile already has an approved application.");
             btn.disabled = false;
             btn.innerText = "Submit Application";
             return;

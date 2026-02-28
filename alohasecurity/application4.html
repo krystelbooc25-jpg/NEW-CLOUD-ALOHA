@@ -120,6 +120,59 @@
         document.getElementById('s-pos').innerText = applicationData.desired_position || 'N/A';
         document.getElementById('s-date').innerText = applicationData.start_date || 'N/A';
 
+        function normalizeText(value) {
+            return String(value || '').trim();
+        }
+
+        function isPendingStatus(status) {
+            const normalizedStatus = String(status || '').trim().toLowerCase();
+            return (
+                normalizedStatus === 'pending' ||
+                normalizedStatus === 'for review' ||
+                normalizedStatus === 'under review' ||
+                normalizedStatus === 'in review'
+            );
+        }
+
+        async function findDuplicateApplications(appData) {
+            const email = normalizeText(appData.email).toLowerCase();
+            const firstName = normalizeText(appData.first_name);
+            const lastName = normalizeText(appData.last_name);
+            const dob = normalizeText(appData.dob);
+            const city = normalizeText(appData.city);
+            const streetAddress = normalizeText(appData.street_address);
+
+            const duplicateMap = new Map();
+
+            if (email) {
+                const { data: byEmail, error: byEmailError } = await _supabase
+                    .from('applicants')
+                    .select('id, status')
+                    .ilike('email', email)
+                    .limit(10);
+
+                if (byEmailError) throw byEmailError;
+                (byEmail || []).forEach((row) => duplicateMap.set(row.id, row));
+            }
+
+            if (firstName && lastName && dob && city && streetAddress) {
+                const { data: byIdentity, error: byIdentityError } = await _supabase
+                    .from('applicants')
+                    .select('id, status')
+                    .ilike('first_name', firstName)
+                    .ilike('last_name', lastName)
+                    .eq('dob', dob)
+                    .ilike('city', city)
+                    .ilike('street_address', streetAddress)
+                    .limit(10);
+
+                if (byIdentityError) throw byIdentityError;
+                (byIdentity || []).forEach((row) => duplicateMap.set(row.id, row));
+            }
+
+            return Array.from(duplicateMap.values());
+        }
+
         document.getElementById('final-form').onsubmit = (e) => { e.preventDefault(); document.getElementById('privacy-modal').classList.add('active'); };
 
         document.getElementById('final-confirm-btn').onclick = async () => {
@@ -135,6 +188,19 @@
                 const birthYear = new Date(applicationData.dob).getFullYear();
                 const currentYear = new Date().getFullYear();
                 if((currentYear - birthYear) < 21) throw new Error("Applicant must be at least 21 years old.");
+
+                // DUPLICATE DETECTION (Email OR Name + Birthday + City + Address)
+                const duplicates = await findDuplicateApplications(applicationData);
+                const hasPendingDuplicate = duplicates.some((row) => isPendingStatus(row.status));
+                const hasApprovedDuplicate = duplicates.some((row) => String(row.status || '').trim().toLowerCase() === 'approved');
+
+                if (hasPendingDuplicate) {
+                    throw new Error("Duplicate application found. You cannot submit another form until your current application is approved.");
+                }
+
+                if (hasApprovedDuplicate) {
+                    throw new Error("Duplicate application found. This profile already has an approved application.");
+                }
 
                 const ts = Date.now();
                 const resumeFile = document.getElementById('resume-cv').files[0];
