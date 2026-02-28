@@ -4,7 +4,7 @@ function getMailerConfig() {
   const user =
     process.env.MAILER_EMAIL ||
     process.env.MAILER_USER ||
-    "krystelbooc25@gmail.com";
+    "";
   const pass = process.env.MAILER_PASSWORD;
   const notifyTo = process.env.NOTIFY_EMAIL || user;
 

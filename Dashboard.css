@@ -1019,3 +1019,18 @@ body {
             .panel-search-row { flex-direction: column; align-items: stretch; }
             .panel-search-row select { width: 100%; }
         }
+
+        @media (max-width: 480px) {
+            .header-bar {
+                height: auto;
+                padding: 12px;
+                flex-wrap: wrap;
+                gap: 12px;
+            }
+            .content-body { padding: 12px; }
+            .bento-box { padding: 18px; border-radius: 16px; }
+            .stat-card { padding: 18px; border-radius: 16px; }
+            .stat-card .value { font-size: 2rem; }
+            .nav-item { margin: 0 10px 6px; }
+            .dropdown-menu { width: min(92vw, 360px) !important; }
+        }

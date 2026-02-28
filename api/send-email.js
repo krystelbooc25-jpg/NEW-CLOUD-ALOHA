@@ -70,6 +70,13 @@ module.exports = async function handler(req, res) {
   }
 
   const mailerConfig = getMailerConfig();
+  if (!mailerConfig.user) {
+    return res.status(500).json({
+      success: false,
+      error:
+        "Missing MAILER_EMAIL environment variable (or MAILER_USER).",
+    });
+  }
   if (!mailerConfig.pass) {
     return res.status(500).json({
       success: false,
@@ -130,6 +137,7 @@ module.exports = async function handler(req, res) {
             <h2 style="color: #D2042D;">Application Received</h2>
             <p>Dear ${name},</p>
             <p>We received your job application for <strong>${position}</strong>.</p>
+            <p><strong>Reference ID:</strong> ${applicationId || "Pending assignment"}</p>
             <p>We will contact you through this email for updates.</p>
             <p style="font-size: 12px; color: #888; margin-top: 20px;">This is an automated message from ALOHA Security.</p>
           </div>

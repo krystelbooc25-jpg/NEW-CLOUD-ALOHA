@@ -7,6 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root { --primary-red: #D2042D; --navy: #0f172a; --bg: #f8fafc; --text: #1e293b; --radius: 3px; }
@@ -49,6 +50,40 @@
 
         .footer-btns { display: flex; gap: 20px; border-top: 2px solid #f1f5f9; padding-top: 35px; }
         .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+
+        @media (max-width: 768px) {
+            header {
+                flex-wrap: wrap;
+                gap: 14px;
+                justify-content: center;
+                text-align: center;
+                margin-bottom: 24px;
+            }
+            .logo-box { justify-content: center; width: 100%; }
+            .step-tag { margin: 0 auto; }
+            .progress-nav {
+                overflow-x: auto;
+                gap: 10px;
+                justify-content: flex-start;
+                padding: 0 0 8px;
+                margin-bottom: 30px;
+            }
+            .progress-nav::before { top: 14px; }
+            .step-item { min-width: 92px; padding: 0 8px; }
+            .dot { width: 30px; height: 30px; margin-bottom: 6px; }
+            .form-card { padding: 24px 18px; }
+            .summary { grid-template-columns: 1fr; padding: 18px; gap: 12px; }
+            .grid { grid-template-columns: 1fr; }
+            .footer-btns { flex-direction: column-reverse; gap: 12px; }
+            .btn { margin-bottom: 0; }
+        }
+
+        @media (max-width: 576px) {
+            .app-container { padding: 24px 12px; }
+            .logo-box h5 { font-size: 1rem; }
+            .upload-zone { padding: 24px 12px; }
+            .modal-box { margin: 12px; padding: 30px 20px; }
+        }
     </style>
 </head>
 <body>
@@ -74,7 +109,7 @@
         </div>
     </div>
 
-    <div class="app-container">
+    <div class="app-container container">
         <header>
             <a href="application3.html" style="text-decoration:none; color:#64748b; font-weight:800; font-size:0.85rem;"><i class="fas fa-arrow-left"></i> BACK</a>
             <div class="logo-box"><img src="Resources/logo.jpg" alt="Logo"><h5>ALOHA SECURITY APPLICATION</h5></div>
@@ -435,9 +470,10 @@
                 if(error) throw error;
                 const applicantReferenceId = insertedApplicant?.id || null;
 
-              // --- EMAIL NOTIFICATION VIA VERCEL BACKEND ---
+                // --- EMAIL NOTIFICATION VIA VERCEL BACKEND ---
+                let emailDispatchMessage = '';
                 try {
-                    await fetch('/api/send-email', {
+                    const emailResponse = await fetch('/api/send-email', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
@@ -451,7 +487,19 @@
                             idDocumentSubmitted: true
                         })
                     });
+                    const emailResult = await emailResponse.json().catch(() => ({}));
+
+                    if (!emailResponse.ok || !emailResult.success) {
+                        const reason = emailResult.error || 'Mailer service is unavailable.';
+                        emailDispatchMessage = ` Application saved, but email notice failed: ${reason}`;
+                        console.log('Send email response:', reason);
+                    } else if (emailResult.applicantConfirmationSent) {
+                        emailDispatchMessage = ` A confirmation email was sent to ${applicationData.email}.`;
+                    } else {
+                        emailDispatchMessage = ' Application saved. Admin was notified, but applicant confirmation email was not sent.';
+                    }
                 } catch(e) {
+                    emailDispatchMessage = ' Application saved, but email service is currently unavailable.';
                     console.log("Backend email failed, but saved to Supabase.");
                 }
                 // --- END EMAIL NOTIFICATION ---
@@ -463,8 +511,8 @@
                     'success', 
                     'Application Submitted!', 
                     applicantReferenceId
-                        ? `Your application has been submitted. Reference ID: ${applicantReferenceId}.`
-                        : 'Your application has been submitted. Our team will review your details shortly.'
+                        ? `Your application has been submitted. Reference ID: ${applicantReferenceId}.${emailDispatchMessage}`
+                        : `Your application has been submitted. Our team will review your details shortly.${emailDispatchMessage}`
                 );
 
             } catch (err) { 
@@ -479,5 +527,6 @@
             }
         };
     </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

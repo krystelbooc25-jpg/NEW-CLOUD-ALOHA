@@ -9,6 +9,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <style>
@@ -32,9 +33,10 @@
 
         body {
             background-color: #ffffff;
-            height: 100vh;
-            width: 100vw;
-            overflow: hidden;
+            min-height: 100vh;
+            width: 100%;
+            overflow-x: hidden;
+            overflow-y: auto;
             display: flex;
         }
 
@@ -43,7 +45,7 @@
             display: grid;
             grid-template-columns: 1.2fr 0.8fr;
             width: 100%;
-            height: 100%;
+            min-height: 100vh;
         }
 
         /* --- 5. LEFT PANEL: BRANDING WITH BLURRED IMAGE --- */
@@ -243,13 +245,23 @@
         @media (max-width: 900px) {
             .login-main { grid-template-columns: 1fr; }
             .branding-section { display: none; }
-            .form-section { padding: 40px; }
+            .form-section { padding: 40px 24px; min-height: 100vh; }
+        }
+
+        @media (max-width: 576px) {
+            .form-section { padding: 30px 18px; justify-content: flex-start; padding-top: 60px; }
+            .form-header { margin-bottom: 36px; }
+            .form-header h2 { font-size: 2rem; }
+            .form-header p { font-size: 0.95rem; }
+            .input-wrapper { margin-bottom: 24px; }
+            .input-wrapper input { font-size: 1rem; }
+            .btn-login { padding: 18px; font-size: 0.9rem; letter-spacing: 1px; }
         }
     </style>
 </head>
 <body>
 
-    <main class="login-main">
+    <main class="login-main container-fluid p-0">
         <!-- Visual Section (Blurred Security Background) -->
         <section class="branding-section">
             <div class="branding-content">
@@ -300,6 +312,7 @@
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         // --- 1. INITIALIZE SUPABASE ---
         const supabaseUrl = 'https://kkaelwhdcsgaodbhrxqt.supabase.co';
