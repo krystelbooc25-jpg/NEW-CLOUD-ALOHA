@@ -228,6 +228,172 @@
             letter-spacing: 0.5px;
         }
         .status-hired { background: #dcfce7; color: #166534; }
+
+        @media (max-width: 992px) {
+            .header-bar {
+                height: auto;
+                min-height: 84px;
+                padding: 14px 20px;
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+
+            .header-bar h4 {
+                width: 100%;
+                font-size: 1.1rem;
+            }
+
+            .container-fluid {
+                padding: 24px 18px;
+            }
+
+            .profile-hero {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 18px;
+                padding: 26px;
+            }
+
+            .profile-hero > div {
+                width: 100%;
+            }
+
+            #resume-link {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .bento-card {
+                padding: 24px;
+                border-radius: 18px;
+            }
+
+            .action-bar {
+                padding: 16px 18px;
+                flex-wrap: wrap;
+                justify-content: stretch;
+            }
+
+            .action-bar .btn-modern {
+                flex: 1 1 calc(50% - 8px);
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .header-bar {
+                padding: 12px;
+                min-height: 72px;
+            }
+
+            .back-btn {
+                padding: 10px 12px;
+                border-radius: 12px;
+                font-size: 0.82rem;
+                gap: 8px;
+            }
+
+            .container-fluid {
+                padding: 14px 10px;
+            }
+
+            .profile-hero {
+                padding: 18px;
+                border-radius: 18px;
+            }
+
+            .profile-hero .d-flex.align-items-center.gap-4 {
+                align-items: flex-start !important;
+                gap: 14px !important;
+            }
+
+            .profile-hero .d-flex.align-items-center.gap-3 {
+                flex-wrap: wrap;
+                gap: 8px !important;
+            }
+
+            .user-avatar {
+                width: 72px;
+                height: 72px;
+                border-radius: 20px;
+                font-size: 1.8rem;
+            }
+
+            #display-name {
+                font-size: 1.45rem !important;
+                line-height: 1.2;
+            }
+
+            .bento-card {
+                padding: 18px;
+                border-radius: 16px;
+            }
+
+            .section-title {
+                margin-bottom: 16px;
+                font-size: 0.75rem;
+                letter-spacing: 1px;
+            }
+
+            .id-img {
+                height: 210px;
+            }
+
+            .action-bar {
+                position: static;
+                border-top: 0;
+                background: transparent;
+                padding: 14px 0 4px;
+                gap: 10px;
+            }
+
+            .action-bar .btn-modern {
+                width: 100%;
+                flex: 1 1 100%;
+                padding: 13px 14px;
+                border-radius: 12px;
+                font-size: 0.85rem;
+            }
+
+            .modal-box {
+                padding: 26px 20px;
+                border-radius: 20px;
+            }
+
+            .modal-icon {
+                width: 64px;
+                height: 64px;
+                margin-bottom: 20px;
+                font-size: 1.5rem;
+                border-radius: 18px;
+            }
+
+            .modal .d-flex.gap-3 {
+                flex-direction: column;
+            }
+
+            .modal .btn-modern.w-50 {
+                width: 100% !important;
+            }
+
+            .branch-select {
+                padding: 14px;
+                border-radius: 12px;
+                margin-bottom: 20px;
+            }
+        }
+
+        @media (max-width: 420px) {
+            .info-value {
+                font-size: 0.95rem;
+                margin-bottom: 14px;
+            }
+
+            .experience-box {
+                padding: 16px;
+                font-size: 0.92rem;
+            }
+        }
     </style>
 </head>
 <body>
