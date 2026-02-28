@@ -199,6 +199,95 @@
             font-weight: 600;
         }
 
+        /* --- APPLICANT CHATBOT --- */
+        .chatbot-toggle {
+            position: fixed;
+            right: 24px;
+            bottom: 24px;
+            width: 58px;
+            height: 58px;
+            border-radius: 50%;
+            border: none;
+            background: var(--primary);
+            color: #fff;
+            font-size: 1.25rem;
+            box-shadow: 0 14px 28px rgba(193, 18, 31, 0.35);
+            z-index: 1200;
+            cursor: pointer;
+        }
+        .chatbot-panel {
+            position: fixed;
+            right: 24px;
+            bottom: 92px;
+            width: 340px;
+            max-width: calc(100vw - 32px);
+            background: #fff;
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            box-shadow: 0 24px 36px rgba(15, 23, 42, 0.2);
+            display: none;
+            z-index: 1200;
+            overflow: hidden;
+        }
+        .chatbot-panel.active { display: block; }
+        .chatbot-head {
+            background: #fff5f5;
+            border-bottom: 1px solid #fecaca;
+            padding: 12px 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .chatbot-body {
+            padding: 12px;
+            max-height: 320px;
+            overflow-y: auto;
+            background: #fff;
+        }
+        .chat-line {
+            margin-bottom: 10px;
+            display: flex;
+        }
+        .chat-line.bot .bubble {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+        }
+        .chat-line.user { justify-content: flex-end; }
+        .chat-line.user .bubble {
+            background: #fee2e2;
+            border: 1px solid #fecaca;
+        }
+        .bubble {
+            padding: 9px 11px;
+            border-radius: 11px;
+            font-size: 0.86rem;
+            color: #1f2937;
+            max-width: 88%;
+        }
+        .chatbot-input {
+            border-top: 1px solid #e2e8f0;
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 8px;
+            padding: 10px;
+        }
+        .chatbot-input input {
+            border: 1px solid #dbe4ef;
+            border-radius: 10px;
+            padding: 9px 10px;
+            outline: none;
+            font-size: 0.86rem;
+        }
+        .chatbot-input button {
+            border: none;
+            background: var(--primary);
+            color: #fff;
+            border-radius: 10px;
+            padding: 0 14px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
         /* --- ADMIN MODAL --- */
         .modal-overlay {
             position: fixed; inset: 0; background: rgba(15, 23, 42, 0.5); backdrop-filter: blur(8px);
@@ -245,6 +334,8 @@
             .prev-btn { right: 80px; }
             .hero-panel { padding: 16px; }
             .company-details-wrap { grid-template-columns: 1fr; }
+            .chatbot-panel { width: calc(100vw - 24px); right: 12px; bottom: 82px; }
+            .chatbot-toggle { right: 12px; bottom: 12px; }
         }
     </style>
 </head>
@@ -486,6 +577,26 @@
         </div>
     </footer>
 
+    <!-- Applicant Chatbot -->
+    <button class="chatbot-toggle" id="chatbot-toggle" title="Applicant Assistant">
+        <i class="fas fa-comment-dots"></i>
+    </button>
+    <div class="chatbot-panel" id="chatbot-panel">
+        <div class="chatbot-head">
+            <div style="font-weight:800; color:#991b1b; font-size:0.9rem;">Aloha Applicant Assistant</div>
+            <button id="chatbot-close" style="border:none; background:none; cursor:pointer; color:#64748b;">
+                <i class="fas fa-xmark"></i>
+            </button>
+        </div>
+        <div class="chatbot-body" id="chatbot-body">
+            <div class="chat-line bot"><div class="bubble">Hello. Ask me about requirements, office location, email, or application steps.</div></div>
+        </div>
+        <div class="chatbot-input">
+            <input id="chatbot-input" type="text" placeholder="Type your question...">
+            <button id="chatbot-send">Send</button>
+        </div>
+    </div>
+
     <script>
         // --- AUTHENTICATION & PERSISTENCE ---
         const LOCK_TIME_KEY = "node_lock_until";
@@ -639,6 +750,53 @@
         }
         window.addEventListener('scroll', triggerAOS);
         passInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') verifyAdmin(); });
+
+        // --- APPLICANT CHATBOT ---
+        const chatbotToggle = document.getElementById('chatbot-toggle');
+        const chatbotPanel = document.getElementById('chatbot-panel');
+        const chatbotClose = document.getElementById('chatbot-close');
+        const chatbotBody = document.getElementById('chatbot-body');
+        const chatbotInput = document.getElementById('chatbot-input');
+        const chatbotSend = document.getElementById('chatbot-send');
+
+        const faqRules = [
+            { keys: ['address', 'location', 'office'], reply: 'Our office is at 108, Old Highway, Guiwan, Zamboanga City 7000, Philippines.' },
+            { keys: ['email', 'contact'], reply: 'You can contact us via aloha_scty@yahoo.com and our official Facebook page.' },
+            { keys: ['requirements', 'requirement'], reply: 'Basic requirements include valid IDs, clean records, and application documents. Please check the Elite Requirements section on this page.' },
+            { keys: ['salary', 'wage'], reply: 'The posting indicates DOLE wage rate. Final details are discussed during interview and evaluation.' },
+            { keys: ['status', 'follow up', 'follow-up'], reply: 'Use the Applicant Portal and enter your registered email and birth date to check your application status.' },
+            { keys: ['id', 'document'], reply: 'Please prepare a clear government ID document (photo or PDF), plus resume and supporting files.' },
+            { keys: ['how to apply', 'apply', 'application'], reply: 'Click "Start Application", complete Steps 1 to 4, upload required files, and submit. You will receive a reference ID after submission.' }
+        ];
+
+        function appendChat(text, sender = 'bot') {
+            const row = document.createElement('div');
+            row.className = `chat-line ${sender}`;
+            row.innerHTML = `<div class="bubble">${text}</div>`;
+            chatbotBody.appendChild(row);
+            chatbotBody.scrollTop = chatbotBody.scrollHeight;
+        }
+
+        function getBotReply(question) {
+            const q = String(question || '').toLowerCase();
+            for (const rule of faqRules) {
+                if (rule.keys.some((k) => q.includes(k))) return rule.reply;
+            }
+            return 'I can help with requirements, office address, contact email, ID documents, and application status.';
+        }
+
+        function handleChatSend() {
+            const text = chatbotInput.value.trim();
+            if (!text) return;
+            appendChat(text, 'user');
+            chatbotInput.value = '';
+            setTimeout(() => appendChat(getBotReply(text), 'bot'), 200);
+        }
+
+        chatbotToggle.addEventListener('click', () => chatbotPanel.classList.toggle('active'));
+        chatbotClose.addEventListener('click', () => chatbotPanel.classList.remove('active'));
+        chatbotSend.addEventListener('click', handleChatSend);
+        chatbotInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') handleChatSend(); });
     </script>
 </body>
 </html>

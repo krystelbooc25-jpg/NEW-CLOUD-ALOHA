@@ -186,15 +186,47 @@
                         </div>
                     </div>
                     <div class="col-lg-4">
+                        <div class="bento-box rail-profile-card mb-4">
+                            <div class="rail-profile-avatar"><i class="fas fa-user-tie"></i></div>
+                            <h6 class="rail-profile-name mb-1">Aloha Admin</h6>
+                            <p class="rail-profile-role mb-0">Recruitment Manager</p>
+                            <button class="btn btn-light fw-bold mt-3 px-4 py-2 rounded-4 border" onclick="handleLogout()">
+                                <i class="fas fa-arrow-right-from-bracket me-2 text-danger"></i>Quick Logout
+                            </button>
+                        </div>
+
                         <div class="bento-box mb-4">
-                            <h5 class="fw-bold mb-4"><i class="fas fa-scroll me-3 text-primary"></i>System Activities</h5>
-                            <div id="activity-log" style="max-height: 240px; overflow-y: auto;">
-                                <div class="p-3 bg-light rounded-4 mb-2 small fw-bold text-muted">Awaiting activity logs...</div>
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h6 class="fw-bold m-0"><i class="fas fa-comments me-2 text-danger"></i>Messages</h6>
+                                <span class="small text-muted fw-bold">Live</span>
+                            </div>
+                            <div id="message-list" class="rail-list">
+                                <div class="rail-item">
+                                    <div class="rail-dot"></div>
+                                    <div>
+                                        <div class="fw-bold small">Recruitment System</div>
+                                        <div class="text-muted small">No new message yet.</div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
+
+                        <div class="bento-box mb-4">
+                            <h6 class="fw-bold mb-3"><i class="fas fa-chart-pie me-2 text-danger"></i>Status Ratio</h6>
+                            <div style="height: 220px;"><canvas id="statusChart"></canvas></div>
+                        </div>
+
                         <div class="bento-box">
-                            <h5 class="fw-bold mb-4"><i class="fas fa-chart-pie me-3 text-success"></i>Status Ratio</h5>
-                            <div style="height: 250px;"><canvas id="statusChart"></canvas></div>
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h6 class="fw-bold m-0"><i class="fas fa-activity me-2 text-danger"></i>Activity</h6>
+                                <span class="small text-muted fw-bold">Today</span>
+                            </div>
+                            <div id="activity-log" class="rail-list" style="max-height: 220px; overflow-y: auto;">
+                                <div class="rail-item">
+                                    <div class="rail-dot"></div>
+                                    <div class="text-muted small fw-bold">Awaiting activity logs...</div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -354,6 +386,7 @@
             // Handle Notification System
             const badge = document.getElementById('notif-badge');
             const notifList = document.getElementById('notif-list-items');
+            const messageList = document.getElementById('message-list');
             if(pendingApps.length > 0) {
                 badge.innerText = pendingApps.length;
                 badge.style.display = 'flex';
@@ -365,6 +398,27 @@
             } else {
                 badge.style.display = 'none';
                 notifList.innerHTML = '<div class="p-5 text-center text-muted small fw-bold">Queue is currently clear.</div>';
+            }
+
+            if (messageList) {
+                const latest = masterData.slice(0, 4);
+                if (latest.length === 0) {
+                    messageList.innerHTML = `
+                        <div class="rail-item">
+                            <div class="rail-dot"></div>
+                            <div class="text-muted small fw-bold">No message yet.</div>
+                        </div>`;
+                } else {
+                    messageList.innerHTML = latest.map(app => `
+                        <div class="rail-item">
+                            <div class="rail-dot"></div>
+                            <div>
+                                <div class="fw-bold small">${app.first_name} ${app.last_name}</div>
+                                <div class="text-muted small">${app.status || 'Pending'} · ${app.desired_position || 'N/A'}</div>
+                            </div>
+                        </div>
+                    `).join('');
+                }
             }
 
             // Table Filter and Search Logic

@@ -248,13 +248,56 @@ async function handleFinalSubmit() {
             return;
         }
 
+        // File Security Checks
+        const MAX_FILE_SIZE_BYTES = 8 * 1024 * 1024; // 8MB
+        const allowedResumeExt = ['pdf', 'doc', 'docx'];
+        const allowedIdExt = ['pdf', 'jpg', 'jpeg', 'png', 'webp'];
+
+        const getFileExt = (filename) => String(filename || '').split('.').pop().toLowerCase();
+        const sanitizeFileName = (filename) =>
+            String(filename || '').replace(/[^a-zA-Z0-9._-]/g, '-').replace(/-+/g, '-');
+
+        const resumeExt = getFileExt(resumeFile.name);
+        const idExt = getFileExt(idFile.name);
+        const isValidResumeType =
+            allowedResumeExt.includes(resumeExt) ||
+            ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'].includes(resumeFile.type);
+        const isValidIdType =
+            allowedIdExt.includes(idExt) ||
+            idFile.type.startsWith('image/') ||
+            idFile.type === 'application/pdf';
+
+        if (!isValidResumeType) {
+            showErrorModal("Invalid Resume/CV", "Allowed formats: PDF, DOC, DOCX.");
+            btn.disabled = false;
+            btn.innerText = "Submit Application";
+            return;
+        }
+        if (!isValidIdType) {
+            showErrorModal("Invalid ID File", "Allowed formats: image or PDF.");
+            btn.disabled = false;
+            btn.innerText = "Submit Application";
+            return;
+        }
+        if (resumeFile.size > MAX_FILE_SIZE_BYTES || idFile.size > MAX_FILE_SIZE_BYTES) {
+            showErrorModal("File Too Large", "Each upload must be 8MB or below.");
+            btn.disabled = false;
+            btn.innerText = "Submit Application";
+            return;
+        }
+
         // Uploads
         const ts = Date.now();
-        await _supabase.storage.from('applicant-files').upload(`resumes/${ts}-${resumeFile.name}`, resumeFile);
-        await _supabase.storage.from('applicant-files').upload(`ids/${ts}-${idFile.name}`, idFile);
+        const safeResumeName = sanitizeFileName(resumeFile.name);
+        const safeIdName = sanitizeFileName(idFile.name);
+        const resumePath = `resumes/${ts}-${safeResumeName}`;
+        const idPath = `ids/id-document-${String(idType || 'unknown').replace(/\s+/g, '-').toLowerCase()}-${ts}-${safeIdName}`;
 
-        applicationData.resume_url = _supabase.storage.from('applicant-files').getPublicUrl(`resumes/${ts}-${resumeFile.name}`).data.publicUrl;
-        applicationData.valid_id_url = _supabase.storage.from('applicant-files').getPublicUrl(`ids/${ts}-${idFile.name}`).data.publicUrl;
+        await _supabase.storage.from('applicant-files').upload(resumePath, resumeFile);
+        await _supabase.storage.from('applicant-files').upload(idPath, idFile);
+
+        applicationData.resume_url = _supabase.storage.from('applicant-files').getPublicUrl(resumePath).data.publicUrl;
+        applicationData.valid_id_url = _supabase.storage.from('applicant-files').getPublicUrl(idPath).data.publicUrl;
         applicationData.id_type = idType;
         applicationData.status = 'Pending';
 

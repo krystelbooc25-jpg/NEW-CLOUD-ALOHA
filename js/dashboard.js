@@ -27,6 +27,9 @@ async function loadComponents() {
         window.closeModal = (id) => document.getElementById(id)?.classList.remove('active');
         window.openViewModal = openViewModal;
         window.rejectApplicant = rejectApplicant;
+        window.restoreApplicant = restoreApplicant;
+        window.toggleSelectAllTrash = toggleSelectAllTrash;
+        window.bulkDeleteTrash = bulkDeleteTrash;
         window.handleLogout = handleLogout;
 
         applySavedSidebarState();
@@ -95,6 +98,8 @@ function renderCurrentTab() {
         if (document.getElementById('branchChart')) renderCharts();
     } else if (currentTab === 'applicants') {
         renderTableRows();
+    } else if (currentTab === 'trash') {
+        renderTrashRows();
     }
 }
 
@@ -114,6 +119,64 @@ function renderTableRows() {
                 <button onclick="openViewModal('${app.id}')" class="btn-hire">View</button>
             </td>
         </tr>`).join('');
+}
+
+function renderTrashRows() {
+    const tbody = document.getElementById('trash-table-body');
+    const selectAll = document.getElementById('select-all-trash');
+    const bulkBtn = document.getElementById('bulk-delete-btn');
+    if (!tbody) return;
+
+    const rejected = masterData.filter((a) => a.status?.toLowerCase() === 'rejected');
+    if (selectAll) selectAll.checked = false;
+    if (bulkBtn) bulkBtn.disabled = true;
+
+    if (rejected.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" style="padding:20px; text-align:center; color:#94a3b8;">Trash is empty.</td></tr>`;
+        return;
+    }
+
+    tbody.innerHTML = rejected.map((app) => `
+        <tr>
+            <td style="padding: 12px 18px;"><input class="trash-check" type="checkbox" data-id="${app.id}" onchange="toggleSelectAllTrash()"></td>
+            <td style="padding: 12px 18px; font-weight:700;">${app.first_name} ${app.last_name}</td>
+            <td style="padding: 12px 18px;">${app.desired_position || 'N/A'}</td>
+            <td style="padding: 12px 18px;"><span class="badge rejected">Rejected</span></td>
+            <td style="padding: 12px 18px; text-align:center;">
+                <button class="btn btn-sm btn-light" onclick="restoreApplicant('${app.id}')">Restore</button>
+            </td>
+        </tr>
+    `).join('');
+}
+
+function toggleSelectAllTrash(source) {
+    const allChecks = Array.from(document.querySelectorAll('.trash-check'));
+    const bulkBtn = document.getElementById('bulk-delete-btn');
+    const selectAll = document.getElementById('select-all-trash');
+
+    if (source && source.checked !== undefined) {
+        allChecks.forEach((cb) => { cb.checked = source.checked; });
+    }
+
+    const checkedCount = allChecks.filter((cb) => cb.checked).length;
+    if (bulkBtn) bulkBtn.disabled = checkedCount === 0;
+    if (selectAll && !source) {
+        selectAll.checked = allChecks.length > 0 && checkedCount === allChecks.length;
+    }
+}
+
+async function bulkDeleteTrash() {
+    const ids = Array.from(document.querySelectorAll('.trash-check:checked')).map((cb) => cb.dataset.id);
+    if (ids.length === 0) return;
+    const proceed = confirm(`Delete ${ids.length} selected rejected records permanently?`);
+    if (!proceed) return;
+
+    const { error } = await _supabase.from('applicants').delete().in('id', ids);
+    if (error) {
+        alert(`Delete failed: ${error.message}`);
+        return;
+    }
+    await fetchData();
 }
 
 async function openViewModal(id) {
@@ -186,6 +249,11 @@ async function processAssignment(id) {
 
 async function rejectApplicant(id) {
     const { error } = await _supabase.from('applicants').update({ status: 'Rejected' }).eq('id', id);
+    if (!error) fetchData();
+}
+
+async function restoreApplicant(id) {
+    const { error } = await _supabase.from('applicants').update({ status: 'Pending' }).eq('id', id);
     if (!error) fetchData();
 }
 

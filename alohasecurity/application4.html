@@ -205,19 +205,52 @@
                 const ts = Date.now();
                 const resumeFile = document.getElementById('resume-cv').files[0];
                 const idFile = document.getElementById('valid-id').files[0];
+                const selectedIdType = document.getElementById('id-type').value;
+                const MAX_FILE_SIZE_BYTES = 8 * 1024 * 1024;
+                const allowedResumeExt = ['pdf', 'doc', 'docx'];
+                const allowedIdExt = ['pdf', 'jpg', 'jpeg', 'png', 'webp'];
+
+                function getFileExt(filename) {
+                    return String(filename || '').split('.').pop().toLowerCase();
+                }
+                function sanitizeFileName(filename) {
+                    return String(filename || '').replace(/[^a-zA-Z0-9._-]/g, '-').replace(/-+/g, '-');
+                }
+
+                if (!selectedIdType) throw new Error("Please select the government ID type.");
+                if (!resumeFile) throw new Error("Please upload your Resume/CV.");
+                if (!idFile) throw new Error("Please upload your government ID document.");
+
+                const resumeExt = getFileExt(resumeFile.name);
+                const idExt = getFileExt(idFile.name);
+                const isValidResumeType =
+                    allowedResumeExt.includes(resumeExt) ||
+                    ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'].includes(resumeFile.type);
+                const isValidIdType =
+                    allowedIdExt.includes(idExt) ||
+                    idFile.type.startsWith('image/') ||
+                    idFile.type === 'application/pdf';
+
+                if (!isValidResumeType) throw new Error("Invalid Resume/CV format. Allowed: PDF, DOC, DOCX.");
+                if (!isValidIdType) throw new Error("Invalid ID file format. Allowed: image or PDF.");
+                if (resumeFile.size > MAX_FILE_SIZE_BYTES) throw new Error("Resume/CV file is too large (max 8MB).");
+                if (idFile.size > MAX_FILE_SIZE_BYTES) throw new Error("ID file is too large (max 8MB).");
+
+                const safeResumeName = sanitizeFileName(resumeFile.name);
+                const safeIdName = sanitizeFileName(idFile.name);
 
                 // Upload Resume
-                const resumePath = `resumes/${ts}-${resumeFile.name}`;
+                const resumePath = `resumes/${ts}-${safeResumeName}`;
                 await _supabase.storage.from('applicant-files').upload(resumePath, resumeFile);
                 applicationData.resume_url = _supabase.storage.from('applicant-files').getPublicUrl(resumePath).data.publicUrl;
 
                 // Upload ID
-                const idPath = `ids/${ts}-${idFile.name}`;
+                const idPath = `ids/id-document-${selectedIdType.replace(/\s+/g, '-').toLowerCase()}-${ts}-${safeIdName}`;
                 await _supabase.storage.from('applicant-files').upload(idPath, idFile);
                 applicationData.valid_id_url = _supabase.storage.from('applicant-files').getPublicUrl(idPath).data.publicUrl;
 
                 applicationData.status = 'Pending';
-                applicationData.id_type = document.getElementById('id-type').value;
+                applicationData.id_type = selectedIdType;
 
                 // Insert to DB
                 const { error } = await _supabase.from('applicants').insert([applicationData]);

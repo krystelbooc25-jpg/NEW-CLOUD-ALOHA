@@ -29,7 +29,7 @@
     }
         
 body { 
-    background-color: var(--background); 
+    background: linear-gradient(180deg, #edf1f8 0%, #f8fafc 100%);
     display: flex; 
     min-height: 100vh; 
     color: var(--text-main); 
@@ -121,33 +121,44 @@ body {
 .nav-item.active { background: var(--active-red); color: white; border-left: 5px solid white; }
 
         /* --- 5. CONTENT AREA WRAPPER --- */
-        .main-content { 
-            margin-left: var(--sidebar-width); 
-            flex: 1; 
-            display: flex; 
-            flex-direction: column; 
-            width: 100%; 
-            transition: var(--transition-smooth); 
-        }
+.main-content { 
+    margin-left: var(--sidebar-width); 
+    flex: 1; 
+    display: flex; 
+    flex-direction: column; 
+    width: 100%; 
+    transition: var(--transition-smooth);
+    padding: 22px 22px 22px 0;
+}
 
-        .main-content.sidebar-collapsed { margin-left: var(--sidebar-collapsed-width); }
+.main-content.sidebar-collapsed { margin-left: var(--sidebar-collapsed-width); }
 
-        .header-bar { 
-            background: rgba(255, 255, 255, 0.8); 
-            backdrop-filter: blur(15px);
-            padding: 0 45px; 
-            height: 100px;
-            display: flex; 
+.header-bar { 
+    background: rgba(255, 255, 255, 0.96); 
+    backdrop-filter: blur(15px);
+    padding: 0 45px; 
+    height: 100px;
+    display: flex; 
             justify-content: space-between; 
             align-items: center; 
             position: sticky; 
-            top: 0; 
-            z-index: 100; 
-            border-bottom: 1px solid rgba(0,0,0,0.04);
-        }
+    top: 0; 
+    z-index: 100; 
+    border-bottom: 1px solid rgba(0,0,0,0.04);
+    border-radius: 22px 22px 0 0;
+}
 
         /* --- 6. MODERN BENTO COMPONENTS --- */
-        .content-body { padding: 45px; max-width: 1600px; margin: 0 auto; width: 100%; }
+.content-body { 
+    padding: 35px; 
+    max-width: 1600px; 
+    margin: 0 auto; 
+    width: 100%;
+    background: #f4f6fb;
+    border-radius: 0 0 22px 22px;
+    border: 1px solid #e5e7eb;
+    border-top: 0;
+}
 
         /* Modern Bento Stat Cards */
         .stat-card { 
@@ -221,7 +232,63 @@ body {
             transition: 0.3s ease;
         }
 
-        .bento-box:hover { box-shadow: var(--shadow-lg); }
+.bento-box:hover { box-shadow: var(--shadow-lg); }
+
+/* Right Rail (admin profile/messages/activity) */
+.rail-profile-card {
+    text-align: center;
+    border: 1px solid rgba(210, 4, 45, 0.15);
+}
+
+.rail-profile-avatar {
+    width: 72px;
+    height: 72px;
+    margin: 0 auto 14px;
+    border-radius: 50%;
+    background: #fee2e2;
+    color: #b91c1c;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.9rem;
+}
+
+.rail-profile-name {
+    font-size: 1rem;
+    font-weight: 800;
+    color: var(--dark-slate);
+}
+
+.rail-profile-role {
+    color: var(--text-muted);
+    font-size: 0.82rem;
+    font-weight: 700;
+}
+
+.rail-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.rail-item {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 10px 12px;
+}
+
+.rail-dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: var(--primary-red);
+    margin-top: 6px;
+    flex-shrink: 0;
+}
 
         /* --- 7. UI ELEMENTS (TABLES & BUTTONS) --- */
         .badge-pending { background: #fef3c7; color: #92400e; padding: 10px 20px; border-radius: 14px; font-size: 12px; font-weight: 700; }
