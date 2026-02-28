@@ -222,6 +222,37 @@ async function markNaughtyApplicantsBlacklisted(rows, reason, applicationPayload
     } catch (_) {}
 }
 
+async function insertApplicantResilient(payload) {
+    const MAX_RETRIES = 8;
+    const row = { ...payload };
+
+    for (let i = 0; i < MAX_RETRIES; i += 1) {
+        const { data, error } = await _supabase
+            .from('applicants')
+            .insert([row])
+            .select('id')
+            .single();
+
+        if (!error) return { data, error: null };
+
+        const msg = String(error.message || '');
+        const missingColumn =
+            (msg.match(/column\s+"?([a-zA-Z0-9_]+)"?\s+does not exist/i) || [])[1] ||
+            (msg.match(/Could not find the ['"]([a-zA-Z0-9_]+)['"] column/i) || [])[1];
+
+        if (!missingColumn || !(missingColumn in row)) {
+            return { data: null, error };
+        }
+
+        delete row[missingColumn];
+    }
+
+    return {
+        data: null,
+        error: new Error('Unable to insert applicant after removing unsupported columns.')
+    };
+}
+
 /**
  * 5. Final Submission
  */
@@ -381,11 +412,7 @@ async function handleFinalSubmit() {
         applicationData.id_type = idType;
         applicationData.status = 'Pending';
 
-        const { data: insertedApplicant, error: insErr } = await _supabase
-            .from('applicants')
-            .insert([applicationData])
-            .select('id')
-            .single();
+        const { data: insertedApplicant, error: insErr } = await insertApplicantResilient(applicationData);
         if (insErr) throw insErr;
         const applicantReferenceId = insertedApplicant?.id || null;
 

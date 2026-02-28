@@ -240,6 +240,37 @@
             return Array.from(duplicateMap.values());
         }
 
+        async function insertApplicantResilient(payload) {
+            const MAX_RETRIES = 8;
+            const row = { ...payload };
+
+            for (let i = 0; i < MAX_RETRIES; i += 1) {
+                const { data, error } = await _supabase
+                    .from('applicants')
+                    .insert([row])
+                    .select('id')
+                    .single();
+
+                if (!error) return { data, error: null };
+
+                const msg = String(error.message || '');
+                const missingColumn =
+                    (msg.match(/column\s+"?([a-zA-Z0-9_]+)"?\s+does not exist/i) || [])[1] ||
+                    (msg.match(/Could not find the ['"]([a-zA-Z0-9_]+)['"] column/i) || [])[1];
+
+                if (!missingColumn || !(missingColumn in row)) {
+                    return { data: null, error };
+                }
+
+                delete row[missingColumn];
+            }
+
+            return {
+                data: null,
+                error: new Error('Unable to insert applicant after removing unsupported columns.')
+            };
+        }
+
         // Custom Result Modal Handler
         function showResultModal(type, title, message) {
             const modal = document.getElementById('result-modal');
@@ -400,11 +431,7 @@
                 applicationData.id_type = selectedIdType;
 
                 // Insert to DB and keep generated applicant ID for tracking
-                const { data: insertedApplicant, error } = await _supabase
-                    .from('applicants')
-                    .insert([applicationData])
-                    .select('id')
-                    .single();
+                const { data: insertedApplicant, error } = await insertApplicantResilient(applicationData);
                 if(error) throw error;
                 const applicantReferenceId = insertedApplicant?.id || null;
 

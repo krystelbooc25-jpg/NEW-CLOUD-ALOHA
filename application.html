@@ -196,20 +196,32 @@
                 <!-- MOBILE NUMBER VALIDATION: limits input to numbers and max 11 digits -->
                 <div><label>Phone Number *</label><input type="tel" id="phone" required placeholder="09123456789" maxlength="11" oninput="this.value = this.value.replace(/[^0-9]/g, '')"></div>
                 
-                <div class="full">
-                    <label>Street Address / Preferred Area *</label>
+                <div>
+                    <label>Barangay *</label>
                     <select id="street-address" required style="width:100%; padding:16px 20px; border:2px solid #f1f5f9; background:#f8fafc; border-radius:var(--radius); font-weight:600;">
-                        <option value="">Select address / area</option>
-                        <option value="108 Old Highway, Guiwan, Zamboanga City">108 Old Highway, Guiwan, Zamboanga City</option>
-                        <option value="Boalan Area, Zamboanga City">Boalan Area, Zamboanga City</option>
-                        <option value="Tetuan Area, Zamboanga City">Tetuan Area, Zamboanga City</option>
-                        <option value="Putik Area, Zamboanga City">Putik Area, Zamboanga City</option>
-                        <option value="Baliwasan Area, Zamboanga City">Baliwasan Area, Zamboanga City</option>
-                        <option value="Outside City Proper">Outside City Proper</option>
+                        <option value="">Select Barangay</option>
+                        <option value="Guiwan">Guiwan</option>
+                        <option value="Boalan">Boalan</option>
+                        <option value="Tetuan">Tetuan</option>
+                        <option value="Putik">Putik</option>
+                        <option value="Baliwasan">Baliwasan</option>
+                        <option value="Other">Other</option>
                     </select>
                 </div>
                 <div>
-                    <label>City *</label>
+                    <label>Province *</label>
+                    <select id="province" required style="width:100%; padding:16px 20px; border:2px solid #f1f5f9; background:#f8fafc; border-radius:var(--radius); font-weight:600;">
+                        <option value="">Select Province</option>
+                        <option value="Zamboanga del Sur">Zamboanga del Sur</option>
+                        <option value="Zamboanga del Norte">Zamboanga del Norte</option>
+                        <option value="Zamboanga Sibugay">Zamboanga Sibugay</option>
+                        <option value="Basilan">Basilan</option>
+                        <option value="Sulu">Sulu</option>
+                        <option value="Tawi-Tawi">Tawi-Tawi</option>
+                    </select>
+                </div>
+                <div>
+                    <label>City / Municipality *</label>
                     <select id="city" required style="width:100%; padding:16px 20px; border:2px solid #f1f5f9; background:#f8fafc; border-radius:var(--radius); font-weight:600;">
                         <option value="">Select city</option>
                         <option value="Zamboanga City">Zamboanga City</option>
@@ -281,6 +293,7 @@
             document.getElementById('email').value = applicationData.email || '';
             document.getElementById('phone').value = applicationData.phone || '';
             document.getElementById('street-address').value = applicationData.street_address || '';
+            document.getElementById('province').value = applicationData.province || '';
             document.getElementById('city').value = applicationData.city || '';
             document.getElementById('gender').value = applicationData.gender || '';
             document.getElementById('zip-code').value = applicationData.zip_code || '';
@@ -357,7 +370,7 @@
             }
             // --- END VALIDATION LOGIC ---
 
-            const fields = ['first_name','last_name','email','phone','street_address','city','gender','zip_code','dob'];
+            const fields = ['first_name','last_name','email','phone','street_address','province','city','gender','zip_code','dob'];
             pendingStep1Data = {};
             fields.forEach(f => {
                 const element = document.getElementById(f.replace('_','-'));

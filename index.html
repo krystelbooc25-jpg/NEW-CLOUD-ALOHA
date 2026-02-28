@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Aloha Security Agency | Elite 2026 Protection</title>
     <!-- Modern Tech Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Space+Grotesk:wght@300;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Space+Grotesk:wght@300;500;700&family=Cinzel:wght@700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
@@ -310,9 +310,160 @@
         .modal-input:focus { border-color: var(--primary); background: #fff; }
         .modal-input.id-input { letter-spacing: 1px; text-align: left; }
 
+        /* --- CLIENTS WE SERVE --- */
+        .clients-serve {
+            background: #f3f4f6;
+            padding: 110px 0 90px;
+        }
+        .clients-head {
+            text-align: center;
+            margin-bottom: 45px;
+        }
+        .clients-head h2 {
+            font-family: 'Cinzel', serif;
+            font-size: clamp(2.1rem, 5vw, 4rem);
+            letter-spacing: 1.8px;
+            color: #0d2f8b;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
+        .clients-head p {
+            color: #0f172a;
+            letter-spacing: 3px;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+        }
+        .clients-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 22px;
+        }
+        .client-type-card {
+            background: #ffffff;
+            border: 1px solid #d5dae3;
+            border-radius: 4px;
+            min-height: 220px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            transition: var(--transition);
+        }
+        .client-type-card:hover {
+            transform: translateY(-6px);
+            border-color: #0d2f8b;
+            box-shadow: 0 18px 34px rgba(13, 47, 139, 0.14);
+        }
+        .client-type-card i {
+            font-size: 4rem;
+            color: #0d2f8b;
+            margin-bottom: 16px;
+        }
+        .client-type-card h4 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 2rem;
+            letter-spacing: 1px;
+            color: #0f215b;
+            text-transform: uppercase;
+            line-height: 1.15;
+        }
+
         /* --- FOOTER --- */
-        footer { padding: 80px 0; border-top: 1px solid var(--glass-border); text-align: center; opacity: 0.8; }
-        footer p { font-size: 0.9rem; color: var(--text-dim); }
+        footer {
+            background: #0c2b8d;
+            color: #ffffff;
+            padding: 70px 0 30px;
+            border-top: 0;
+            opacity: 1;
+        }
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 1.3fr 1fr 1fr 1.2fr;
+            gap: 26px;
+        }
+        .footer-brand {
+            display: grid;
+            grid-template-columns: 76px 1fr;
+            gap: 14px;
+            align-items: start;
+        }
+        .footer-brand img {
+            width: 76px;
+            height: 76px;
+            object-fit: cover;
+            background: #fff;
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.5);
+        }
+        .footer-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.5rem;
+            line-height: 1.05;
+            margin-bottom: 8px;
+            color: #ffffff;
+        }
+        .footer-sub {
+            font-size: 0.96rem;
+            color: rgba(255,255,255,0.9);
+            max-width: 320px;
+        }
+        .footer-column h5 {
+            font-size: 1.48rem;
+            margin-bottom: 12px;
+            color: #ffffff;
+            font-family: 'Space Grotesk', sans-serif;
+        }
+        .footer-links,
+        .footer-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .footer-links li,
+        .footer-list li {
+            margin-bottom: 7px;
+            font-size: 1rem;
+            line-height: 1.35;
+        }
+        .footer-links a {
+            color: rgba(255,255,255,0.95);
+            text-decoration: none;
+            transition: 0.2s ease;
+        }
+        .footer-links a:hover { color: #ffd5da; }
+        .footer-contact p {
+            color: rgba(255,255,255,0.95);
+            margin-bottom: 8px;
+            font-size: 1rem;
+            line-height: 1.4;
+        }
+        .footer-fb {
+            margin-top: 16px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            background: #ffffff;
+            color: #0c2b8d;
+            text-decoration: none;
+            font-size: 1.65rem;
+            border: 1px solid rgba(255,255,255,0.8);
+        }
+        .footer-bottom {
+            margin-top: 34px;
+            padding-top: 16px;
+            border-top: 1px solid rgba(255,255,255,0.2);
+            text-align: center;
+        }
+        .footer-bottom p {
+            font-size: 0.9rem;
+            color: rgba(255,255,255,0.9);
+            margin: 0;
+        }
 
         /* --- ANIMATIONS --- */
         [data-aos] { opacity: 0; transform: translateY(30px); transition: 0.8s cubic-bezier(0.16, 1, 0.3, 1); }
@@ -334,6 +485,10 @@
             .prev-btn { right: 80px; }
             .hero-panel { padding: 16px; }
             .company-details-wrap { grid-template-columns: 1fr; }
+            .clients-grid { grid-template-columns: 1fr; }
+            .footer-grid { grid-template-columns: 1fr; }
+            .footer-brand { grid-template-columns: 64px 1fr; }
+            .footer-brand img { width: 64px; height: 64px; }
             .chatbot-panel { width: calc(100vw - 24px); right: 12px; bottom: 82px; }
             .chatbot-toggle { right: 12px; bottom: 12px; }
         }
@@ -539,7 +694,7 @@
         </section>
 
         <!-- BENEFITS SECTION -->
-        <section class="section-padding">
+        <section class="section-padding" id="benefits">
             <div class="container">
                 <div class="section-title" data-aos>
                     <div class="title-accent"></div>
@@ -568,12 +723,98 @@
                 </div>
             </div>
         </section>
+
+        <!-- CLIENTS WE SERVE -->
+        <section class="clients-serve" id="clients">
+            <div class="container">
+                <div class="clients-head" data-aos>
+                    <h2>Clients We Serve</h2>
+                    <p>Protection We Offer</p>
+                </div>
+                <div class="clients-grid">
+                    <article class="client-type-card" data-aos>
+                        <i class="fas fa-cart-shopping"></i>
+                        <h4>Mall & Store</h4>
+                    </article>
+                    <article class="client-type-card" data-aos>
+                        <i class="fas fa-warehouse"></i>
+                        <h4>Warehouse</h4>
+                    </article>
+                    <article class="client-type-card" data-aos>
+                        <i class="fas fa-house-lock"></i>
+                        <h4>Residential</h4>
+                    </article>
+                    <article class="client-type-card" data-aos>
+                        <i class="fas fa-shield"></i>
+                        <h4>Vacant Lot</h4>
+                    </article>
+                    <article class="client-type-card" data-aos>
+                        <i class="fas fa-school"></i>
+                        <h4>School</h4>
+                    </article>
+                    <article class="client-type-card" data-aos>
+                        <i class="fas fa-landmark"></i>
+                        <h4>Government Offices/Installations</h4>
+                    </article>
+                </div>
+            </div>
+        </section>
     </main>
     
-    <footer>
+    <footer id="contact">
         <div class="container">
-            <p>&copy; 2026 Aloha Security Agency. All Rights Reserved.</p>
-            <p style="font-size: 0.65rem; margin-top: 15px; opacity: 0.3; letter-spacing: 2px;">SECURE NODE: ALPHA-26</p>
+            <div class="footer-grid">
+                <div>
+                    <div class="footer-brand">
+                        <img src="Resources/logo.jpg" alt="Aloha Security Logo">
+                        <div>
+                            <h4 class="footer-title">ALOHA SECURITY AGENCY</h4>
+                            <p class="footer-sub">
+                                ALOHA Security Agency delivers high-quality security service and protection through
+                                qualified, competent, honest, and dependable security personnel.
+                            </p>
+                        </div>
+                    </div>
+                    <a class="footer-fb" href="https://www.facebook.com/alohaagencyzc" target="_blank" rel="noopener noreferrer" aria-label="Aloha Security Facebook">
+                        <i class="fab fa-facebook-f"></i>
+                    </a>
+                </div>
+
+                <div class="footer-column">
+                    <h5>Quicklinks</h5>
+                    <ul class="footer-links">
+                        <li><a href="#">Home</a></li>
+                        <li><a href="#company-info">About Us</a></li>
+                        <li><a href="#clients">Our Clients</a></li>
+                        <li><a href="#requirements">Our Services</a></li>
+                        <li><a href="#benefits">Benefits</a></li>
+                        <li><a href="application.html">Careers</a></li>
+                        <li><a href="#contact">Contact Us</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-column">
+                    <h5>Our Clients</h5>
+                    <ul class="footer-list">
+                        <li>Mall & Store</li>
+                        <li>Warehouse</li>
+                        <li>Residential</li>
+                        <li>Vacant Lot</li>
+                        <li>School</li>
+                        <li>Government Offices/Installations</li>
+                    </ul>
+                </div>
+
+                <div class="footer-column footer-contact">
+                    <h5>Contact Information</h5>
+                    <p>108, Old Highway, Guiwan,<br>Zamboanga City, Philippines 7000</p>
+                    <p>aloha_scty@yahoo.com</p>
+                    <p>Monday to Friday - 9:00 AM to 5:00 PM</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 Aloha Security Agency. All Rights Reserved.</p>
+            </div>
         </div>
     </footer>
 
