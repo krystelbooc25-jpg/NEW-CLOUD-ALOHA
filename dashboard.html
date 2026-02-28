@@ -103,6 +103,7 @@
         <div class="nav-item" data-title="Active Roster" data-tab="branches-tab" onclick="switchTab('branches-tab', this)"><i class="fas fa-users"></i> Active Roster</div>
         <div class="nav-item" data-title="Branches" data-tab="branch-summary-tab" onclick="switchTab('branch-summary-tab', this)"><i class="fas fa-building"></i> Branches</div>
         <div class="nav-item" data-title="Trash Bin" data-tab="trash-tab" onclick="switchTab('trash-tab', this)"><i class="fas fa-trash-alt"></i> Trash Bin</div>
+        <div class="nav-item" data-title="Blacklisted" data-tab="blacklist-tab" onclick="switchTab('blacklist-tab', this)"><i class="fas fa-user-slash"></i> Blacklisted</div>
 
         <div class="nav-label">System</div>
         <div class="nav-item" data-title="Users" data-tab="users-tab" onclick="switchTab('users-tab', this)"><i class="fas fa-user-cog"></i> Users</div>
@@ -296,6 +297,7 @@
                             <button class="status-chip" data-status-filter="for interview" onclick="setStatusFilter('for interview', this)"><i class="fas fa-calendar-check"></i> For Interview</button>
                             <button class="status-chip" data-status-filter="approved" onclick="setStatusFilter('approved', this)"><i class="fas fa-circle-check"></i> Hired</button>
                             <button class="status-chip" data-status-filter="rejected" onclick="setStatusFilter('rejected', this)"><i class="fas fa-circle-xmark"></i> Rejected</button>
+                            <button class="status-chip" data-status-filter="blacklisted" onclick="setStatusFilter('blacklisted', this)"><i class="fas fa-user-slash"></i> Blacklisted</button>
                             <button class="register-btn" onclick="openManualAdd()"><i class="fas fa-plus-circle"></i> Register Personnel</button>
                         </div>
 
@@ -391,7 +393,36 @@
                 </div>
             </section>
 
-            <!-- --- TAB 7: USERS --- -->
+            <!-- --- TAB 7: BLACKLIST --- -->
+            <section id="blacklist-tab" class="hidden">
+                <div class="section-shell">
+                    <div class="section-hero">
+                        <div class="section-hero-icon"><i class="fas fa-user-slash"></i></div>
+                        <div>
+                            <h3>Blacklisted Applicants</h3>
+                            <p>Profiles flagged for invalid or naughty repeated applications.</p>
+                        </div>
+                    </div>
+                    <div class="section-card p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0 audit-table">
+                                <thead>
+                                    <tr>
+                                        <th>Applicant</th>
+                                        <th>Email</th>
+                                        <th>Date Updated</th>
+                                        <th>Status</th>
+                                        <th class="text-center">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="blacklist-table-body"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- --- TAB 8: USERS --- -->
             <section id="users-tab" class="hidden">
                 <div class="section-shell">
                     <div class="section-hero">
@@ -414,7 +445,7 @@
                 </div>
             </section>
 
-            <!-- --- TAB 8: SETTINGS --- -->
+            <!-- --- TAB 9: SETTINGS --- -->
             <section id="settings-tab" class="hidden">
                 <div class="section-shell">
                     <div class="section-hero">
@@ -479,6 +510,7 @@
         let activeStatusFilter = 'all';
         let selectedApplicantIds = new Set();
         let currentAdminEmail = '';
+        const LONG_WAIT_DAYS = 7;
         const branchOptions = ["Manila Main", "Quezon City", "Makati Hub", "Davao Branch", "Cebu Office"];
 
         /**
@@ -507,6 +539,7 @@
             if (id === 'settings-tab' || id === 'users-tab') loadAdminSettingsProfile();
             if (id === 'audit-tab') renderAuditLogs();
             if (id === 'branch-summary-tab') renderBranchSummary();
+            if (id === 'blacklist-tab') renderBlacklistedRows();
             if (window.innerWidth <= 992) document.getElementById('sidebar').classList.remove('open');
         }
 
@@ -883,6 +916,7 @@
             const pendingApps = masterData.filter(a => a.status?.toLowerCase() === 'pending');
             const now = new Date();
             const todayApps = masterData.filter(a => (now - new Date(a.created_at)) < (24 * 60 * 60 * 1000));
+            const longWaitApps = pendingApps.filter((app) => getWaitingDays(app) >= LONG_WAIT_DAYS);
 
             // Dashboard counters
             document.getElementById('stat-total').innerText = masterData.length;
@@ -897,15 +931,25 @@
             if (pendingApps.length > 0) {
                 badge.innerText = pendingApps.length;
                 badge.style.display = 'flex';
-                notifList.innerHTML = pendingApps.slice(0, 5).map(app => `
+                const longWaitBanner = longWaitApps.length > 0
+                    ? `<div class="p-3 border-bottom bg-warning-subtle text-dark fw-bold small">
+                        <i class="fas fa-bell me-2 text-danger"></i>${longWaitApps.length} applicant(s) waiting more than ${LONG_WAIT_DAYS} days.
+                      </div>`
+                    : '';
+                const listHtml = pendingApps.slice(0, 7).map(app => `
                     <a class="p-3 border-bottom d-block text-decoration-none hover-light" style="cursor: pointer;" onclick="window.location.href='view-applicant.html?id=${app.id}'">
                         <div class="fw-bold text-danger small">${app.first_name} ${app.last_name}</div>
-                        <div class="text-muted" style="font-size: 0.75rem;">Submitted for: ${app.desired_position}</div>
+                        <div class="text-muted" style="font-size: 0.75rem;">
+                            Submitted for: ${app.desired_position} ${getWaitingDays(app) >= LONG_WAIT_DAYS ? `- Waiting ${getWaitingDays(app)} days` : ''}
+                        </div>
                     </a>`).join('');
+                notifList.innerHTML = `${longWaitBanner}${listHtml}`;
             } else {
                 badge.style.display = 'none';
                 notifList.innerHTML = '<div class="p-5 text-center text-muted small fw-bold">Queue is currently clear.</div>';
             }
+
+            maybeNotifyLongWaitByEmail(longWaitApps);
 
             if (messageList) {
                 const latest = masterData.slice(0, 4);
@@ -937,7 +981,10 @@
 
             let filtered = masterData.slice();
             if (activeStatusFilter === 'all') {
-                filtered = filtered.filter(a => a.status?.toLowerCase() !== 'rejected');
+                filtered = filtered.filter(a => {
+                    const s = String(a.status || '').toLowerCase();
+                    return s !== 'rejected' && s !== 'blacklisted';
+                });
             } else {
                 filtered = filtered.filter(a => a.status?.toLowerCase() === activeStatusFilter);
             }
@@ -964,6 +1011,7 @@
             renderAuditLogs();
             renderUsers();
             renderTrashBin();
+            renderBlacklistedRows();
         }
 
         function renderTableRows(list) {
@@ -1003,7 +1051,9 @@
                         </div>
                         <div class="applicant-actions">
                             <button class="card-btn card-btn-view" onclick="window.location.href='view-applicant.html?id=${app.id}'">View Profile</button>
-                            <button class="card-btn card-btn-trash" onclick="moveToTrash('${app.id}')">Move to Trash</button>
+                            ${statusInfo.className === 'status-blacklisted'
+                                ? `<button class="card-btn card-btn-warning" onclick="unblacklistApplicant('${app.id}')">Remove Blacklist</button>`
+                                : `<button class="card-btn card-btn-trash" onclick="moveToTrash('${app.id}')">Move to Trash</button>`}
                         </div>
                     </article>`;
             }).join('');
@@ -1014,6 +1064,7 @@
             if (status === 'approved' || status === 'hired') return { label: 'HIRED', className: 'status-hired' };
             if (status === 'for interview' || status === 'interview') return { label: 'FOR INTERVIEW', className: 'status-interview' };
             if (status === 'rejected') return { label: 'REJECTED', className: 'status-rejected' };
+            if (status === 'blacklisted') return { label: 'BLACKLISTED', className: 'status-blacklisted' };
             return { label: 'PENDING', className: 'status-pending' };
         }
 
@@ -1025,7 +1076,10 @@
         }
 
         function updateApplicantMetrics() {
-            const activeApplicants = masterData.filter(a => a.status?.toLowerCase() !== 'rejected');
+            const activeApplicants = masterData.filter(a => {
+                const s = String(a.status || '').toLowerCase();
+                return s !== 'rejected' && s !== 'blacklisted';
+            });
             const now = new Date();
             const monthCount = activeApplicants.filter(a => {
                 const d = new Date(a.created_at || 0);
@@ -1103,6 +1157,47 @@
             fetchData();
         }
 
+        function getWaitingDays(app) {
+            const created = new Date(app?.created_at || 0);
+            if (Number.isNaN(created.getTime())) return 0;
+            return Math.floor((Date.now() - created.getTime()) / (1000 * 60 * 60 * 24));
+        }
+
+        async function maybeNotifyLongWaitByEmail(longWaitApps) {
+            if (!Array.isArray(longWaitApps) || longWaitApps.length === 0) return;
+            const today = new Date().toISOString().slice(0, 10);
+            const signature = longWaitApps
+                .map((a) => `${a.id}:${getWaitingDays(a)}`)
+                .sort()
+                .join('|');
+            const key = 'aloha-long-wait-alert';
+
+            try {
+                const previous = JSON.parse(localStorage.getItem(key) || '{}');
+                if (previous.date === today && previous.signature === signature) return;
+            } catch (_) {}
+
+            try {
+                await fetch('/api/admin-alerts', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        type: 'long_wait',
+                        thresholdDays: LONG_WAIT_DAYS,
+                        applicants: longWaitApps.slice(0, 30).map((app) => ({
+                            id: app.id,
+                            name: `${app.first_name || ''} ${app.last_name || ''}`.trim(),
+                            email: app.email || '',
+                            position: app.desired_position || '',
+                            daysWaiting: getWaitingDays(app),
+                            created_at: app.created_at || null
+                        }))
+                    })
+                });
+                localStorage.setItem(key, JSON.stringify({ date: today, signature }));
+            } catch (_) {}
+        }
+
         function formatDateTime(value) {
             if (!value) return 'N/A';
             const d = new Date(value);
@@ -1120,6 +1215,7 @@
             const status = String(app.status || '').toLowerCase();
             if (status === 'approved') return app.assigned_branch ? `Assigned to ${app.assigned_branch}` : 'Approved';
             if (status === 'rejected') return 'Moved to Trash / Rejected';
+            if (status === 'blacklisted') return 'Flagged as Blacklisted';
             if (status === 'for interview') return 'Queued for Interview';
             return 'Pending Review';
         }
@@ -1146,6 +1242,40 @@
                     <td><span class="status-tag ${getStatusInfo(app.status).className}">${getStatusInfo(app.status).label}</span></td>
                 </tr>
             `).join('');
+        }
+
+        function renderBlacklistedRows() {
+            const tbody = document.getElementById('blacklist-table-body');
+            if (!tbody) return;
+
+            const blacklisted = masterData
+                .filter((a) => String(a.status || '').toLowerCase() === 'blacklisted')
+                .sort((a, b) => new Date(b.updated_at || b.created_at || 0) - new Date(a.updated_at || a.created_at || 0));
+
+            if (!blacklisted.length) {
+                tbody.innerHTML = `<tr><td colspan="5" class="text-center text-muted py-4 fw-bold">No blacklisted applicants.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = blacklisted.map((app) => `
+                <tr>
+                    <td class="fw-bold">${app.first_name || ''} ${app.last_name || ''}</td>
+                    <td>${app.email || 'N/A'}</td>
+                    <td>${formatDateTime(app.updated_at || app.created_at)}</td>
+                    <td><span class="status-tag status-blacklisted">BLACKLISTED</span></td>
+                    <td class="text-center">
+                        <button class="btn btn-sm btn-light fw-bold border" onclick="unblacklistApplicant('${app.id}')">Remove Blacklist</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        async function unblacklistApplicant(id) {
+            const yes = await askModal("Remove Blacklist?", "This applicant will return to Pending status.", "Remove");
+            if (!yes) return;
+            await _supabase.from('applicants').update({ status: 'Pending', updated_at: new Date().toISOString() }).eq('id', id);
+            logActivity(`Action: Removed blacklist for applicant ID ${id}`);
+            fetchData();
         }
 
         function renderBranchSummary() {

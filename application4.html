@@ -142,47 +142,96 @@
             return String(value || '').trim();
         }
 
+        function normalizeLower(value) {
+            return normalizeText(value).toLowerCase();
+        }
+
         function isPendingStatus(status) {
             const normalizedStatus = String(status || '').trim().toLowerCase();
             return (
                 normalizedStatus === 'pending' ||
                 normalizedStatus === 'for review' ||
                 normalizedStatus === 'under review' ||
-                normalizedStatus === 'in review'
+                normalizedStatus === 'in review' ||
+                normalizedStatus === 'for interview'
             );
         }
 
+        function isRejectedStatus(status) {
+            return normalizeLower(status) === 'rejected';
+        }
+
+        function isApprovedStatus(status) {
+            return normalizeLower(status) === 'approved';
+        }
+
+        function isBlacklistedStatus(status) {
+            return normalizeLower(status) === 'blacklisted';
+        }
+
+        function daysBetweenFromNow(dateValue) {
+            const ref = new Date(dateValue || 0);
+            if (Number.isNaN(ref.getTime())) return 9999;
+            return Math.floor((Date.now() - ref.getTime()) / (1000 * 60 * 60 * 24));
+        }
+
+        async function markNaughtyApplicantsBlacklisted(rows, reason) {
+            const ids = Array.from(new Set((rows || []).map((r) => r.id).filter(Boolean)));
+            if (ids.length === 0) return;
+
+            try {
+                await _supabase
+                    .from('applicants')
+                    .update({ status: 'Blacklisted', updated_at: new Date().toISOString() })
+                    .in('id', ids);
+            } catch (_) {}
+
+            try {
+                await fetch('/api/admin-alerts', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        type: 'blacklist_attempt',
+                        reason: reason || 'Naughty duplicate application attempt',
+                        applicants: [{
+                            id: ids.join(','),
+                            name: `${applicationData.first_name || ''} ${applicationData.last_name || ''}`.trim(),
+                            email: applicationData.email || '',
+                            dob: applicationData.dob || '',
+                            city: applicationData.city || ''
+                        }]
+                    })
+                });
+            } catch (_) {}
+        }
+
         async function findDuplicateApplications(appData) {
-            const email = normalizeText(appData.email).toLowerCase();
+            const email = normalizeLower(appData.email);
             const firstName = normalizeText(appData.first_name);
             const lastName = normalizeText(appData.last_name);
             const dob = normalizeText(appData.dob);
-            const city = normalizeText(appData.city);
-            const streetAddress = normalizeText(appData.street_address);
 
             const duplicateMap = new Map();
 
             if (email) {
                 const { data: byEmail, error: byEmailError } = await _supabase
                     .from('applicants')
-                    .select('id, status')
+                    .select('id, status, first_name, last_name, email, dob, created_at, updated_at')
                     .ilike('email', email)
-                    .limit(10);
+                    .limit(30);
 
                 if (byEmailError) throw byEmailError;
                 (byEmail || []).forEach((row) => duplicateMap.set(row.id, row));
             }
 
-            if (firstName && lastName && dob && city && streetAddress) {
+            if (firstName && lastName && dob) {
                 const { data: byIdentity, error: byIdentityError } = await _supabase
                     .from('applicants')
-                    .select('id, status')
+                    .select('id, status, first_name, last_name, email, dob, created_at, updated_at')
                     .ilike('first_name', firstName)
                     .ilike('last_name', lastName)
                     .eq('dob', dob)
-                    .ilike('city', city)
-                    .ilike('street_address', streetAddress)
-                    .limit(10);
+                    .limit(30);
 
                 if (byIdentityError) throw byIdentityError;
                 (byIdentity || []).forEach((row) => duplicateMap.set(row.id, row));
@@ -240,17 +289,47 @@
                 const currentYear = new Date().getFullYear();
                 if((currentYear - birthYear) < 21) throw new Error("Applicant must be at least 21 years old.");
 
-                // DUPLICATE DETECTION (Email OR Name + Birthday + City + Address)
+                // Duplicate / cooldown / blacklist checks (same name + birthday + email)
                 const duplicates = await findDuplicateApplications(applicationData);
-                const hasPendingDuplicate = duplicates.some((row) => isPendingStatus(row.status));
-                const hasApprovedDuplicate = duplicates.some((row) => String(row.status || '').trim().toLowerCase() === 'approved');
+                const email = normalizeLower(applicationData.email);
+                const firstName = normalizeLower(applicationData.first_name);
+                const lastName = normalizeLower(applicationData.last_name);
+                const dob = normalizeText(applicationData.dob);
 
-                if (hasPendingDuplicate) {
-                    throw new Error("Duplicate application found. You cannot submit another form until your current application is approved.");
+                const exactIdentityMatches = duplicates.filter((row) =>
+                    normalizeLower(row.email) === email &&
+                    normalizeLower(row.first_name) === firstName &&
+                    normalizeLower(row.last_name) === lastName &&
+                    normalizeText(row.dob) === dob
+                );
+
+                const hasBlacklisted = exactIdentityMatches.some((row) => isBlacklistedStatus(row.status));
+                const hasPendingDuplicate = exactIdentityMatches.some((row) => isPendingStatus(row.status));
+                const hasApprovedDuplicate = exactIdentityMatches.some((row) => isApprovedStatus(row.status));
+                const rejectedTooSoon = exactIdentityMatches.find((row) =>
+                    isRejectedStatus(row.status) &&
+                    daysBetweenFromNow(row.updated_at || row.created_at) < 30
+                );
+
+                if (hasBlacklisted) {
+                    throw new Error("This profile is blacklisted and cannot apply.");
                 }
 
-                if (hasApprovedDuplicate) {
-                    throw new Error("Duplicate application found. This profile already has an approved application.");
+                if (rejectedTooSoon) {
+                    const remaining = Math.max(1, 30 - daysBetweenFromNow(rejectedTooSoon.updated_at || rejectedTooSoon.created_at));
+                    await markNaughtyApplicantsBlacklisted(
+                        exactIdentityMatches,
+                        "Applied before 1 month cooldown after rejection"
+                    );
+                    throw new Error(`You were rejected previously. Please wait ${remaining} more day(s) before applying again.`);
+                }
+
+                if (hasPendingDuplicate || hasApprovedDuplicate) {
+                    await markNaughtyApplicantsBlacklisted(
+                        exactIdentityMatches,
+                        "Duplicate application attempt using same name, birthday, and email"
+                    );
+                    throw new Error("Same name, birthday, and email cannot apply again.");
                 }
 
                 const ts = Date.now();

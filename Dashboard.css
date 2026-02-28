@@ -636,6 +636,7 @@ body {
 .status-interview { background: #dbeafe; color: #1d4ed8; }
 .status-hired { background: #dcfce7; color: #166534; }
 .status-rejected { background: #fee2e2; color: #991b1b; }
+.status-blacklisted { background: #111827; color: #fef2f2; }
 
 .applicant-contact-box {
     margin-top: 14px;
@@ -675,6 +676,11 @@ body {
 
 .card-btn-trash {
     background: #ef4444;
+    color: #fff;
+}
+
+.card-btn-warning {
+    background: #0f172a;
     color: #fff;
 }
 
