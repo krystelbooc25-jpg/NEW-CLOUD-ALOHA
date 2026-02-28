@@ -66,17 +66,20 @@ module.exports = async function handler(req, res) {
     dbCreds?.passwordHash ||
     process.env.ADMIN_LOGIN_PASSWORD_HASH ||
     process.env.ADMIN_PASSWORD_HASH;
-  const plainPassword = dbCreds
-    ? null
-    : process.env.ADMIN_LOGIN_PASSWORD || process.env.ADMIN_PASSWORD;
+  const plainPassword =
+    process.env.ADMIN_LOGIN_PASSWORD || process.env.ADMIN_PASSWORD;
+  const allowPlainPasswordFallback =
+    String(process.env.ALLOW_PLAIN_ADMIN_PASSWORD || "")
+      .trim()
+      .toLowerCase() === "true";
   const allowedEmail =
     dbCreds?.email || process.env.ADMIN_LOGIN_EMAIL || process.env.ADMIN_EMAIL;
 
-  if (!passwordHash && !plainPassword) {
+  if (!passwordHash && !(allowPlainPasswordFallback && plainPassword)) {
     return res.status(500).json({
       success: false,
       error:
-        "Missing admin password env. Set ADMIN_LOGIN_PASSWORD_HASH (recommended) or ADMIN_LOGIN_PASSWORD.",
+        "Missing secure admin password setup. Set ADMIN_LOGIN_PASSWORD_HASH (bcrypt). Plain passwords are disabled unless ALLOW_PLAIN_ADMIN_PASSWORD=true.",
     });
   }
 
@@ -101,7 +104,7 @@ module.exports = async function handler(req, res) {
       }
       passOk = await bcrypt.compare(String(password), passwordHash);
     } else {
-      // Local/dev fallback when only plain env password is available.
+      // Local/dev fallback only when explicitly enabled.
       const input = Buffer.from(String(password), "utf8");
       const expected = Buffer.from(String(plainPassword), "utf8");
       passOk = input.length === expected.length && crypto.timingSafeEqual(input, expected);

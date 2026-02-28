@@ -520,8 +520,20 @@
         async function confirmApproval() {
             const branch = document.getElementById('branch-input').value;
             if (!branch) { showStatus('error', 'Missing Info', 'Please select a branch.'); return; }
+
+            const hasIdType = String(currentApplicant?.id_type || '').trim().length > 0;
+            const hasIdDocument = String(currentApplicant?.valid_id_url || '').trim().length > 0;
+            if (!hasIdType || !hasIdDocument) {
+                showStatus(
+                    'error',
+                    'ID Verification Required',
+                    'Cannot approve this applicant. A valid government ID type and uploaded ID document are required.'
+                );
+                return;
+            }
+
             closeModal('approveModal');
-            
+
             document.getElementById('main-approve-btn').innerHTML = '<i class="fas fa-spinner fa-spin"></i> PROCESSING...';
             document.getElementById('main-approve-btn').disabled = true;
 

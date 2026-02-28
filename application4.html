@@ -245,31 +245,79 @@
             const firstName = normalizeText(appData.first_name);
             const lastName = normalizeText(appData.last_name);
             const dob = normalizeText(appData.dob);
+            const city = normalizeText(appData.city);
+            const streetAddress = normalizeText(appData.street_address);
 
             const duplicateMap = new Map();
+            const extendedSelect = 'id, status, first_name, last_name, email, dob, city, street_address, created_at, updated_at';
+            const fallbackSelect = 'id, status, first_name, last_name, email, dob, created_at, updated_at';
 
             if (email) {
-                const { data: byEmail, error: byEmailError } = await _supabase
+                let byEmail = null;
+                let byEmailError = null;
+
+                ({ data: byEmail, error: byEmailError } = await _supabase
                     .from('applicants')
-                    .select('id, status, first_name, last_name, email, dob, created_at, updated_at')
+                    .select(extendedSelect)
                     .ilike('email', email)
-                    .limit(30);
+                    .limit(30));
+
+                if (byEmailError) {
+                    ({ data: byEmail, error: byEmailError } = await _supabase
+                        .from('applicants')
+                        .select(fallbackSelect)
+                        .ilike('email', email)
+                        .limit(30));
+                }
 
                 if (byEmailError) throw byEmailError;
                 (byEmail || []).forEach((row) => duplicateMap.set(row.id, row));
             }
 
             if (firstName && lastName && dob) {
-                const { data: byIdentity, error: byIdentityError } = await _supabase
+                let byIdentity = null;
+                let byIdentityError = null;
+
+                ({ data: byIdentity, error: byIdentityError } = await _supabase
                     .from('applicants')
-                    .select('id, status, first_name, last_name, email, dob, created_at, updated_at')
+                    .select(extendedSelect)
                     .ilike('first_name', firstName)
                     .ilike('last_name', lastName)
                     .eq('dob', dob)
-                    .limit(30);
+                    .limit(30));
+
+                if (byIdentityError) {
+                    ({ data: byIdentity, error: byIdentityError } = await _supabase
+                        .from('applicants')
+                        .select(fallbackSelect)
+                        .ilike('first_name', firstName)
+                        .ilike('last_name', lastName)
+                        .eq('dob', dob)
+                        .limit(30));
+                }
 
                 if (byIdentityError) throw byIdentityError;
                 (byIdentity || []).forEach((row) => duplicateMap.set(row.id, row));
+            }
+
+            if (city && streetAddress) {
+                let byAddress = null;
+                let byAddressError = null;
+
+                ({ data: byAddress, error: byAddressError } = await _supabase
+                    .from('applicants')
+                    .select(extendedSelect)
+                    .ilike('city', city)
+                    .ilike('street_address', streetAddress)
+                    .limit(30));
+
+                if (byAddressError) {
+                    byAddress = [];
+                    byAddressError = null;
+                }
+
+                if (byAddressError) throw byAddressError;
+                (byAddress || []).forEach((row) => duplicateMap.set(row.id, row));
             }
 
             return Array.from(duplicateMap.values());
@@ -355,12 +403,14 @@
                 const currentYear = new Date().getFullYear();
                 if((currentYear - birthYear) < 21) throw new Error("Applicant must be at least 21 years old.");
 
-                // Duplicate / cooldown / blacklist checks (same name + birthday + email)
+                // Duplicate / cooldown / blacklist checks
                 const duplicates = await findDuplicateApplications(applicationData);
                 const email = normalizeLower(applicationData.email);
                 const firstName = normalizeLower(applicationData.first_name);
                 const lastName = normalizeLower(applicationData.last_name);
                 const dob = normalizeText(applicationData.dob);
+                const city = normalizeLower(applicationData.city);
+                const streetAddress = normalizeLower(applicationData.street_address);
 
                 const exactIdentityMatches = duplicates.filter((row) =>
                     normalizeLower(row.email) === email &&
@@ -368,10 +418,21 @@
                     normalizeLower(row.last_name) === lastName &&
                     normalizeText(row.dob) === dob
                 );
+                const strictAddressIdentityMatches = duplicates.filter((row) =>
+                    normalizeLower(row.email) === email &&
+                    normalizeLower(row.first_name) === firstName &&
+                    normalizeLower(row.last_name) === lastName &&
+                    normalizeText(row.dob) === dob &&
+                    normalizeLower(row.city) === city &&
+                    normalizeLower(row.street_address) === streetAddress
+                );
+                const emailMatches = duplicates.filter((row) => normalizeLower(row.email) === email);
 
                 const hasBlacklisted = exactIdentityMatches.some((row) => isBlacklistedStatus(row.status));
                 const hasPendingDuplicate = exactIdentityMatches.some((row) => isPendingStatus(row.status));
                 const hasApprovedDuplicate = exactIdentityMatches.some((row) => isApprovedStatus(row.status));
+                const hasPendingByEmail = emailMatches.some((row) => isPendingStatus(row.status));
+                const hasApprovedByEmail = emailMatches.some((row) => isApprovedStatus(row.status));
                 const rejectedTooSoon = exactIdentityMatches.find((row) =>
                     isRejectedStatus(row.status) &&
                     daysBetweenFromNow(row.updated_at || row.created_at) < 30
@@ -396,6 +457,18 @@
                         "Duplicate application attempt using same name, birthday, and email"
                     );
                     throw new Error("Same name, birthday, and email cannot apply again.");
+                }
+
+                if (strictAddressIdentityMatches.length > 0) {
+                    throw new Error("Same email, name, birthday, city, and address already exists in our records.");
+                }
+
+                if (hasApprovedByEmail) {
+                    throw new Error("This email already has an approved application and cannot submit another form.");
+                }
+
+                if (hasPendingByEmail) {
+                    throw new Error("This email already has a pending application. Wait for approval before submitting again.");
                 }
 
                 const ts = Date.now();

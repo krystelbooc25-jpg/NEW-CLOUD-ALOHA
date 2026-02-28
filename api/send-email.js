@@ -74,13 +74,14 @@ module.exports = async function handler(req, res) {
     return res.status(500).json({
       success: false,
       error:
-        "Missing MAILER_EMAIL environment variable (or MAILER_USER).",
+        "Missing sender email. Set MAILER_EMAIL (or MAILER_USER/EMAIL_USER/SMTP_USER).",
     });
   }
   if (!mailerConfig.pass) {
     return res.status(500).json({
       success: false,
-      error: "Missing MAILER_PASSWORD environment variable.",
+      error:
+        "Missing mail password. Set MAILER_PASSWORD (or EMAIL_PASSWORD/SMTP_PASS/GMAIL_APP_PASSWORD).",
     });
   }
 
