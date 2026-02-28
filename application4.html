@@ -105,8 +105,12 @@
                         <input type="file" id="resume-cv" required accept=".pdf,.doc,.docx">
                     </div>
                     <div class="upload-zone">
-                        <select id="id-type" required style="width:100%; border:2px solid #f1f5f9; padding: 10px; font-weight:800; border-radius: var(--radius);"><option value="">Select ID Type *</option><option value="Driver's License">Driver's License</option><option value="Passport">Passport</option><option value="UMID">UMID</option></select>
+                        <label style="font-weight: 800; font-size: 0.75rem; text-transform: uppercase;">Government ID Document *</label><br>
+                        <select id="id-type" required style="width:100%; border:2px solid #f1f5f9; padding: 10px; font-weight:800; border-radius: var(--radius); margin-top: 10px;"><option value="">Select ID Type *</option><option value="Driver's License">Driver's License</option><option value="Passport">Passport</option><option value="UMID">UMID</option><option value="PhilSys ID">PhilSys ID</option><option value="Postal ID">Postal ID</option></select>
                         <input type="file" id="valid-id" required accept="image/*,.pdf">
+                        <p style="margin-top:10px; font-size: 0.8rem; color:#64748b; font-weight:600;">
+                            Upload a clear photo/scan of your selected government ID. The file will be tagged as an ID document.
+                        </p>
                     </div>
                 </div>
                 <div style="margin: 25px 0; background: #fffbeb; padding: 15px; border-radius: var(--radius); border: 1px solid #fef3c7;">
@@ -252,19 +256,31 @@
                 const ts = Date.now();
                 const resumeFile = document.getElementById('resume-cv').files[0];
                 const idFile = document.getElementById('valid-id').files[0];
+                const selectedIdType = document.getElementById('id-type').value;
+
+                if (!selectedIdType) {
+                    throw new Error("Please select the government ID type before submitting.");
+                }
+                if (!idFile) {
+                    throw new Error("Please upload your government ID document.");
+                }
+                const isValidIdMime = idFile.type.startsWith('image/') || idFile.type === 'application/pdf';
+                if (!isValidIdMime) {
+                    throw new Error("Invalid ID file format. Use image or PDF only.");
+                }
 
                 // Upload Resume
                 const resumePath = `resumes/${ts}-${resumeFile.name}`;
                 await _supabase.storage.from('applicant-files').upload(resumePath, resumeFile);
                 applicationData.resume_url = _supabase.storage.from('applicant-files').getPublicUrl(resumePath).data.publicUrl;
 
-                // Upload ID
-                const idPath = `ids/${ts}-${idFile.name}`;
+                // Upload ID (stored with id-document prefix for clear identification)
+                const idPath = `ids/id-document-${selectedIdType.replace(/\s+/g, '-').toLowerCase()}-${ts}-${idFile.name}`;
                 await _supabase.storage.from('applicant-files').upload(idPath, idFile);
                 applicationData.valid_id_url = _supabase.storage.from('applicant-files').getPublicUrl(idPath).data.publicUrl;
 
                 applicationData.status = 'Pending';
-                applicationData.id_type = document.getElementById('id-type').value;
+                applicationData.id_type = selectedIdType;
 
                 // Insert to DB and keep generated applicant ID for tracking
                 const { data: insertedApplicant, error } = await _supabase
@@ -285,7 +301,10 @@
                             position: applicationData.desired_position,
                             email: applicationData.email,
                             phone: applicationData.phone,
-                            applicationId: applicantReferenceId
+                            applicationId: applicantReferenceId,
+                            idType: selectedIdType,
+                            idFileName: idFile.name,
+                            idDocumentSubmitted: true
                         })
                     });
                 } catch(e) {

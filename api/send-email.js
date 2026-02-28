@@ -18,7 +18,7 @@ module.exports = async function handler(req, res) {
     return res.status(405).json({ success: false, error: "Method not allowed" });
   }
 
-  const { name, email, position, phone, applicationId } = req.body || {};
+  const { name, email, position, phone, applicationId, idType, idFileName, idDocumentSubmitted } = req.body || {};
   if (!name || !email || !position) {
     return res.status(400).json({
       success: false,
@@ -50,6 +50,9 @@ module.exports = async function handler(req, res) {
           <p><strong>Position:</strong> ${position}</p>
           <p><strong>Email:</strong> ${email}</p>
           <p><strong>Contact Number:</strong> ${phone || "N/A"}</p>
+          <p><strong>Government ID Type:</strong> ${idType || "Not provided"}</p>
+          <p><strong>ID Filename:</strong> ${idFileName || "Not provided"}</p>
+          <p><strong>ID Document Submitted:</strong> ${idDocumentSubmitted ? "Yes" : "No"}</p>
           <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
           <p style="font-size: 12px; color: #888;">Log in to the ALOHA admin dashboard to review full details.</p>
         </div>

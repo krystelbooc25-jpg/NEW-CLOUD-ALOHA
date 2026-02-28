@@ -303,6 +303,10 @@
                     </div>
                     <div class="info-label">ID Type Presented</div>
                     <div id="app-id-type" class="info-value">...</div>
+                    <div class="info-label">Submitted Document Label</div>
+                    <div id="app-id-label" class="info-value" style="font-size:0.9rem; color:#0f172a; background:#f8fafc; border:1px solid #e2e8f0; border-radius:12px; padding:10px 12px;">
+                        GOVERNMENT ID DOCUMENT
+                    </div>
                     
                     <div class="id-img-wrapper" onclick="window.open(document.getElementById('app-id-img').src)">
                         <img id="app-id-img" src="" alt="ID Photo" class="id-img">
@@ -459,6 +463,7 @@
             document.getElementById('app-dob').innerText = app.dob || 'N/A';
             document.getElementById('app-salary').innerText = app.salary_range || 'N/A';
             document.getElementById('app-id-type').innerText = app.id_type || 'N/A';
+            document.getElementById('app-id-label').innerText = app.id_type ? `GOVERNMENT ID DOCUMENT (${app.id_type.toUpperCase()})` : 'GOVERNMENT ID DOCUMENT';
             document.getElementById('app-exp').innerText = app.security_experience || 'No experience listed.';
             
             if (app.resume_url) document.getElementById('resume-link').href = app.resume_url;
