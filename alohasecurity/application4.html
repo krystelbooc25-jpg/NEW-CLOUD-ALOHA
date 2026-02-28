@@ -124,18 +124,71 @@
             return String(value || '').trim();
         }
 
+        function normalizeLower(value) {
+            return normalizeText(value).toLowerCase();
+        }
+
         function isPendingStatus(status) {
-            const normalizedStatus = String(status || '').trim().toLowerCase();
+            const normalizedStatus = normalizeLower(status);
             return (
                 normalizedStatus === 'pending' ||
                 normalizedStatus === 'for review' ||
                 normalizedStatus === 'under review' ||
-                normalizedStatus === 'in review'
+                normalizedStatus === 'in review' ||
+                normalizedStatus === 'for interview'
             );
         }
 
+        function isRejectedStatus(status) {
+            return normalizeLower(status) === 'rejected';
+        }
+
+        function isApprovedStatus(status) {
+            return normalizeLower(status) === 'approved';
+        }
+
+        function isBlacklistedStatus(status) {
+            return normalizeLower(status) === 'blacklisted';
+        }
+
+        function daysBetweenFromNow(dateValue) {
+            const ref = new Date(dateValue || 0);
+            if (Number.isNaN(ref.getTime())) return 9999;
+            return Math.floor((Date.now() - ref.getTime()) / (1000 * 60 * 60 * 24));
+        }
+
+        async function markNaughtyApplicantsBlacklisted(rows, reason) {
+            const ids = Array.from(new Set((rows || []).map((r) => r.id).filter(Boolean)));
+            if (ids.length === 0) return;
+
+            try {
+                await _supabase
+                    .from('applicants')
+                    .update({ status: 'Blacklisted', updated_at: new Date().toISOString() })
+                    .in('id', ids);
+            } catch (_) {}
+
+            try {
+                await fetch('/api/admin-alerts', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        type: 'blacklist_attempt',
+                        reason: reason || 'Naughty duplicate application attempt',
+                        applicants: [{
+                            id: ids.join(','),
+                            name: `${applicationData.first_name || ''} ${applicationData.last_name || ''}`.trim(),
+                            email: applicationData.email || '',
+                            dob: applicationData.dob || '',
+                            city: applicationData.city || ''
+                        }]
+                    })
+                });
+            } catch (_) {}
+        }
+
         async function findDuplicateApplications(appData) {
-            const email = normalizeText(appData.email).toLowerCase();
+            const email = normalizeLower(appData.email);
             const firstName = normalizeText(appData.first_name);
             const lastName = normalizeText(appData.last_name);
             const dob = normalizeText(appData.dob);
@@ -143,31 +196,75 @@
             const streetAddress = normalizeText(appData.street_address);
 
             const duplicateMap = new Map();
+            const extendedSelect = 'id, status, first_name, last_name, email, dob, city, street_address, created_at, updated_at';
+            const fallbackSelect = 'id, status, first_name, last_name, email, dob, created_at, updated_at';
 
             if (email) {
-                const { data: byEmail, error: byEmailError } = await _supabase
+                let byEmail = null;
+                let byEmailError = null;
+
+                ({ data: byEmail, error: byEmailError } = await _supabase
                     .from('applicants')
-                    .select('id, status')
+                    .select(extendedSelect)
                     .ilike('email', email)
-                    .limit(10);
+                    .limit(30));
+
+                if (byEmailError) {
+                    ({ data: byEmail, error: byEmailError } = await _supabase
+                        .from('applicants')
+                        .select(fallbackSelect)
+                        .ilike('email', email)
+                        .limit(30));
+                }
 
                 if (byEmailError) throw byEmailError;
                 (byEmail || []).forEach((row) => duplicateMap.set(row.id, row));
             }
 
-            if (firstName && lastName && dob && city && streetAddress) {
-                const { data: byIdentity, error: byIdentityError } = await _supabase
+            if (firstName && lastName && dob) {
+                let byIdentity = null;
+                let byIdentityError = null;
+
+                ({ data: byIdentity, error: byIdentityError } = await _supabase
                     .from('applicants')
-                    .select('id, status')
+                    .select(extendedSelect)
                     .ilike('first_name', firstName)
                     .ilike('last_name', lastName)
                     .eq('dob', dob)
-                    .ilike('city', city)
-                    .ilike('street_address', streetAddress)
-                    .limit(10);
+                    .limit(30));
+
+                if (byIdentityError) {
+                    ({ data: byIdentity, error: byIdentityError } = await _supabase
+                        .from('applicants')
+                        .select(fallbackSelect)
+                        .ilike('first_name', firstName)
+                        .ilike('last_name', lastName)
+                        .eq('dob', dob)
+                        .limit(30));
+                }
 
                 if (byIdentityError) throw byIdentityError;
                 (byIdentity || []).forEach((row) => duplicateMap.set(row.id, row));
+            }
+
+            if (city && streetAddress) {
+                let byAddress = null;
+                let byAddressError = null;
+
+                ({ data: byAddress, error: byAddressError } = await _supabase
+                    .from('applicants')
+                    .select(extendedSelect)
+                    .ilike('city', city)
+                    .ilike('street_address', streetAddress)
+                    .limit(30));
+
+                if (byAddressError) {
+                    byAddress = [];
+                    byAddressError = null;
+                }
+
+                if (byAddressError) throw byAddressError;
+                (byAddress || []).forEach((row) => duplicateMap.set(row.id, row));
             }
 
             return Array.from(duplicateMap.values());
