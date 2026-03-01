@@ -452,6 +452,8 @@
                         <div class="col-md-6">
                             <div class="info-label">Contact Number</div>
                             <div id="app-phone" class="info-value">...</div>
+                            <div class="info-label">Gender</div>
+                            <div id="app-gender" class="info-value">...</div>
                             <div class="info-label">Salary Range</div>
                             <div id="app-salary" class="info-value">...</div>
                         </div>
@@ -685,6 +687,32 @@
             }
         }
 
+        function resolveApplicantGender(app) {
+            const normalize = (value) => String(value || '').trim().toLowerCase();
+            const valuesToCheck = [
+                app?.gender,
+                app?.sex,
+                app?.applicant_gender,
+                app?.gender_identity,
+                app?.state
+            ];
+            for (const value of valuesToCheck) {
+                const parsed = normalize(value);
+                if (parsed === 'male' || parsed === 'm') return 'Male';
+                if (parsed === 'female' || parsed === 'f') return 'Female';
+            }
+
+            const combined = `${app?.reference || ''} ${app?.references || ''}`;
+            const tagged = combined.match(/\bgender\s*[:=\-]?\s*(male|female|m|f)\b/i);
+            if (tagged?.[1]) {
+                const hit = normalize(tagged[1]);
+                return hit === 'm' ? 'Male' : hit === 'f' ? 'Female' : tagged[1][0].toUpperCase() + tagged[1].slice(1).toLowerCase();
+            }
+            const plain = combined.match(/\b(male|female)\b/i);
+            if (plain?.[1]) return plain[1][0].toUpperCase() + plain[1].slice(1).toLowerCase();
+            return 'N/A';
+        }
+
         async function loadDetails() {
             if (!applicantId) { showStatus('error', 'Missing ID', 'No applicant ID found.', true); return; }
             
@@ -698,6 +726,7 @@
             document.getElementById('app-ref-id').innerText = app.id || 'N/A';
             document.getElementById('app-email').innerText = app.email || 'N/A';
             document.getElementById('app-phone').innerText = app.phone || 'N/A';
+            document.getElementById('app-gender').innerText = resolveApplicantGender(app);
             document.getElementById('app-dob').innerText = app.dob || 'N/A';
             document.getElementById('app-salary').innerText = app.salary_range || 'N/A';
             document.getElementById('app-id-type').innerText = app.id_type || 'N/A';

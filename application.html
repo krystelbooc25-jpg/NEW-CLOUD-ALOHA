@@ -243,16 +243,10 @@
                     <label>Barangay *</label>
                     <select id="street-address" required style="width:100%; padding:16px 20px; border:2px solid #f1f5f9; background:#f8fafc; border-radius:var(--radius); font-weight:600;">
                         <option value="">Select Barangay</option>
-                        <option value="Guiwan">Guiwan</option>
-                        <option value="Boalan">Boalan</option>
-                        <option value="Tetuan">Tetuan</option>
-                        <option value="Putik">Putik</option>
-                        <option value="Baliwasan">Baliwasan</option>
-                        <option value="Other">Other</option>
                     </select>
                 </div>
                 <div>
-                    <label>Region (Luzon / NCR) *</label>
+                    <label>Region (Luzon / Mindanao) *</label>
                     <select id="region" required style="width:100%; padding:16px 20px; border:2px solid #f1f5f9; background:#f8fafc; border-radius:var(--radius); font-weight:600;">
                         <option value="">Select Region</option>
                     </select>
@@ -324,11 +318,20 @@
         const dobPicker = flatpickr("#dob", { dateFormat: "Y-m-d", altInput: true, altFormat: "F j, Y", maxDate: "today" });
         let applicationData = JSON.parse(localStorage.getItem('applicationData')) || {};
         let pendingStep1Data = null;
+        const SUPABASE_URL = 'https://kkaelwhdcsgaodbhrxqt.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtrYWVsd2hkY3NnYW9kYmhyeHF0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYxOTA4NzksImV4cCI6MjA3MTc2Njg3OX0.wSFv1AZgZDXjGHiIwOHyWzqTDk0v6NbR4-2r90iF9ok';
+        const supabaseHeaders = {
+            apikey: SUPABASE_ANON_KEY,
+            Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+            'Content-Type': 'application/json'
+        };
+
         const regionSelect = document.getElementById('region');
         const provinceSelect = document.getElementById('province');
         const citySelect = document.getElementById('city');
+        const streetAddressSelect = document.getElementById('street-address');
 
-        // Luzon + NCR only
+        // Luzon + Mindanao region/province mapping
         const REGION_PROVINCES = {
             "NCR (National Capital Region)": ["Metro Manila"],
             "CAR (Cordillera Administrative Region)": ["Abra", "Apayao", "Benguet", "Ifugao", "Kalinga", "Mountain Province"],
@@ -337,7 +340,13 @@
             "Region III (Central Luzon)": ["Aurora", "Bataan", "Bulacan", "Nueva Ecija", "Pampanga", "Tarlac", "Zambales"],
             "Region IV-A (CALABARZON)": ["Batangas", "Cavite", "Laguna", "Quezon", "Rizal"],
             "Region IV-B (MIMAROPA)": ["Marinduque", "Occidental Mindoro", "Oriental Mindoro", "Palawan", "Romblon"],
-            "Region V (Bicol Region)": ["Albay", "Camarines Norte", "Camarines Sur", "Catanduanes", "Masbate", "Sorsogon"]
+            "Region V (Bicol Region)": ["Albay", "Camarines Norte", "Camarines Sur", "Catanduanes", "Masbate", "Sorsogon"],
+            "Region IX (Zamboanga Peninsula)": ["Zamboanga del Norte", "Zamboanga del Sur", "Zamboanga Sibugay"],
+            "Region X (Northern Mindanao)": ["Bukidnon", "Camiguin", "Lanao del Norte", "Misamis Occidental", "Misamis Oriental"],
+            "Region XI (Davao Region)": ["Davao de Oro", "Davao del Norte", "Davao del Sur", "Davao Occidental", "Davao Oriental"],
+            "Region XII (SOCCSKSARGEN)": ["Cotabato", "Sarangani", "South Cotabato", "Sultan Kudarat"],
+            "Region XIII (Caraga)": ["Agusan del Norte", "Agusan del Sur", "Dinagat Islands", "Surigao del Norte", "Surigao del Sur"],
+            "BARMM": ["Basilan", "Lanao del Sur", "Maguindanao del Norte", "Maguindanao del Sur", "Sulu", "Tawi-Tawi"]
         };
 
         const PROVINCE_CITIES = {
@@ -345,10 +354,61 @@
             "Abra": ["Bangued"], "Apayao": ["Kabugao"], "Benguet": ["Baguio City", "La Trinidad"], "Ifugao": ["Lagawe"], "Kalinga": ["Tabuk"], "Mountain Province": ["Bontoc"],
             "Ilocos Norte": ["Laoag City", "Batac"], "Ilocos Sur": ["Vigan City", "Candon"], "La Union": ["San Fernando City"], "Pangasinan": ["Dagupan", "Urdaneta", "Alaminos"],
             "Batanes": ["Basco"], "Cagayan": ["Tuguegarao City"], "Isabela": ["Ilagan", "Cauayan"], "Nueva Vizcaya": ["Bayombong", "Solano"], "Quirino": ["Cabarroguis"],
-            "Aurora": ["Baler"], "Bataan": ["Balanga"], "Bulacan": ["Malolos", "Meycauayan", "San Jose del Monte"], "Nueva Ecija": ["Cabanatuan", "Gapan", "San Jose"], "Pampanga": ["San Fernando City", "Angeles"], "Tarlac": ["Tarlac City"], "Zambales": ["Olongapo", "Iba"],
+            "Aurora": ["Baler"], "Bataan": ["Balanga"], "Bulacan": ["Malolos", "Meycauayan", "San Jose del Monte"], "Nueva Ecija": ["Cabanatuan", "Gapan", "San Jose"], "Pampanga": ["San Fernando City", "Angeles City"], "Tarlac": ["Tarlac City"], "Zambales": ["Olongapo City", "Iba"],
             "Batangas": ["Batangas City", "Lipa", "Tanauan"], "Cavite": ["Tagaytay", "Dasmarinas", "Bacoor", "Imus"], "Laguna": ["Calamba", "San Pablo", "Santa Rosa", "Binan"], "Quezon": ["Lucena", "Tayabas"], "Rizal": ["Antipolo"],
             "Marinduque": ["Boac"], "Occidental Mindoro": ["Mamburao"], "Oriental Mindoro": ["Calapan"], "Palawan": ["Puerto Princesa"], "Romblon": ["Romblon"],
-            "Albay": ["Legazpi", "Ligao", "Tabaco"], "Camarines Norte": ["Daet"], "Camarines Sur": ["Naga City", "Iriga"], "Catanduanes": ["Virac"], "Masbate": ["Masbate City"], "Sorsogon": ["Sorsogon City"]
+            "Albay": ["Legazpi City", "Ligao City", "Tabaco City"], "Camarines Norte": ["Daet"], "Camarines Sur": ["Naga City", "Iriga City"], "Catanduanes": ["Virac"], "Masbate": ["Masbate City"], "Sorsogon": ["Sorsogon City"],
+            "Zamboanga del Norte": ["Dipolog City", "Dapitan City"],
+            "Zamboanga del Sur": ["Pagadian City", "Zamboanga City"],
+            "Zamboanga Sibugay": ["Ipil"],
+            "Bukidnon": ["Malaybalay City", "Valencia City"],
+            "Camiguin": ["Mambajao"],
+            "Lanao del Norte": ["Iligan City", "Tubod"],
+            "Misamis Occidental": ["Oroquieta City", "Ozamiz City", "Tangub City"],
+            "Misamis Oriental": ["Cagayan de Oro City", "Gingoog City"],
+            "Davao de Oro": ["Nabunturan"],
+            "Davao del Norte": ["Tagum City", "Panabo City", "Samal City"],
+            "Davao del Sur": ["Davao City", "Digos City"],
+            "Davao Occidental": ["Malita"],
+            "Davao Oriental": ["Mati City"],
+            "Cotabato": ["Kidapawan City"],
+            "Sarangani": ["Alabel"],
+            "South Cotabato": ["Koronadal City", "General Santos City"],
+            "Sultan Kudarat": ["Tacurong City"],
+            "Agusan del Norte": ["Butuan City", "Cabadbaran City"],
+            "Agusan del Sur": ["Bayugan City", "Prosperidad"],
+            "Dinagat Islands": ["San Jose"],
+            "Surigao del Norte": ["Surigao City"],
+            "Surigao del Sur": ["Tandag City", "Bislig City"],
+            "Basilan": ["Isabela City", "Lamitan City"],
+            "Lanao del Sur": ["Marawi City"],
+            "Maguindanao del Norte": ["Datu Odin Sinsuat", "Cotabato City"],
+            "Maguindanao del Sur": ["Buluan"],
+            "Sulu": ["Jolo"],
+            "Tawi-Tawi": ["Bongao"]
+        };
+
+        const FALLBACK_BARANGAYS = [
+            "Poblacion",
+            "San Isidro",
+            "San Jose",
+            "San Roque",
+            "Santo Nino",
+            "Santa Cruz",
+            "Bagong Silang",
+            "Zone I",
+            "Zone II",
+            "Other"
+        ];
+
+        const CITY_BARANGAYS = {
+            "Zamboanga City": ["Baliwasan", "Boalan", "Canelar", "Divisoria", "Guiwan", "Pasonanca", "Putik", "Tetuan", "Talon-Talon", "Other"],
+            "Quezon City": ["Batasan Hills", "Commonwealth", "Holy Spirit", "Kamuning", "Novaliches", "Tandang Sora", "UP Campus", "Other"],
+            "Manila": ["Ermita", "Malate", "Paco", "Pandacan", "Sampaloc", "San Andres", "Tondo", "Other"],
+            "Caloocan": ["Bagong Silang", "Bagumbong", "Kaligayahan", "Grace Park", "Tala", "Other"],
+            "Davao City": ["Buhangin", "Calinan", "Matina", "Mintal", "Poblacion", "Talomo", "Toril", "Other"],
+            "Cagayan de Oro City": ["Balulang", "Carmen", "Lapasan", "Macasandig", "Nazareth", "Patag", "Puntod", "Other"],
+            "General Santos City": ["Apopong", "Bula", "City Heights", "Lagao", "San Isidro", "Tambler", "Other"]
         };
 
         function setSelectOptions(selectEl, options, placeholder, selectedValue) {
@@ -379,23 +439,30 @@
             }
         }
 
-        function updateProvinceOptions(selectedProvince, selectedCity) {
+        function updateProvinceOptions(selectedProvince, selectedCity, selectedBarangay) {
             const regionValue = regionSelect.value;
             const provinces = REGION_PROVINCES[regionValue] || [];
             setSelectOptions(provinceSelect, provinces, 'Select Province', selectedProvince || '');
-            updateCityOptions(selectedCity || '');
+            updateCityOptions(selectedCity || '', selectedBarangay || '');
         }
 
-        function updateCityOptions(selectedCity) {
+        function updateCityOptions(selectedCity, selectedBarangay) {
             const provinceValue = provinceSelect.value;
             const cities = PROVINCE_CITIES[provinceValue] || [];
             setSelectOptions(citySelect, cities, 'Select City / Municipality', selectedCity || '');
+            updateBarangayOptions(selectedBarangay || '');
+        }
+
+        function updateBarangayOptions(selectedBarangay) {
+            const cityValue = citySelect.value;
+            const barangays = CITY_BARANGAYS[cityValue] || FALLBACK_BARANGAYS;
+            setSelectOptions(streetAddressSelect, barangays, 'Select Barangay', selectedBarangay || '');
         }
 
         function initializeAddressDropdowns(savedData) {
             const regions = Object.keys(REGION_PROVINCES);
             setSelectOptions(regionSelect, regions, 'Select Region', savedData.region || '');
-            updateProvinceOptions(savedData.province || '', savedData.city || '');
+            updateProvinceOptions(savedData.province || '', savedData.city || '', savedData.street_address || '');
         }
 
         initializeAddressDropdowns(applicationData || {});
@@ -412,11 +479,15 @@
         }
 
         regionSelect.addEventListener('change', () => {
-            updateProvinceOptions('', '');
+            updateProvinceOptions('', '', '');
         });
 
         provinceSelect.addEventListener('change', () => {
-            updateCityOptions('');
+            updateCityOptions('', '');
+        });
+
+        citySelect.addEventListener('change', () => {
+            updateBarangayOptions('');
         });
 
         // Custom Modal Functions
@@ -451,9 +522,49 @@
             window.location.href = 'application2.html';
         }
 
-        document.getElementById('step1-form').onsubmit = (e) => {
+        function normalizeText(value) {
+            return String(value || '').trim().toLowerCase();
+        }
+
+        function getAgeFromDob(dobValue) {
+            const birthDate = new Date(dobValue);
+            if (Number.isNaN(birthDate.getTime())) return -1;
+            const today = new Date();
+            let age = today.getFullYear() - birthDate.getFullYear();
+            const monthDiff = today.getMonth() - birthDate.getMonth();
+            if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+                age -= 1;
+            }
+            return age;
+        }
+
+        async function hasDuplicateNameAndEmail(firstName, lastName, email) {
+            const endpoint = `${SUPABASE_URL}/rest/v1/applicants?select=id,first_name,last_name,email&email=ilike.${encodeURIComponent(email)}&limit=100`;
+            const response = await fetch(endpoint, {
+                method: 'GET',
+                headers: supabaseHeaders
+            });
+            if (!response.ok) {
+                const payload = await response.json().catch(() => ({}));
+                const message = payload?.message || payload?.error || 'Unable to validate duplicate applicant.';
+                throw new Error(message);
+            }
+
+            const rows = await response.json().catch(() => []);
+            const normalizedFirst = normalizeText(firstName);
+            const normalizedLast = normalizeText(lastName);
+
+            return (rows || []).some((row) =>
+                normalizeText(row.first_name) === normalizedFirst &&
+                normalizeText(row.last_name) === normalizedLast &&
+                normalizeText(row.email) === normalizeText(email)
+            );
+        }
+
+        document.getElementById('step1-form').onsubmit = async (e) => {
             e.preventDefault();
             const step1Form = document.getElementById('step1-form');
+            const nextButton = step1Form.querySelector('button[type="submit"]');
 
             if (!step1Form.checkValidity()) {
                 step1Form.reportValidity();
@@ -495,6 +606,33 @@
             if (!isValidName(lastName)) {
                 showAlertModal("Invalid Last Name", "Please enter a valid real name. System detected unusual or gibberish characters.");
                 return;
+            }
+
+            const dobValue = document.getElementById('dob').value.trim();
+            const age = getAgeFromDob(dobValue);
+            if (age < 21) {
+                showAlertModal("Age Requirement Not Met", "Applicants must be at least 21 years old.");
+                return;
+            }
+
+            try {
+                if (nextButton) {
+                    nextButton.disabled = true;
+                    nextButton.innerHTML = 'Checking...';
+                }
+                const duplicateFound = await hasDuplicateNameAndEmail(firstName, lastName, normalizedEmail);
+                if (duplicateFound) {
+                    showAlertModal("Duplicate Personal Information", "This name and email address already exists in our records.");
+                    return;
+                }
+            } catch (duplicateError) {
+                showAlertModal("Validation Error", duplicateError.message || "Unable to validate duplicate applicant. Please try again.");
+                return;
+            } finally {
+                if (nextButton) {
+                    nextButton.disabled = false;
+                    nextButton.innerHTML = 'Save & Continue <i class="fas fa-chevron-right"></i>';
+                }
             }
             // --- END VALIDATION LOGIC ---
 
