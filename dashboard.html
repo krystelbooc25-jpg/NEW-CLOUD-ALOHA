@@ -502,6 +502,47 @@
          * 1. DATABASE CONFIGURATION
          * Connecting to Supabase backend to fetch data.
          */
+        const ADMIN_SESSION_KEY = 'aloha-admin-session';
+        const ADMIN_SESSION_TTL_MS = 12 * 60 * 60 * 1000;
+
+        function readAdminSession() {
+            try {
+                const raw = sessionStorage.getItem(ADMIN_SESSION_KEY);
+                if (!raw) return null;
+                const parsed = JSON.parse(raw);
+                return parsed && typeof parsed === 'object' ? parsed : null;
+            } catch (_) {
+                return null;
+            }
+        }
+
+        function requireAdminSession() {
+            const session = readAdminSession();
+            const expiresAt = Number(session?.expiresAt || 0);
+            if (!Number.isFinite(expiresAt) || expiresAt <= Date.now()) {
+                try {
+                    sessionStorage.removeItem(ADMIN_SESSION_KEY);
+                } catch (_) {}
+                window.location.replace('AdminLogin.html');
+                return false;
+            }
+
+            // Renew session while actively using dashboard.
+            try {
+                sessionStorage.setItem(
+                    ADMIN_SESSION_KEY,
+                    JSON.stringify({
+                        ...session,
+                        expiresAt: Date.now() + ADMIN_SESSION_TTL_MS
+                    })
+                );
+            } catch (_) {}
+
+            return true;
+        }
+
+        const hasAdminSessionAccess = requireAdminSession();
+
         const supabaseUrl = 'https://kkaelwhdcsgaodbhrxqt.supabase.co';
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtrYWVsd2hkY3NnYW9kYmhyeHF0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYxOTA4NzksImV4cCI6MjA3MTc2Njg3OX0.wSFv1AZgZDXjGHiIwOHyWzqTDk0v6NbR4-2r90iF9ok';
         const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
@@ -864,6 +905,9 @@
         async function handleLogout() {
             if(await askModal("Logout Session?", "Are you ready to end your session?", "Logout Now")) {
                 await _supabase.auth.signOut();
+                try {
+                    sessionStorage.removeItem(ADMIN_SESSION_KEY);
+                } catch (_) {}
                 window.location.href = 'AdminLogin.html';
             }
         }
@@ -1487,11 +1531,13 @@
         window.addEventListener('resize', () => {
             if (window.innerWidth > 992) closeMobileSidebar();
         });
-        monitorAdminLoginLockStatus();
-        if (adminLockStatusTimer) clearInterval(adminLockStatusTimer);
-        adminLockStatusTimer = setInterval(monitorAdminLoginLockStatus, ADMIN_LOCK_POLL_MS);
-        fetchData();
-        loadAdminSettingsProfile();
+        if (hasAdminSessionAccess) {
+            monitorAdminLoginLockStatus();
+            if (adminLockStatusTimer) clearInterval(adminLockStatusTimer);
+            adminLockStatusTimer = setInterval(monitorAdminLoginLockStatus, ADMIN_LOCK_POLL_MS);
+            fetchData();
+            loadAdminSettingsProfile();
+        }
     </script>
 
     <!-- Bootstrap Bundle with Popper -->

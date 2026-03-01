@@ -664,6 +664,8 @@
         const backToRequestBtn = document.getElementById('back-to-request-btn');
 
         const LOCK_TIME_KEY = 'cooldownUntil';
+        const ADMIN_SESSION_KEY = 'aloha-admin-session';
+        const ADMIN_SESSION_TTL_MS = 12 * 60 * 60 * 1000;
         const LOCK_STATUS_POLL_MS = 15000;
         let cooldownUntil = parseInt(localStorage.getItem(LOCK_TIME_KEY), 10) || 0;
         let cooldownTimer = null;
@@ -918,6 +920,15 @@
                     throw authError;
                 }
 
+                const now = Date.now();
+                sessionStorage.setItem(
+                    ADMIN_SESSION_KEY,
+                    JSON.stringify({
+                        email,
+                        loginAt: now,
+                        expiresAt: now + ADMIN_SESSION_TTL_MS
+                    })
+                );
                 localStorage.removeItem(LOCK_TIME_KEY);
                 window.location.href = 'dashboard.html';
             } catch (error) {
