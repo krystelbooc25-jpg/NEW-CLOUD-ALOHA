@@ -241,9 +241,23 @@
                 
                 <div>
                     <label>Barangay *</label>
-                    <select id="street-address" required style="width:100%; padding:16px 20px; border:2px solid #f1f5f9; background:#f8fafc; border-radius:var(--radius); font-weight:600;">
-                        <option value="">Select Barangay</option>
-                    </select>
+                    <input
+                        type="text"
+                        id="street-address"
+                        required
+                        placeholder="Enter Barangay"
+                        style="width:100%; padding:16px 20px; border:2px solid #f1f5f9; background:#f8fafc; border-radius:var(--radius); font-weight:600;"
+                    >
+                </div>
+                <div>
+                    <label>Permanent Address *</label>
+                    <input
+                        type="text"
+                        id="permanent-address"
+                        required
+                        placeholder="Enter Permanent Address"
+                        style="width:100%; padding:16px 20px; border:2px solid #f1f5f9; background:#f8fafc; border-radius:var(--radius); font-weight:600;"
+                    >
                 </div>
                 <div>
                     <label>Region (Luzon / Mindanao) *</label>
@@ -329,7 +343,6 @@
         const regionSelect = document.getElementById('region');
         const provinceSelect = document.getElementById('province');
         const citySelect = document.getElementById('city');
-        const streetAddressSelect = document.getElementById('street-address');
 
         // Luzon + Mindanao region/province mapping
         const REGION_PROVINCES = {
@@ -388,29 +401,6 @@
             "Tawi-Tawi": ["Bongao"]
         };
 
-        const FALLBACK_BARANGAYS = [
-            "Poblacion",
-            "San Isidro",
-            "San Jose",
-            "San Roque",
-            "Santo Nino",
-            "Santa Cruz",
-            "Bagong Silang",
-            "Zone I",
-            "Zone II",
-            "Other"
-        ];
-
-        const CITY_BARANGAYS = {
-            "Zamboanga City": ["Baliwasan", "Boalan", "Canelar", "Divisoria", "Guiwan", "Pasonanca", "Putik", "Tetuan", "Talon-Talon", "Other"],
-            "Quezon City": ["Batasan Hills", "Commonwealth", "Holy Spirit", "Kamuning", "Novaliches", "Tandang Sora", "UP Campus", "Other"],
-            "Manila": ["Ermita", "Malate", "Paco", "Pandacan", "Sampaloc", "San Andres", "Tondo", "Other"],
-            "Caloocan": ["Bagong Silang", "Bagumbong", "Kaligayahan", "Grace Park", "Tala", "Other"],
-            "Davao City": ["Buhangin", "Calinan", "Matina", "Mintal", "Poblacion", "Talomo", "Toril", "Other"],
-            "Cagayan de Oro City": ["Balulang", "Carmen", "Lapasan", "Macasandig", "Nazareth", "Patag", "Puntod", "Other"],
-            "General Santos City": ["Apopong", "Bula", "City Heights", "Lagao", "San Isidro", "Tambler", "Other"]
-        };
-
         function setSelectOptions(selectEl, options, placeholder, selectedValue) {
             selectEl.innerHTML = '';
             const firstOption = document.createElement('option');
@@ -439,30 +429,23 @@
             }
         }
 
-        function updateProvinceOptions(selectedProvince, selectedCity, selectedBarangay) {
+        function updateProvinceOptions(selectedProvince, selectedCity) {
             const regionValue = regionSelect.value;
             const provinces = REGION_PROVINCES[regionValue] || [];
             setSelectOptions(provinceSelect, provinces, 'Select Province', selectedProvince || '');
-            updateCityOptions(selectedCity || '', selectedBarangay || '');
+            updateCityOptions(selectedCity || '');
         }
 
-        function updateCityOptions(selectedCity, selectedBarangay) {
+        function updateCityOptions(selectedCity) {
             const provinceValue = provinceSelect.value;
             const cities = PROVINCE_CITIES[provinceValue] || [];
             setSelectOptions(citySelect, cities, 'Select City / Municipality', selectedCity || '');
-            updateBarangayOptions(selectedBarangay || '');
-        }
-
-        function updateBarangayOptions(selectedBarangay) {
-            const cityValue = citySelect.value;
-            const barangays = CITY_BARANGAYS[cityValue] || FALLBACK_BARANGAYS;
-            setSelectOptions(streetAddressSelect, barangays, 'Select Barangay', selectedBarangay || '');
         }
 
         function initializeAddressDropdowns(savedData) {
             const regions = Object.keys(REGION_PROVINCES);
             setSelectOptions(regionSelect, regions, 'Select Region', savedData.region || '');
-            updateProvinceOptions(savedData.province || '', savedData.city || '', savedData.street_address || '');
+            updateProvinceOptions(savedData.province || '', savedData.city || '');
         }
 
         initializeAddressDropdowns(applicationData || {});
@@ -473,21 +456,18 @@
             document.getElementById('email').value = applicationData.email || '';
             document.getElementById('phone').value = applicationData.phone || '';
             document.getElementById('street-address').value = applicationData.street_address || '';
+            document.getElementById('permanent-address').value = applicationData.permanent_address || '';
             document.getElementById('gender').value = applicationData.gender || '';
             document.getElementById('zip-code').value = applicationData.zip_code || '';
             if(applicationData.dob) dobPicker.setDate(applicationData.dob);
         }
 
         regionSelect.addEventListener('change', () => {
-            updateProvinceOptions('', '', '');
+            updateProvinceOptions('', '');
         });
 
         provinceSelect.addEventListener('change', () => {
-            updateCityOptions('', '');
-        });
-
-        citySelect.addEventListener('change', () => {
-            updateBarangayOptions('');
+            updateCityOptions('');
         });
 
         // Custom Modal Functions
@@ -636,7 +616,7 @@
             }
             // --- END VALIDATION LOGIC ---
 
-            const fields = ['first_name','last_name','email','phone','street_address','region','province','city','gender','zip_code','dob'];
+            const fields = ['first_name','last_name','email','phone','street_address','permanent_address','region','province','city','gender','zip_code','dob'];
             pendingStep1Data = {};
             fields.forEach(f => {
                 const element = document.getElementById(f.replace('_','-'));
