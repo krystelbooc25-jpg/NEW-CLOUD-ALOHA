@@ -46,16 +46,41 @@ function getLockPolicy() {
     3,
     Number.parseInt(process.env.ADMIN_LOGIN_MAX_ATTEMPTS || "5", 10) || 5
   );
-  const lockMinutes = Math.max(
-    1,
-    Number.parseInt(process.env.ADMIN_LOGIN_LOCK_MINUTES || "15", 10) || 15
-  );
+  const defaultLockStepsMs = [30 * 1000, 60 * 1000, 5 * 60 * 1000];
+  const lockSequenceEnv = String(
+    process.env.ADMIN_LOGIN_LOCK_SEQUENCE_SECONDS || ""
+  )
+    .split(",")
+    .map((value) => Number.parseInt(value.trim(), 10))
+    .filter((value) => Number.isFinite(value) && value > 0);
+  const lockStepsMs =
+    lockSequenceEnv.length > 0
+      ? lockSequenceEnv.map((seconds) => seconds * 1000)
+      : defaultLockStepsMs;
 
   return {
     maxAttempts,
-    lockMinutes,
-    lockMs: lockMinutes * 60 * 1000,
+    lockStepsMs,
   };
+}
+
+function getLockDurationMsByFailedAttempts(failedAttempts, policy) {
+  const completedLockCycles = Math.floor(
+    Math.max(0, Number(failedAttempts) || 0) / policy.maxAttempts
+  );
+  const lockTierIndex = Math.min(
+    policy.lockStepsMs.length - 1,
+    Math.max(0, completedLockCycles - 1)
+  );
+  return policy.lockStepsMs[lockTierIndex];
+}
+
+function formatLockDuration(ms) {
+  const safeMs = Math.max(0, Number(ms) || 0);
+  const totalSeconds = Math.ceil(safeMs / 1000);
+  if (totalSeconds < 60) return `${totalSeconds} second(s)`;
+  const totalMinutes = Math.ceil(totalSeconds / 60);
+  return `${totalMinutes} minute(s)`;
 }
 
 function parseErrorMessage(payload, fallback) {
@@ -286,7 +311,6 @@ module.exports = async function handler(req, res) {
         justUnlocked = true;
         securityState = await persistSecurityState(lockScope, {
           ...securityState,
-          failedAttempts: 0,
           lockUntil: null,
         });
       }
@@ -300,7 +324,9 @@ module.exports = async function handler(req, res) {
         failedAttempts: securityState.failedAttempts || 0,
         ...lockInfo,
         justUnlocked,
-        lockMinutes: policy.lockMinutes,
+        lockScheduleSeconds: policy.lockStepsMs.map((ms) =>
+          Math.ceil(ms / 1000)
+        ),
         maxAttempts: policy.maxAttempts,
       });
     } catch (error) {
@@ -333,8 +359,17 @@ module.exports = async function handler(req, res) {
     if (activeLock.lockedUntilMs && Date.now() < activeLock.lockedUntilMs) {
       return res.status(429).json({
         success: false,
-        error: `Too many failed attempts. Admin login is locked for ${policy.lockMinutes} minute(s).`,
+        error: `Too many failed attempts. Admin login is locked. Try again in ${Math.max(
+          1,
+          activeLock.retryAfterSeconds
+        )} second(s).`,
         ...activeLock,
+      });
+    }
+    if (activeLock.lockedUntilMs && Date.now() >= activeLock.lockedUntilMs) {
+      securityState = await persistSecurityState(lockScope, {
+        ...securityState,
+        lockUntil: null,
       });
     }
 
@@ -370,9 +405,12 @@ module.exports = async function handler(req, res) {
 
     if (!passOk) {
       const nextFailedAttempts = (securityState.failedAttempts || 0) + 1;
-      const shouldLock = nextFailedAttempts >= policy.maxAttempts;
+      const shouldLock = nextFailedAttempts % policy.maxAttempts === 0;
+      const currentLockDurationMs = shouldLock
+        ? getLockDurationMsByFailedAttempts(nextFailedAttempts, policy)
+        : 0;
       const nextLockUntil = shouldLock
-        ? new Date(Date.now() + policy.lockMs).toISOString()
+        ? new Date(Date.now() + currentLockDurationMs).toISOString()
         : null;
 
       securityState = await persistSecurityState(lockScope, {
@@ -385,12 +423,16 @@ module.exports = async function handler(req, res) {
         const lockInfo = getRetryInfo(nextLockUntil);
         return res.status(429).json({
           success: false,
-          error: `Too many failed attempts. Admin login is locked for ${policy.lockMinutes} minute(s).`,
+          error: `Too many failed attempts. Admin login is locked for ${formatLockDuration(
+            currentLockDurationMs
+          )}.`,
           ...lockInfo,
         });
       }
 
-      const attemptsLeft = Math.max(0, policy.maxAttempts - nextFailedAttempts);
+      const attemptsInCycle = nextFailedAttempts % policy.maxAttempts;
+      const attemptsLeft =
+        attemptsInCycle === 0 ? 0 : policy.maxAttempts - attemptsInCycle;
       return res.status(401).json({
         success: false,
         error: `Invalid login credentials. ${attemptsLeft} attempt(s) remaining before lockout.`,
