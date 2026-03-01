@@ -410,6 +410,10 @@ async function handleFinalSubmit() {
         applicationData.resume_url = _supabase.storage.from('applicant-files').getPublicUrl(resumePath).data.publicUrl;
         applicationData.valid_id_url = _supabase.storage.from('applicant-files').getPublicUrl(idPath).data.publicUrl;
         applicationData.id_type = idType;
+        // Backward-compatible gender persistence when DB has no dedicated gender column.
+        if (applicationData.gender && !applicationData.reference) {
+            applicationData.reference = `gender:${applicationData.gender}`;
+        }
         applicationData.status = 'Pending';
 
         const { data: insertedApplicant, error: insErr } = await insertApplicantResilient(applicationData);

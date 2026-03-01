@@ -8,7 +8,9 @@ function setCors(res) {
 }
 
 function getTemplate(status, applicantName, branch) {
-  if (status === "Approved") {
+  const normalized = String(status || "").trim().toLowerCase();
+
+  if (normalized === "approved") {
     return {
       subject: "Application Approved - ALOHA Security",
       html: `
@@ -23,7 +25,39 @@ function getTemplate(status, applicantName, branch) {
     };
   }
 
-  if (status === "Rejected") {
+  if (
+    normalized === "for interview" ||
+    normalized === "forinterview" ||
+    normalized === "interview"
+  ) {
+    return {
+      subject: "Interview Invitation - ALOHA Security",
+      html: `
+        <div style="font-family: Arial, sans-serif; padding: 20px; color: #333;">
+          <h2 style="color: #2563eb;">Interview Invitation</h2>
+          <p>Dear <strong>${applicantName}</strong>,</p>
+          <p>Your application has passed initial screening and is now scheduled for interview.</p>
+          <p>Please monitor your email for final schedule, time, and venue details from our HR team.</p>
+        </div>
+      `,
+    };
+  }
+
+  if (normalized === "blacklisted") {
+    return {
+      subject: "Application Status - ALOHA Security",
+      html: `
+        <div style="font-family: Arial, sans-serif; padding: 20px; color: #333;">
+          <h2 style="color: #111827;">Application Status</h2>
+          <p>Dear <strong>${applicantName}</strong>,</p>
+          <p>Your recent application has been placed under restricted status.</p>
+          <p>If you believe this is an error, please contact our HR office for clarification.</p>
+        </div>
+      `,
+    };
+  }
+
+  if (normalized === "rejected") {
     return {
       subject: "Application Update - ALOHA Security",
       html: `
@@ -37,7 +71,7 @@ function getTemplate(status, applicantName, branch) {
     };
   }
 
-  if (status === "Terminated") {
+  if (normalized === "terminated") {
     return {
       subject: "Employment Notice - ALOHA Security",
       html: `

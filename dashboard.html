@@ -109,12 +109,6 @@
         <div class="nav-item" data-title="Users" data-tab="users-tab" onclick="switchTab('users-tab', this)"><i class="fas fa-user-cog"></i> Users</div>
         <div class="nav-item" data-title="Settings" data-tab="settings-tab" onclick="switchTab('settings-tab', this)"><i class="fas fa-gear"></i> Settings</div>
 
-        <div class="admin-session-card">
-            <small>Logged in as</small>
-            <strong>admin</strong>
-            <span><i class="fas fa-shield-heart"></i> Owner</span>
-        </div>
-
         <div style="margin-top: auto; padding: 0 16px 20px;">
             <button class="sidebar-logout-btn" onclick="handleLogout()"><i class="fas fa-right-from-bracket"></i> Logout</button>
         </div>
@@ -1157,6 +1151,35 @@
             return '';
         }
 
+        function extractApplicantGender(app) {
+            if (!app || typeof app !== 'object') return '';
+
+            const directGenderKeys = [
+                'gender',
+                'sex',
+                'applicant_gender',
+                'gender_identity',
+                'sex_at_birth',
+                'personal_gender'
+            ];
+
+            for (const key of directGenderKeys) {
+                const parsed = normalizeGender(app[key]);
+                if (parsed) return parsed;
+            }
+
+            const fallbackText = `${app.reference || ''} ${app.references || ''}`.trim();
+            if (!fallbackText) return '';
+
+            const tagged = fallbackText.match(/\bgender\s*[:=\-]?\s*(male|female|m|f)\b/i);
+            if (tagged?.[1]) return normalizeGender(tagged[1]);
+
+            const plain = fallbackText.match(/\b(male|female)\b/i);
+            if (plain?.[1]) return normalizeGender(plain[1]);
+
+            return '';
+        }
+
         function updateApplicantMetrics() {
             const activeApplicants = masterData.filter(a => {
                 const s = String(a.status || '').toLowerCase();
@@ -1167,8 +1190,8 @@
                 const d = new Date(a.created_at || 0);
                 return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
             }).length;
-            const maleCount = activeApplicants.filter(a => normalizeGender(a.gender || a.sex) === 'male').length;
-            const femaleCount = activeApplicants.filter(a => normalizeGender(a.gender || a.sex) === 'female').length;
+            const maleCount = activeApplicants.filter(a => extractApplicantGender(a) === 'male').length;
+            const femaleCount = activeApplicants.filter(a => extractApplicantGender(a) === 'female').length;
 
             const metricTotal = document.getElementById('metric-total');
             const metricMale = document.getElementById('metric-male');
