@@ -158,6 +158,19 @@
         }
         .form-header p { color: var(--text-muted); font-weight: 500; font-size: 1.1rem; }
 
+        .auth-status-card {
+            margin-bottom: 28px;
+            padding: 12px 14px;
+            border: 1px solid #fecaca;
+            background: #fff1f2;
+            border-radius: 10px;
+            color: #9f1239;
+            font-size: 0.82rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.7px;
+        }
+
         /* Modern Underline Inputs */
         .input-wrapper {
             position: relative;
@@ -198,6 +211,61 @@
             color: var(--primary-red);
         }
 
+        .password-wrapper input {
+            padding-right: 44px;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            border: 0;
+            background: transparent;
+            color: #94a3b8;
+            width: 36px;
+            height: 36px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+        }
+
+        .password-toggle:hover {
+            color: var(--primary-red);
+            background: #fff1f2;
+        }
+
+        .form-links {
+            margin-top: -12px;
+            margin-bottom: 18px;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .forgot-link {
+            border: 0;
+            background: transparent;
+            color: #be123c;
+            font-size: 0.86rem;
+            font-weight: 700;
+            cursor: pointer;
+            text-decoration: underline;
+            text-underline-offset: 2px;
+        }
+
+        .assist-note {
+            margin-top: 20px;
+            border-radius: 12px;
+            background: #fff1f2;
+            border: 1px solid #fecdd3;
+            padding: 12px;
+            font-size: 0.84rem;
+            color: #9f1239;
+            font-weight: 600;
+        }
+
         .btn-login {
             width: 100%;
             padding: 22px;
@@ -233,6 +301,174 @@
 
         #error-message { background: #fef2f2; color: #dc2626; border: 1px solid #fee2e2; }
         #cooldown-message { background: #eff6ff; color: #2563eb; border: 1px solid #dbeafe; }
+
+        .reset-modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.72);
+            backdrop-filter: blur(8px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 12000;
+            padding: 16px;
+        }
+
+        .reset-modal-overlay.active {
+            display: flex;
+        }
+
+        .reset-modal-box {
+            width: min(520px, 100%);
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 24px 22px;
+            box-shadow: 0 24px 60px rgba(15, 23, 42, 0.28);
+        }
+
+        .reset-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+
+        .reset-head h3 {
+            margin: 0;
+            color: #7f1d1d;
+            font-size: 1.25rem;
+            font-weight: 800;
+        }
+
+        .reset-close {
+            border: 0;
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            background: #f1f5f9;
+            color: #475569;
+            cursor: pointer;
+        }
+
+        .reset-close:hover {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
+
+        .reset-sub {
+            margin: 0 0 12px;
+            color: #64748b;
+            font-size: 0.92rem;
+            font-weight: 600;
+            line-height: 1.45;
+        }
+
+        .reset-group {
+            margin-bottom: 14px;
+            position: relative;
+        }
+
+        .reset-group label {
+            font-size: 0.75rem;
+            color: #64748b;
+            font-weight: 800;
+            margin-bottom: 6px;
+            letter-spacing: 0.8px;
+            display: block;
+        }
+
+        .reset-group input {
+            width: 100%;
+            border: 1px solid #cbd5e1;
+            border-radius: 10px;
+            padding: 12px 14px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .reset-group input:focus {
+            outline: none;
+            border-color: var(--primary-red);
+            box-shadow: 0 0 0 3px rgba(210, 4, 45, 0.08);
+        }
+
+        .reset-pass-wrap input {
+            padding-right: 42px;
+        }
+
+        .reset-pass-toggle {
+            position: absolute;
+            right: 10px;
+            top: 35px;
+            border: 0;
+            background: transparent;
+            color: #94a3b8;
+            width: 26px;
+            height: 26px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .reset-pass-toggle:hover {
+            color: #be123c;
+            background: #fff1f2;
+        }
+
+        .reset-action {
+            border: 0;
+            width: 100%;
+            border-radius: 10px;
+            padding: 12px;
+            font-size: 0.9rem;
+            font-weight: 800;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            background: var(--primary-red);
+            color: #fff;
+            cursor: pointer;
+        }
+
+        .reset-action:disabled {
+            opacity: 0.55;
+            cursor: not-allowed;
+        }
+
+        .reset-back-btn {
+            border: 0;
+            background: transparent;
+            color: #475569;
+            font-size: 0.82rem;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 10px;
+            text-decoration: underline;
+            text-underline-offset: 2px;
+        }
+
+        .reset-feedback {
+            border-radius: 10px;
+            padding: 10px 12px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            display: none;
+        }
+
+        .reset-feedback.error {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #b91c1c;
+            display: block;
+        }
+
+        .reset-feedback.success {
+            background: #ecfdf3;
+            border: 1px solid #bbf7d0;
+            color: #166534;
+            display: block;
+        }
 
         #offline-overlay {
             position: fixed;
@@ -273,6 +509,9 @@
             .input-wrapper { margin-bottom: 24px; }
             .input-wrapper input { font-size: 1rem; }
             .btn-login { padding: 18px; font-size: 0.9rem; letter-spacing: 1px; }
+            .auth-status-card { margin-bottom: 20px; }
+            .reset-modal-box { padding: 18px 16px; border-radius: 12px; }
+            .reset-head h3 { font-size: 1.06rem; }
         }
 
         @media (max-width: 380px) {
@@ -311,21 +550,33 @@
                     <h2>Admin Login</h2>
                     <p>Enter your secure credentials to proceed.</p>
                 </div>
+                <div class="auth-status-card" id="auth-status-card">
+                    Security Lock Sync: Checking global lock status...
+                </div>
 
                 <form id="admin-login-form">
                     <div class="input-wrapper">
                         <input type="email" id="email" name="email" placeholder="Email Address" required>
                         <i class="fas fa-envelope"></i>
                     </div>
-                    <div class="input-wrapper">
+                    <div class="input-wrapper password-wrapper">
                         <input type="password" id="password" name="password" placeholder="Password" required>
-                        <i class="fas fa-lock"></i> <!-- Standard Free Version Icon Fixed -->
+                        <i class="fas fa-lock"></i>
+                        <button type="button" class="password-toggle" id="toggle-password" aria-label="Show password">
+                            <i class="fa-regular fa-eye"></i>
+                        </button>
+                    </div>
+                    <div class="form-links">
+                        <button type="button" class="forgot-link" id="forgot-password-btn">Forgot password?</button>
                     </div>
                     <button type="submit" id="login-button" class="btn-login">Verify Identity</button>
                 </form>
 
                 <div id="error-message"></div>
                 <div id="cooldown-message"></div>
+                <div class="assist-note">
+                    If locked due to failed attempts, this admin account is blocked globally across devices until lock expiry.
+                </div>
             </div>
         </section>
     </main>
@@ -339,23 +590,86 @@
         </div>
     </div>
 
+    <!-- Forgot Password Modal -->
+    <div id="forgot-modal" class="reset-modal-overlay">
+        <div class="reset-modal-box">
+            <div class="reset-head">
+                <h3>Reset Admin Password</h3>
+                <button type="button" class="reset-close" id="reset-close-btn" aria-label="Close reset modal">
+                    <i class="fas fa-xmark"></i>
+                </button>
+            </div>
+
+            <div id="reset-feedback" class="reset-feedback"></div>
+
+            <div id="reset-request-step">
+                <p class="reset-sub">We will send a 6-digit verification code to the admin email.</p>
+                <div class="reset-group">
+                    <label for="reset-email">Admin Email</label>
+                    <input id="reset-email" type="email" placeholder="admin@example.com" autocomplete="email">
+                </div>
+                <button type="button" id="send-reset-code-btn" class="reset-action">Send Verification Code</button>
+            </div>
+
+            <div id="reset-verify-step" style="display:none;">
+                <p class="reset-sub">Enter the code from your Gmail inbox, then set a new password.</p>
+                <div class="reset-group">
+                    <label for="reset-code">Verification Code</label>
+                    <input id="reset-code" type="text" inputmode="numeric" maxlength="6" placeholder="6-digit code">
+                </div>
+                <div class="reset-group reset-pass-wrap">
+                    <label for="reset-new-password">New Password</label>
+                    <input id="reset-new-password" type="password" placeholder="Minimum 8 characters">
+                    <button type="button" class="reset-pass-toggle" data-target="reset-new-password" aria-label="Show password">
+                        <i class="fa-regular fa-eye"></i>
+                    </button>
+                </div>
+                <div class="reset-group reset-pass-wrap">
+                    <label for="reset-confirm-password">Confirm New Password</label>
+                    <input id="reset-confirm-password" type="password" placeholder="Retype new password">
+                    <button type="button" class="reset-pass-toggle" data-target="reset-confirm-password" aria-label="Show password">
+                        <i class="fa-regular fa-eye"></i>
+                    </button>
+                </div>
+                <button type="button" id="verify-reset-btn" class="reset-action">Verify Code & Reset Password</button>
+                <button type="button" id="back-to-request-btn" class="reset-back-btn">Request another code</button>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // --- 1. INITIALIZE SUPABASE ---
-        const supabaseUrl = 'https://kkaelwhdcsgaodbhrxqt.supabase.co';
-        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtrYWVsd2hkY3NnYW9kYmhyeHF0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYxOTA4NzksImV4cCI6MjA3MTc2Njg3OX0.wSFv1AZgZDXjGHiIwOHyWzqTDk0v6NbR4-2r90iF9ok';
-        const { createClient } = supabase;
-        const supabaseClient = createClient(supabaseUrl, supabaseKey);
-
         const loginForm = document.getElementById('admin-login-form');
         const loginButton = document.getElementById('login-button');
         const errorMessage = document.getElementById('error-message');
         const cooldownMessage = document.getElementById('cooldown-message');
         const offlineOverlay = document.getElementById('offline-overlay');
+        const authStatusCard = document.getElementById('auth-status-card');
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+        const togglePasswordBtn = document.getElementById('toggle-password');
 
-        let loginAttempts = parseInt(localStorage.getItem('loginAttempts')) || 0;
-        let cooldownUntil = parseInt(localStorage.getItem('cooldownUntil')) || 0;
-        let cooldownTimer;
+        const forgotPasswordBtn = document.getElementById('forgot-password-btn');
+        const forgotModal = document.getElementById('forgot-modal');
+        const resetCloseBtn = document.getElementById('reset-close-btn');
+        const resetFeedback = document.getElementById('reset-feedback');
+        const resetRequestStep = document.getElementById('reset-request-step');
+        const resetVerifyStep = document.getElementById('reset-verify-step');
+        const resetEmailInput = document.getElementById('reset-email');
+        const resetCodeInput = document.getElementById('reset-code');
+        const resetNewPasswordInput = document.getElementById('reset-new-password');
+        const resetConfirmPasswordInput = document.getElementById('reset-confirm-password');
+        const sendResetCodeBtn = document.getElementById('send-reset-code-btn');
+        const verifyResetBtn = document.getElementById('verify-reset-btn');
+        const backToRequestBtn = document.getElementById('back-to-request-btn');
+
+        const LOCK_TIME_KEY = 'cooldownUntil';
+        const LOCK_STATUS_POLL_MS = 15000;
+        let cooldownUntil = parseInt(localStorage.getItem(LOCK_TIME_KEY), 10) || 0;
+        let cooldownTimer = null;
+        let lockStatusPollTimer = null;
+        let resetToken = '';
+        let resetEmail = '';
 
         function parseLockUntilMs(payload) {
             const direct = Number(payload?.lockedUntilMs || 0);
@@ -364,42 +678,232 @@
             return Number.isFinite(fromIso) ? fromIso : 0;
         }
 
-        // --- 2. COOLDOWN LOGIC ---
-        function handleCooldown() {
-            const now = Date.now();
-            if (now < cooldownUntil) {
-                if (cooldownTimer) clearInterval(cooldownTimer);
-                loginForm.email.disabled = true;
-                loginForm.password.disabled = true;
-                loginButton.disabled = true;
-                loginButton.style.opacity = "0.4";
-                cooldownMessage.style.display = "block";
+        function setAuthStatus(message, isLocked = false) {
+            authStatusCard.innerText = message;
+            authStatusCard.style.background = isLocked ? '#fee2e2' : '#fff1f2';
+            authStatusCard.style.borderColor = isLocked ? '#fecaca' : '#fecdd3';
+            authStatusCard.style.color = isLocked ? '#991b1b' : '#9f1239';
+        }
 
-                cooldownTimer = setInterval(() => {
-                    const remaining = Math.ceil((cooldownUntil - Date.now()) / 1000);
-                    if (remaining > 0) {
-                        cooldownMessage.textContent = `Too many attempts. Try again in ${remaining}s.`;
-                    } else {
-                        clearInterval(cooldownTimer);
-                        cooldownMessage.style.display = "none";
-                        loginForm.email.disabled = false;
-                        loginForm.password.disabled = false;
-                        loginButton.disabled = false;
-                        loginButton.style.opacity = "1";
-                    }
-                }, 1000);
+        function setFormDisabled(disabled) {
+            emailInput.disabled = disabled;
+            passwordInput.disabled = disabled;
+            loginButton.disabled = disabled;
+            loginButton.style.opacity = disabled ? '0.4' : '1';
+        }
+
+        function setLoginButtonIdle() {
+            loginButton.innerText = 'VERIFY IDENTITY';
+        }
+
+        function hideError() {
+            errorMessage.style.display = 'none';
+            errorMessage.textContent = '';
+        }
+
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorMessage.style.display = 'block';
+        }
+
+        function stopCooldownTimer() {
+            if (cooldownTimer) {
+                clearInterval(cooldownTimer);
+                cooldownTimer = null;
             }
         }
 
-        // --- 3. FORM SUBMISSION ---
+        function unlockLoginForm() {
+            cooldownUntil = 0;
+            localStorage.removeItem(LOCK_TIME_KEY);
+            stopCooldownTimer();
+            cooldownMessage.style.display = 'none';
+            setFormDisabled(false);
+            setLoginButtonIdle();
+            setAuthStatus('Security Lock Sync: Admin login is ready.');
+        }
+
+        function startCooldown(lockUntilMs, sourceText) {
+            cooldownUntil = Number(lockUntilMs || 0);
+            if (!cooldownUntil || cooldownUntil <= Date.now()) {
+                unlockLoginForm();
+                return;
+            }
+            localStorage.setItem(LOCK_TIME_KEY, String(cooldownUntil));
+            setFormDisabled(true);
+            stopCooldownTimer();
+
+            const tick = () => {
+                const remainingMs = cooldownUntil - Date.now();
+                if (remainingMs <= 0) {
+                    unlockLoginForm();
+                    return;
+                }
+                const totalSec = Math.ceil(remainingMs / 1000);
+                const min = Math.floor(totalSec / 60);
+                const sec = totalSec % 60;
+                cooldownMessage.textContent = `Admin lock active. Try again in ${min}:${sec < 10 ? '0' + sec : sec}.`;
+                cooldownMessage.style.display = 'block';
+                setAuthStatus(sourceText || 'Security Lock Sync: This admin account is locked globally on all devices.', true);
+            };
+
+            tick();
+            cooldownTimer = setInterval(tick, 1000);
+        }
+
+        async function syncServerLockStatus() {
+            try {
+                const response = await fetch('/api/admin-login-guard', { method: 'GET' });
+                const result = await response.json().catch(() => ({}));
+                if (!response.ok || !result.success) return;
+
+                const lockUntilMs = parseLockUntilMs(result);
+                const isLocked = Boolean(result.locked) && lockUntilMs > Date.now();
+                if (isLocked) {
+                    startCooldown(lockUntilMs, 'Security Lock Sync: This admin account is locked globally on all devices.');
+                    hideError();
+                } else if (Date.now() >= cooldownUntil) {
+                    unlockLoginForm();
+                }
+            } catch (_) {}
+        }
+
+        function togglePasswordVisibility(input, button) {
+            const icon = button.querySelector('i');
+            const toText = input.type === 'password';
+            input.type = toText ? 'text' : 'password';
+            icon.className = toText ? 'fa-regular fa-eye-slash' : 'fa-regular fa-eye';
+            button.setAttribute('aria-label', toText ? 'Hide password' : 'Show password');
+        }
+
+        function openForgotModal() {
+            resetFeedback.className = 'reset-feedback';
+            resetFeedback.style.display = 'none';
+            resetFeedback.innerText = '';
+            resetRequestStep.style.display = 'block';
+            resetVerifyStep.style.display = 'none';
+            resetEmailInput.value = emailInput.value.trim();
+            resetCodeInput.value = '';
+            resetNewPasswordInput.value = '';
+            resetConfirmPasswordInput.value = '';
+            resetToken = '';
+            resetEmail = '';
+            forgotModal.classList.add('active');
+        }
+
+        function closeForgotModal() {
+            forgotModal.classList.remove('active');
+        }
+
+        function setResetFeedback(type, message) {
+            resetFeedback.className = `reset-feedback ${type}`;
+            resetFeedback.innerText = message;
+            resetFeedback.style.display = 'block';
+        }
+
+        async function requestResetCode() {
+            const email = resetEmailInput.value.trim().toLowerCase();
+            if (!email) {
+                setResetFeedback('error', 'Admin email is required.');
+                return;
+            }
+
+            sendResetCodeBtn.disabled = true;
+            sendResetCodeBtn.innerText = 'Sending...';
+            try {
+                const response = await fetch('/api/admin-password-reset', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'request', email })
+                });
+                const result = await response.json().catch(() => ({}));
+                if (!response.ok || !result.success) {
+                    throw new Error(result.error || 'Unable to send reset code.');
+                }
+                if (!result.token) {
+                    throw new Error('Reset code could not be prepared for this email.');
+                }
+
+                resetToken = String(result.token);
+                resetEmail = email;
+                resetRequestStep.style.display = 'none';
+                resetVerifyStep.style.display = 'block';
+                setResetFeedback('success', 'Verification code sent. Check admin Gmail inbox.');
+            } catch (error) {
+                setResetFeedback('error', error.message || 'Failed to send reset code.');
+            } finally {
+                sendResetCodeBtn.disabled = false;
+                sendResetCodeBtn.innerText = 'Send Verification Code';
+            }
+        }
+
+        async function verifyResetCodeAndPassword() {
+            const code = resetCodeInput.value.trim();
+            const newPassword = resetNewPasswordInput.value;
+            const confirmPassword = resetConfirmPasswordInput.value;
+
+            if (!resetToken || !resetEmail) {
+                setResetFeedback('error', 'Reset session expired. Request a new code.');
+                return;
+            }
+            if (!code || code.length !== 6) {
+                setResetFeedback('error', 'Enter the 6-digit verification code.');
+                return;
+            }
+            if (!newPassword || newPassword.length < 8) {
+                setResetFeedback('error', 'New password must be at least 8 characters.');
+                return;
+            }
+            if (newPassword !== confirmPassword) {
+                setResetFeedback('error', 'Password confirmation does not match.');
+                return;
+            }
+
+            verifyResetBtn.disabled = true;
+            verifyResetBtn.innerText = 'Verifying...';
+            try {
+                const response = await fetch('/api/admin-password-reset', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        action: 'verify',
+                        email: resetEmail,
+                        code,
+                        newPassword,
+                        token: resetToken
+                    })
+                });
+                const result = await response.json().catch(() => ({}));
+                if (!response.ok || !result.success) {
+                    throw new Error(result.error || 'Unable to reset password.');
+                }
+
+                setResetFeedback('success', 'Password reset complete. You can login with the new password.');
+                emailInput.value = resetEmail;
+                await syncServerLockStatus();
+                setTimeout(closeForgotModal, 1200);
+            } catch (error) {
+                setResetFeedback('error', error.message || 'Password reset failed.');
+            } finally {
+                verifyResetBtn.disabled = false;
+                verifyResetBtn.innerText = 'Verify Code & Reset Password';
+            }
+        }
+
         loginForm.addEventListener('submit', async (event) => {
             event.preventDefault();
-            errorMessage.style.display = 'none';
-            loginButton.innerText = "AUTHENTICATING...";
+            hideError();
+
+            if (cooldownUntil > Date.now()) {
+                startCooldown(cooldownUntil, 'Security Lock Sync: This admin account is locked globally on all devices.');
+                return;
+            }
+
+            loginButton.innerText = 'AUTHENTICATING...';
             loginButton.disabled = true;
 
-            const email = loginForm.email.value.trim();
-            const password = loginForm.password.value;
+            const email = emailInput.value.trim();
+            const password = passwordInput.value;
 
             try {
                 const guardResponse = await fetch('/api/admin-login-guard', {
@@ -409,54 +913,65 @@
                 });
                 const guardResult = await guardResponse.json().catch(() => ({}));
                 if (!guardResponse.ok || !guardResult.success) {
-                    const authError = new Error(guardResult.error || 'Invalid password.');
+                    const authError = new Error(guardResult.error || 'Invalid login credentials.');
                     authError.serverLockUntil = parseLockUntilMs(guardResult);
                     throw authError;
                 }
 
-                localStorage.removeItem('loginAttempts');
-                localStorage.removeItem('cooldownUntil');
+                localStorage.removeItem(LOCK_TIME_KEY);
                 window.location.href = 'dashboard.html';
             } catch (error) {
                 const serverLockUntil = Number(error.serverLockUntil || 0);
-
                 if (serverLockUntil > Date.now()) {
-                    cooldownUntil = serverLockUntil;
-                    loginAttempts = Math.max(loginAttempts, 5);
-                    localStorage.setItem('loginAttempts', loginAttempts);
-                    localStorage.setItem('cooldownUntil', cooldownUntil);
-                    handleCooldown();
+                    startCooldown(serverLockUntil, 'Security Lock Sync: This admin account is locked globally on all devices.');
                 } else {
-                    loginAttempts++;
-                    localStorage.setItem('loginAttempts', loginAttempts);
-
-                    let cooldownDuration = 0;
-                    if (loginAttempts === 3) cooldownDuration = 30;
-                    else if (loginAttempts === 4) cooldownDuration = 60;
-                    else if (loginAttempts >= 5) cooldownDuration = 300;
-
-                    if (cooldownDuration > 0) {
-                        cooldownUntil = Date.now() + cooldownDuration * 1000;
-                        localStorage.setItem('cooldownUntil', cooldownUntil);
-                        handleCooldown();
-                    }
+                    setFormDisabled(false);
+                    setLoginButtonIdle();
                 }
-
-                errorMessage.textContent = error.message || 'Connection Error. Please try again.';
-                errorMessage.style.display = 'block';
-                loginButton.innerText = "VERIFY IDENTITY";
-                loginButton.disabled = false;
+                showError(error.message || 'Connection error. Please try again.');
+            } finally {
+                if (cooldownUntil <= Date.now()) {
+                    setLoginButtonIdle();
+                }
             }
         });
 
-        // --- 4. OFFLINE STATUS ---
+        togglePasswordBtn.addEventListener('click', () => {
+            togglePasswordVisibility(passwordInput, togglePasswordBtn);
+        });
+
+        forgotPasswordBtn.addEventListener('click', openForgotModal);
+        resetCloseBtn.addEventListener('click', closeForgotModal);
+        sendResetCodeBtn.addEventListener('click', requestResetCode);
+        verifyResetBtn.addEventListener('click', verifyResetCodeAndPassword);
+        backToRequestBtn.addEventListener('click', () => {
+            resetVerifyStep.style.display = 'none';
+            resetRequestStep.style.display = 'block';
+            setResetFeedback('success', 'You can request a new verification code.');
+        });
+
+        document.querySelectorAll('.reset-pass-toggle').forEach((button) => {
+            button.addEventListener('click', () => {
+                const targetId = button.getAttribute('data-target');
+                const input = document.getElementById(targetId);
+                if (!input) return;
+                togglePasswordVisibility(input, button);
+            });
+        });
+
+        forgotModal.addEventListener('click', (event) => {
+            if (event.target === forgotModal) closeForgotModal();
+        });
+
         function updateOnlineStatus() {
             offlineOverlay.style.display = navigator.onLine ? 'none' : 'flex';
         }
         window.addEventListener('online', updateOnlineStatus);
         window.addEventListener('offline', updateOnlineStatus);
 
-        handleCooldown();
+        syncServerLockStatus();
+        if (lockStatusPollTimer) clearInterval(lockStatusPollTimer);
+        lockStatusPollTimer = setInterval(syncServerLockStatus, LOCK_STATUS_POLL_MS);
         updateOnlineStatus();
     </script>
 </body>
